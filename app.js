@@ -1,7 +1,11 @@
 const grid = document.querySelector("#placeGrid");
 const searchInput = document.querySelector("#searchInput");
 const searchBox = document.querySelector("#searchBox");
-const filters = document.querySelector("#filters");
+const prefectureFilter = document.querySelector("#prefectureFilter");
+const workFilter = document.querySelector("#workFilter");
+const workSuggestions = document.querySelector("#workSuggestions");
+const visitFilter = document.querySelector("#visitFilter");
+const filterReset = document.querySelector("#filterReset");
 const resultStatus = document.querySelector("#resultStatus");
 const dialog = document.querySelector("#placeDialog");
 const dialogContent = document.querySelector("#dialogContent");
@@ -10,7 +14,9 @@ const formStatus = document.querySelector("#formStatus");
 const visitStatus = document.querySelector("#visitStatus");
 const visitConditionsField = document.querySelector("#visitConditionsField");
 const visitConditions = document.querySelector("#visitConditions");
-let activePrefecture = "すべて";
+let activePrefecture = "";
+let activeWork = "";
+let activeVisit = "";
 const places = window.places;
 const workInfo = window.workInfo || {};
 const supabaseClient = window.supabase.createClient(
@@ -48,26 +54,46 @@ function updateStats() {
 }
 
 function renderFilters() {
-  filters.innerHTML = "";
-  ["すべて", ...prefectures].forEach((prefecture) => {
+  prefectureFilter.innerHTML = `<option value="">すべての都道府県</option>${prefectures.map((prefecture) => `<option value="${prefecture}">${prefecture}</option>`).join("")}`;
+  prefectureFilter.value = activePrefecture;
+  workFilter.value = activeWork;
+  visitFilter.value = activeVisit;
+}
+
+function renderWorkSuggestions() {
+  const query = workFilter.value.trim().toLocaleLowerCase("ja");
+  const matchedWorks = [...works]
+    .sort((a, b) => a.localeCompare(b, "ja"))
+    .filter((work) => work.toLocaleLowerCase("ja").includes(query));
+  workSuggestions.innerHTML = "";
+  if (!matchedWorks.length) {
+    workSuggestions.hidden = true;
+    return;
+  }
+  matchedWorks.forEach((work) => {
     const button = document.createElement("button");
     button.type = "button";
-    button.textContent = prefecture;
-    button.className = prefecture === activePrefecture ? "filter active" : "filter";
-    button.addEventListener("click", () => {
-      activePrefecture = prefecture;
-      renderFilters();
+    button.textContent = work;
+    button.addEventListener("mousedown", (event) => {
+      event.preventDefault();
+      activeWork = work;
+      workFilter.value = work;
+      workSuggestions.hidden = true;
       renderPlaces();
     });
-    filters.append(button);
+    workSuggestions.append(button);
   });
+  workSuggestions.hidden = false;
 }
 
 function renderPlaces() {
   const query = searchInput.value.trim().toLowerCase();
   const results = places.filter((place) => {
-    const searchable = [place.name, place.prefecture, place.city, place.category, place.work, place.scene].join(" ").toLowerCase();
-    return (activePrefecture === "すべて" || place.prefecture === activePrefecture) && searchable.includes(query);
+    const searchable = [place.name, place.prefecture, place.city, place.category, place.work, place.scene, place.visit].join(" ").toLowerCase();
+    return (!activePrefecture || place.prefecture === activePrefecture)
+      && (!activeWork || place.work.toLocaleLowerCase("ja").includes(activeWork.toLocaleLowerCase("ja")))
+      && (!activeVisit || place.visit === activeVisit)
+      && searchable.includes(query);
   });
   grid.innerHTML = "";
   resultStatus.textContent = `${results.length} 件の地点を表示中`;
@@ -118,6 +144,23 @@ function showDetail(place) {
 
 searchInput.addEventListener("input", renderPlaces);
 searchBox.addEventListener("click", () => searchInput.focus());
+prefectureFilter.addEventListener("change", () => { activePrefecture = prefectureFilter.value; renderPlaces(); });
+workFilter.addEventListener("input", () => {
+  activeWork = workFilter.value.trim();
+  renderWorkSuggestions();
+  renderPlaces();
+});
+workFilter.addEventListener("focus", renderWorkSuggestions);
+workFilter.addEventListener("blur", () => { setTimeout(() => { workSuggestions.hidden = true; }, 120); });
+visitFilter.addEventListener("change", () => { activeVisit = visitFilter.value; renderPlaces(); });
+filterReset.addEventListener("click", () => {
+  activePrefecture = "";
+  activeWork = "";
+  activeVisit = "";
+  searchInput.value = "";
+  renderFilters();
+  renderPlaces();
+});
 document.querySelector("#dialogClose").addEventListener("click", () => dialog.close());
 dialog.addEventListener("click", (event) => { if (event.target === dialog) dialog.close(); });
 
