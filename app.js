@@ -254,7 +254,8 @@ loadApprovedSubmissions();
 
 function setTheme(theme) {
   document.body.dataset.theme = theme;
-  themeToggleText.textContent = theme === "dark" ? "LIGHT" : "DARK";
+  themeToggleText.textContent = theme === "dark" ? "DARK MODE" : "LIGHT MODE";
+  themeToggle.firstElementChild.textContent = theme === "dark" ? "☾" : "☀";
   themeToggle.setAttribute("aria-label", theme === "dark" ? "ライトモードに切り替える" : "ダークモードに切り替える");
   localStorage.setItem("anime-seichi-theme", theme);
 }
@@ -270,12 +271,13 @@ function setMobileMenu(open) {
 }
 
 mobileMenuToggle.addEventListener("click", () => setMobileMenu(!siteHeader.classList.contains("is-open")));
+setMobileMenu(false);
 document.querySelectorAll('a[href^="#"]').forEach((link) => {
   link.addEventListener("click", (event) => {
     const target = document.querySelector(link.getAttribute("href"));
     if (!target) return;
     event.preventDefault();
     setMobileMenu(false);
-    target.scrollIntoView({ behavior: "smooth", block: "start" });
+    requestAnimationFrame(() => target.scrollIntoView({ behavior: "smooth", block: "start" }));
   });
 });
