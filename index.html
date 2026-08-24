@@ -12,22 +12,27 @@
   </head>
   <body>
     <header class="site-header">
-      <a class="brand" href="#top" aria-label="ホームへ">
-        <span class="brand-mark">ASD</span>
-        <span>ANIME SEICHI<br />DATA</span>
-      </a>
-      <nav aria-label="メインナビゲーション">
-        <a href="#places">聖地を探す</a>
-        <a href="#submission">聖地申請</a>
-      </nav>
-      <button class="menu-button" type="button" aria-label="メニューを開く">MENU</button>
+      <div class="header-top">
+        <a class="brand" href="#top" aria-label="ホームへ"><span class="brand-mark">ASD</span><span>ANIME SEICHI<br />DATA</span></a>
+        <nav aria-label="メインナビゲーション"><a href="#places">聖地を探す</a><a href="#submission">聖地申請</a></nav>
+        <button class="theme-toggle" id="themeToggle" type="button" aria-label="ダークモードに切り替える"><span aria-hidden="true">◐</span><span id="themeToggleText">DARK</span></button>
+      </div>
+      <div class="header-search" aria-label="聖地を絞り込む">
+        <label class="search-box" id="searchBox" for="searchInput"><span>⌕</span><input id="searchInput" type="search" placeholder="場所・シーンから検索" autocomplete="off" /></label>
+        <div class="filter-controls">
+          <label>都道府県<select id="prefectureFilter"><option value="">すべての都道府県</option></select></label>
+          <label class="work-filter">作品名<input id="workFilter" type="search" placeholder="作品名を入力" autocomplete="off" /><span class="work-suggestions" id="workSuggestions" hidden></span></label>
+          <label>訪問可否<select id="visitFilter"><option value="">すべて</option><option value="自由訪問可能">自由訪問可能</option><option value="条件付き">条件付き</option><option value="外観のみ">外観のみ</option></select></label>
+          <button class="filter-reset" id="filterReset" type="button">リセット</button>
+        </div>
+      </div>
     </header>
 
     <main id="top">
       <section class="hero">
         <p class="eyebrow">LOCATION × ANIMATION / BETA</p>
         <h1>アニメの記憶を、<br /><em>地図の上へ。</em></h1>
-        <p class="hero-copy">提供データをもとに、作品・場面・実在の場所を記録する聖地データベース。</p>
+        <p class="hero-copy">提供データをもとに、作品・場面・実在の場所を記録する<br />聖地データベース。</p>
         <a class="primary-button" href="#places">聖地を探す <span>↓</span></a>
         <div class="hero-orbit" aria-hidden="true"><span>DATA<br />WITH<br />EVIDENCE</span></div>
       </section>
@@ -44,18 +49,6 @@
           <p class="eyebrow">EXPLORE THE DATABASE</p>
           <h2>聖地を探す</h2>
           <p>キーワードと条件を組み合わせて、行きたい聖地を探せます。</p>
-        </div>
-        <div class="search-panel">
-          <label class="search-box" id="searchBox" for="searchInput">
-            <span>⌕</span>
-            <input id="searchInput" type="search" placeholder="例：藤沢、君の名は。" autocomplete="off" />
-          </label>
-          <div class="filter-controls" aria-label="条件で絞り込む">
-            <label>都道府県<select id="prefectureFilter"><option value="">すべての都道府県</option></select></label>
-            <label class="work-filter">作品名<input id="workFilter" type="search" placeholder="作品名を入力" autocomplete="off" /><span class="work-suggestions" id="workSuggestions" hidden></span></label>
-            <label>訪問可否<select id="visitFilter"><option value="">すべて</option><option value="自由訪問可能">自由訪問可能</option><option value="条件付き">条件付き</option><option value="外観のみ">外観のみ</option></select></label>
-            <button class="filter-reset" id="filterReset" type="button">条件をリセット</button>
-          </div>
         </div>
         <p class="result-status" id="resultStatus" aria-live="polite"></p>
         <div class="place-grid" id="placeGrid"></div>
@@ -76,6 +69,7 @@
           <label>座標<input name="coordinates" required placeholder="例：35.306661, 139.502170" /></label>
           <label>訪問可否<select name="visitStatus" id="visitStatus" required><option value="" selected disabled>選択してください</option><option value="自由訪問可能">自由訪問可能</option><option value="条件付き">条件付き</option><option value="外観のみ">外観のみ</option></select></label>
           <label class="form-wide conditional-field" id="visitConditionsField" hidden>訪問条件<textarea name="visitConditions" id="visitConditions" rows="3" placeholder="例：施設利用者を優先するため、開館時間内のみ外観から見学可能"></textarea></label>
+          <label class="form-wide">写真URL（任意）<input name="photoUrl" type="url" placeholder="後から写真のURLを追加できます" /></label>
           <label class="form-wide">登場シーン・補足<textarea name="scene" required rows="4" placeholder="何話のどの場面か、分かる範囲で教えてください。"></textarea></label>
           <label class="form-wide">根拠となるURL・資料<input name="source" type="url" required placeholder="https://..." /></label>
           <label class="form-wide">連絡先（任意）<input name="contact" type="email" placeholder="確認が必要な場合だけ使用します" /></label>

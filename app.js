@@ -14,6 +14,8 @@ const formStatus = document.querySelector("#formStatus");
 const visitStatus = document.querySelector("#visitStatus");
 const visitConditionsField = document.querySelector("#visitConditionsField");
 const visitConditions = document.querySelector("#visitConditions");
+const themeToggle = document.querySelector("#themeToggle");
+const themeToggleText = document.querySelector("#themeToggleText");
 let activePrefecture = "";
 let activeWork = "";
 let activeVisit = "";
@@ -23,6 +25,10 @@ const supabaseClient = window.supabase.createClient(
   window.supabaseConfig.url,
   window.supabaseConfig.publishableKey
 );
+const safeImageUrl = (value = "") => {
+  try { const url = new URL(value); return ["https:", "http:"].includes(url.protocol) ? url.href : ""; }
+  catch { return ""; }
+};
 
 const unique = (key) => [...new Set(places.map((place) => place[key]))];
 const prefectureOrder = [
@@ -123,9 +129,14 @@ function showDetail(place) {
   const workDetail = workFields.map(([label, value]) => `<div><dt>${label}</dt><dd>${value}</dd></div>`).join("");
   const workInfoPanel = workFields.length ? `<details class="work-details"><summary>「${place.work}」の作品データを表示</summary><dl>${workDetail}</dl></details>` : "";
   const mapLink = place.privacyProtected ? "" : `<a class="map-link" href="${place.mapUrl || `https://www.google.com/maps/search/?api=1&query=${mapQuery}`}" target="_blank" rel="noopener">Google マップで確認 ↗</a>`;
+  const imageUrl = safeImageUrl(place.imageUrl);
+  const imagePanel = imageUrl
+    ? `<figure class="place-photo"><img src="${imageUrl}" alt="${place.name}の写真" loading="lazy" /><figcaption>写真提供：掲載情報</figcaption></figure>`
+    : `<div class="place-photo place-photo-empty" aria-label="写真は準備中です"><span>PHOTO</span><strong>写真は準備中です</strong><small>確認後に追加されます</small></div>`;
   dialogContent.innerHTML = `
     <p class="eyebrow">LOCATION DETAIL / ${place.id.toUpperCase()}</p>
     <div class="dialog-title-row"><div><p class="dialog-place">${place.prefecture}・${place.city}</p><h2>${place.name}</h2></div></div>
+    ${imagePanel}
     <dl class="detail-grid">
       <div><dt>登場作品</dt><dd>${place.work}</dd></div>
       <div><dt>収録</dt><dd>${place.episode}</dd></div>
@@ -187,6 +198,7 @@ submissionForm.addEventListener("submit", async (event) => {
     coordinates: values.coordinates,
     visit_status: values.visitStatus,
     visit_conditions: values.visitConditions || null,
+    image_url: values.photoUrl || null,
     scene: values.scene,
     source_url: values.source,
     contact_email: values.contact || null
@@ -221,6 +233,7 @@ async function loadApprovedSubmissions() {
       nearestStation: "未登録",
       visit: item.visit_status || "未登録",
       visitConditions: item.visit_conditions || "",
+      imageUrl: item.image_url || "",
       privacyProtected: false,
       mapUrl: "",
       color: ["green", "purple", "orange", "blue"][index % 4]
@@ -235,3 +248,13 @@ updateStats();
 renderFilters();
 renderPlaces();
 loadApprovedSubmissions();
+
+function setTheme(theme) {
+  document.body.dataset.theme = theme;
+  themeToggleText.textContent = theme === "dark" ? "LIGHT" : "DARK";
+  themeToggle.setAttribute("aria-label", theme === "dark" ? "ライトモードに切り替える" : "ダークモードに切り替える");
+  localStorage.setItem("anime-seichi-theme", theme);
+}
+
+setTheme(localStorage.getItem("anime-seichi-theme") || "light");
+themeToggle.addEventListener("click", () => setTheme(document.body.dataset.theme === "dark" ? "light" : "dark"));
