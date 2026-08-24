@@ -19,7 +19,6 @@
       <nav aria-label="メインナビゲーション">
         <a href="#places">聖地を探す</a>
         <a href="#submission">聖地申請</a>
-        <a href="#method">データ方針</a>
       </nav>
       <button class="menu-button" type="button" aria-label="メニューを開く">MENU</button>
     </header>
@@ -69,6 +68,9 @@
           <label>聖地スポット名<input name="spot" required placeholder="例：○○駅、○○神社" /></label>
           <label>都道府県<input name="prefecture" required placeholder="例：神奈川県" /></label>
           <label>市区町村<input name="city" placeholder="例：鎌倉市" /></label>
+          <label>座標<input name="coordinates" required placeholder="例：35.306661, 139.502170" /></label>
+          <label>訪問可否<select name="visitStatus" id="visitStatus" required><option value="" selected disabled>選択してください</option><option value="自由訪問可能">自由訪問可能</option><option value="条件付き">条件付き</option><option value="外観のみ">外観のみ</option></select></label>
+          <label class="form-wide conditional-field" id="visitConditionsField" hidden>訪問条件<textarea name="visitConditions" id="visitConditions" rows="3" placeholder="例：施設利用者を優先するため、開館時間内のみ外観から見学可能"></textarea></label>
           <label class="form-wide">登場シーン・補足<textarea name="scene" required rows="4" placeholder="何話のどの場面か、分かる範囲で教えてください。"></textarea></label>
           <label class="form-wide">根拠となるURL・資料<input name="source" type="url" required placeholder="https://..." /></label>
           <label class="form-wide">連絡先（任意）<input name="contact" type="email" placeholder="確認が必要な場合だけ使用します" /></label>
@@ -77,15 +79,6 @@
         </form>
       </section>
 
-      <section class="method" id="method">
-        <div class="method-intro">
-          <p class="eyebrow">DATA POLICY</p>
-          <h2>「好き」を<br />データとして<br /><em>信頼できる形に。</em></h2>
-        </div>
-        <div class="method-content">
-          <p>このデータベースは、場所と作品をただ結びつけるだけではありません。シーン、訪問可否、住所、座標を分けて記録します。</p>
-        </div>
-      </section>
     </main>
 
     <footer><span>© 2026 ANIME SEICHI DATA</span><span>Prototype for data exploration</span></footer>

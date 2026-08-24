@@ -31,7 +31,7 @@ async function refreshSubmissions() {
     <article class="submission-item">
       <div class="submission-item-head"><span class="status-badge ${item.status}">${item.status}</span><span>${new Date(item.created_at).toLocaleString("ja-JP")}</span></div>
       <h2>${escapeHtml(item.spot)}</h2><p class="submission-work">${escapeHtml(item.work)} / ${escapeHtml(item.prefecture)} ${escapeHtml(item.city || "")}</p>
-      <dl><div><dt>シーン・補足</dt><dd>${escapeHtml(item.scene)}</dd></div><div><dt>根拠URL</dt><dd><a href="${safeUrl(item.source_url)}" target="_blank" rel="noopener">資料を開く ↗</a></dd></div>${item.contact_email ? `<div><dt>連絡先</dt><dd>${escapeHtml(item.contact_email)}</dd></div>` : ""}</dl>
+      <dl><div><dt>座標</dt><dd>${escapeHtml(item.coordinates || "未登録")}</dd></div><div><dt>訪問可否</dt><dd>${escapeHtml(item.visit_status || "未登録")}</dd></div>${item.visit_conditions ? `<div><dt>訪問条件</dt><dd>${escapeHtml(item.visit_conditions)}</dd></div>` : ""}<div><dt>シーン・補足</dt><dd>${escapeHtml(item.scene)}</dd></div><div><dt>根拠URL</dt><dd><a href="${safeUrl(item.source_url)}" target="_blank" rel="noopener">資料を開く ↗</a></dd></div>${item.contact_email ? `<div><dt>連絡先</dt><dd>${escapeHtml(item.contact_email)}</dd></div>` : ""}</dl>
       <label>管理メモ<textarea data-note="${item.id}" rows="2" placeholder="確認内容や差し戻し理由を記録">${escapeHtml(item.admin_note || "")}</textarea></label>
       <div class="review-actions"><button data-action="approved" data-id="${item.id}" type="button">承認</button><button data-action="returned" data-id="${item.id}" type="button">差し戻し</button></div>
     </article>`).join("") : '<p class="empty-state">この状態の申請はありません。</p>';

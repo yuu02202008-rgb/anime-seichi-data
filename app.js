@@ -7,6 +7,9 @@ const dialog = document.querySelector("#placeDialog");
 const dialogContent = document.querySelector("#dialogContent");
 const submissionForm = document.querySelector("#submissionForm");
 const formStatus = document.querySelector("#formStatus");
+const visitStatus = document.querySelector("#visitStatus");
+const visitConditionsField = document.querySelector("#visitConditionsField");
+const visitConditions = document.querySelector("#visitConditions");
 let activePrefecture = "すべて";
 const places = window.places;
 const workInfo = window.workInfo || {};
@@ -105,6 +108,7 @@ function showDetail(place) {
       <div><dt>訪問可否</dt><dd>${place.visit}</dd></div>
       <div><dt>住所</dt><dd>${place.address}</dd></div>
       <div class="wide"><dt>シーン</dt><dd>${place.scene}</dd></div>
+      ${place.visitConditions ? `<div class="wide"><dt>訪問条件</dt><dd>${place.visitConditions}</dd></div>` : ""}
     </dl>
     ${mapLink}
     ${workInfoPanel}
@@ -117,6 +121,15 @@ searchBox.addEventListener("click", () => searchInput.focus());
 document.querySelector("#dialogClose").addEventListener("click", () => dialog.close());
 dialog.addEventListener("click", (event) => { if (event.target === dialog) dialog.close(); });
 
+function syncVisitConditions() {
+  const required = visitStatus.value === "条件付き";
+  visitConditionsField.hidden = !required;
+  visitConditions.required = required;
+  if (!required) visitConditions.value = "";
+}
+
+visitStatus.addEventListener("change", syncVisitConditions);
+
 submissionForm.addEventListener("submit", async (event) => {
   event.preventDefault();
   const button = submissionForm.querySelector("button[type=submit]");
@@ -128,6 +141,9 @@ submissionForm.addEventListener("submit", async (event) => {
     spot: values.spot,
     prefecture: values.prefecture,
     city: values.city || null,
+    coordinates: values.coordinates,
+    visit_status: values.visitStatus,
+    visit_conditions: values.visitConditions || null,
     scene: values.scene,
     source_url: values.source,
     contact_email: values.contact || null
@@ -157,10 +173,11 @@ async function loadApprovedSubmissions() {
       episode: "承認済み申請",
       confidence: "B",
       checkedAt: new Date(item.created_at).toLocaleDateString("ja-JP"),
-      coordinates: "未登録",
+      coordinates: item.coordinates || "未登録",
       address: `${item.prefecture}${item.city || ""}`,
       nearestStation: "未登録",
-      visit: "確認中",
+      visit: item.visit_status || "未登録",
+      visitConditions: item.visit_conditions || "",
       privacyProtected: false,
       mapUrl: "",
       color: ["green", "purple", "orange", "blue"][index % 4]
