@@ -16,6 +16,9 @@ const visitConditionsField = document.querySelector("#visitConditionsField");
 const visitConditions = document.querySelector("#visitConditions");
 const themeToggle = document.querySelector("#themeToggle");
 const themeToggleText = document.querySelector("#themeToggleText");
+const siteHeader = document.querySelector(".site-header");
+const mobileMenuToggle = document.querySelector("#mobileMenuToggle");
+const mobileMenuText = document.querySelector("#mobileMenuText");
 let activePrefecture = "";
 let activeWork = "";
 let activeVisit = "";
@@ -258,3 +261,21 @@ function setTheme(theme) {
 
 setTheme(localStorage.getItem("anime-seichi-theme") || "light");
 themeToggle.addEventListener("click", () => setTheme(document.body.dataset.theme === "dark" ? "light" : "dark"));
+
+function setMobileMenu(open) {
+  siteHeader.classList.toggle("is-open", open);
+  mobileMenuToggle.setAttribute("aria-expanded", String(open));
+  mobileMenuText.textContent = open ? "CLOSE" : "MENU";
+  mobileMenuToggle.lastElementChild.textContent = open ? "−" : "＋";
+}
+
+mobileMenuToggle.addEventListener("click", () => setMobileMenu(!siteHeader.classList.contains("is-open")));
+document.querySelectorAll('a[href^="#"]').forEach((link) => {
+  link.addEventListener("click", (event) => {
+    const target = document.querySelector(link.getAttribute("href"));
+    if (!target) return;
+    event.preventDefault();
+    setMobileMenu(false);
+    target.scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+});

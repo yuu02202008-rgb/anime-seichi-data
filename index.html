@@ -16,8 +16,10 @@
         <a class="brand" href="#top" aria-label="ホームへ"><span class="brand-mark">ASD</span><span>ANIME SEICHI<br />DATA</span></a>
         <nav aria-label="メインナビゲーション"><a href="#places">聖地を探す</a><a href="#submission">聖地申請</a></nav>
         <button class="theme-toggle" id="themeToggle" type="button" aria-label="ダークモードに切り替える"><span aria-hidden="true">◐</span><span id="themeToggleText">DARK</span></button>
+        <button class="mobile-menu-toggle" id="mobileMenuToggle" type="button" aria-expanded="false" aria-controls="mobileHeaderPanel"><span id="mobileMenuText">MENU</span><span aria-hidden="true">＋</span></button>
       </div>
-      <div class="header-search" aria-label="聖地を絞り込む">
+      <div class="header-search" id="mobileHeaderPanel" aria-label="聖地を絞り込む">
+        <nav class="mobile-nav" aria-label="スマートフォンメニュー"><a href="#places">聖地を探す</a><a href="#submission">聖地申請</a></nav>
         <label class="search-box" id="searchBox" for="searchInput"><span>⌕</span><input id="searchInput" type="search" placeholder="場所・シーンから検索" autocomplete="off" /></label>
         <div class="filter-controls">
           <label>都道府県<select id="prefectureFilter"><option value="">すべての都道府県</option></select></label>
