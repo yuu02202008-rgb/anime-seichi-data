@@ -13,19 +13,20 @@
   <body>
     <header class="site-header">
       <div class="header-top">
-        <a class="brand" href="#top" aria-label="ホームへ"><span class="brand-mark">ASD</span><span>ANIME SEICHI<br />DATA</span></a>
-        <nav aria-label="メインナビゲーション"><a href="#places">聖地を探す</a><a href="#submission">聖地申請</a></nav>
+        <a class="brand" href="#top" aria-label="ホームへ" data-i18n-aria-label="homeAria"><span class="brand-mark">ASD</span><span>ANIME SEICHI<br />DATA</span></a>
+        <nav aria-label="メインナビゲーション" data-i18n-aria-label="mainNavAria"><a href="#places" data-i18n="exploreNav">聖地を探す</a><a href="#submission" data-i18n="submitNav">聖地申請</a></nav>
+        <label class="language-control"><span>LANG</span><select id="languageSelect" aria-label="言語を選択"><option value="ja">日本語</option><option value="en">English</option></select></label>
         <button class="theme-toggle" id="themeToggle" type="button" aria-label="ダークモードに切り替える"><span aria-hidden="true">◐</span><span id="themeToggleText">DARK</span></button>
         <button class="mobile-menu-toggle" id="mobileMenuToggle" type="button" aria-expanded="false" aria-controls="mobileHeaderPanel"><span id="mobileMenuText">MENU</span><span aria-hidden="true">＋</span></button>
       </div>
       <div class="header-search" id="mobileHeaderPanel" aria-label="聖地を絞り込む">
-        <nav class="mobile-nav" aria-label="スマートフォンメニュー"><a href="#places">聖地を探す</a><a href="#submission">聖地申請</a></nav>
-        <label class="search-box" id="searchBox" for="searchInput"><span>⌕</span><input id="searchInput" type="search" placeholder="場所・シーンから検索" autocomplete="off" /></label>
+        <nav class="mobile-nav" aria-label="スマートフォンメニュー"><a href="#places" data-i18n="exploreNav">聖地を探す</a><a href="#submission" data-i18n="submitNav">聖地申請</a></nav>
+        <label class="search-box" id="searchBox" for="searchInput"><span>⌕</span><input id="searchInput" type="search" placeholder="場所・シーンから検索" data-i18n-placeholder="searchPlaceholder" autocomplete="off" /></label>
         <div class="filter-controls">
-          <label>都道府県<select id="prefectureFilter"><option value="">すべての都道府県</option></select></label>
-          <label class="work-filter">作品名<span class="work-input-wrap"><input id="workFilter" type="search" placeholder="作品名を入力" autocomplete="off" /><button class="work-suggestions-toggle" id="workSuggestionsToggle" type="button" aria-expanded="false" aria-label="作品候補を開く">⌄</button></span><span class="work-suggestions" id="workSuggestions" hidden></span></label>
-          <label>訪問可否<select id="visitFilter"><option value="">すべて</option><option value="自由訪問可能">自由訪問可能</option><option value="条件付き">条件付き</option><option value="外観のみ">外観のみ</option></select></label>
-          <button class="filter-reset" id="filterReset" type="button">リセット</button>
+          <label><span data-i18n="prefectureLabel">都道府県</span><select id="prefectureFilter"><option value="">すべての都道府県</option></select></label>
+          <label class="work-filter"><span data-i18n="workLabel">作品名</span><span class="work-input-wrap"><input id="workFilter" type="search" placeholder="作品名を入力" data-i18n-placeholder="workPlaceholder" autocomplete="off" /><button class="work-suggestions-toggle" id="workSuggestionsToggle" type="button" aria-expanded="false" aria-label="作品候補を開く">⌄</button></span><span class="work-suggestions" id="workSuggestions" hidden></span></label>
+          <label><span data-i18n="visitLabel">訪問可否</span><select id="visitFilter"><option value="">すべて</option><option value="自由訪問可能">自由訪問可能</option><option value="条件付き">条件付き</option><option value="外観のみ">外観のみ</option></select></label>
+          <button class="filter-reset" id="filterReset" type="button" data-i18n="reset">リセット</button>
         </div>
       </div>
     </header>
@@ -33,24 +34,24 @@
     <main id="top">
       <section class="hero">
         <p class="eyebrow">LOCATION × ANIMATION / BETA</p>
-        <h1>アニメの記憶を、<br /><em>地図の上へ。</em></h1>
-        <p class="hero-copy">提供データをもとに、作品・場面・実在の場所を記録する<br />聖地データベース。</p>
-        <a class="primary-button" href="#places">聖地を探す <span>↓</span></a>
+        <h1 data-i18n-html="heroHeading">アニメの記憶を、<br /><em>地図の上へ。</em></h1>
+        <p class="hero-copy" data-i18n-html="heroCopy">提供データをもとに、作品・場面・実在の場所を記録する<br />聖地データベース。</p>
+        <a class="primary-button" href="#places"><span data-i18n="exploreNav">聖地を探す</span> <span>↓</span></a>
         <div class="hero-orbit" aria-hidden="true"><span>DATA<br />WITH<br />EVIDENCE</span></div>
       </section>
 
       <section class="stats" aria-label="データ統計">
-        <div><strong id="workCount">0</strong><span>作品</span></div>
-        <div><strong id="placeCount">0</strong><span>登録地点</span></div>
-        <div><strong id="prefectureCount">0</strong><span>都道府県</span></div>
-        <div><strong id="sceneCount">0</strong><span>シーン</span></div>
+        <div><strong id="workCount">0</strong><span data-i18n="worksStat">作品</span></div>
+        <div><strong id="placeCount">0</strong><span data-i18n="placesStat">登録地点</span></div>
+        <div><strong id="prefectureCount">0</strong><span data-i18n="prefecturesStat">都道府県</span></div>
+        <div><strong id="sceneCount">0</strong><span data-i18n="scenesStat">シーン</span></div>
       </section>
 
       <section class="explore" id="places">
         <div class="section-heading">
           <p class="eyebrow">EXPLORE THE DATABASE</p>
-          <h2>聖地を探す</h2>
-          <p>キーワードと条件を組み合わせて、行きたい聖地を探せます。</p>
+          <h2 data-i18n="exploreHeading">聖地を探す</h2>
+          <p data-i18n="exploreDescription">キーワードと条件を組み合わせて、行きたい聖地を探せます。</p>
         </div>
         <p class="result-status" id="resultStatus" aria-live="polite"></p>
         <div class="place-grid" id="placeGrid"></div>
@@ -59,9 +60,9 @@
       <section class="submission" id="submission">
         <div class="submission-intro">
           <p class="eyebrow">CONTRIBUTE</p>
-          <h2>知っている聖地を<br /><em>申請する。</em></h2>
-          <p>未登録の場所や、より正確な情報があれば教えてください。根拠が分かるリンクや資料があると確認しやすくなります。</p>
-          <p class="submission-disclaimer">申請内容は運営の確認待ちとして保存されます。個人情報は掲載せず、確認作業にのみ使用します。</p>
+          <h2 data-i18n-html="submissionHeading">知っている聖地を<br /><em>申請する。</em></h2>
+          <p data-i18n="submissionDescription">未登録の場所や、より正確な情報があれば教えてください。根拠が分かるリンクや資料があると確認しやすくなります。</p>
+          <p class="submission-disclaimer" data-i18n="submissionDisclaimer">申請内容は運営の確認待ちとして保存されます。個人情報は掲載せず、確認作業にのみ使用します。</p>
         </div>
         <form class="submission-form" id="submissionForm">
           <label>作品名<input name="work" required placeholder="例：作品名" /></label>
@@ -82,7 +83,7 @@
 
     </main>
 
-    <footer><span>© 2026 ANIME SEICHI DATA</span><span>Prototype for data exploration</span></footer>
+    <footer><span>© 2026 ANIME SEICHI DATA</span><span data-i18n="footerText">データ探索プロトタイプ</span></footer>
     <dialog id="placeDialog" class="place-dialog">
       <button class="dialog-close" id="dialogClose" type="button" aria-label="閉じる">×</button>
       <div id="dialogContent"></div>
