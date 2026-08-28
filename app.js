@@ -4,6 +4,7 @@ const searchBox = document.querySelector("#searchBox");
 const prefectureFilter = document.querySelector("#prefectureFilter");
 const workFilter = document.querySelector("#workFilter");
 const workSuggestions = document.querySelector("#workSuggestions");
+const workSuggestionsToggle = document.querySelector("#workSuggestionsToggle");
 const visitFilter = document.querySelector("#visitFilter");
 const filterReset = document.querySelector("#filterReset");
 const resultStatus = document.querySelector("#resultStatus");
@@ -22,6 +23,7 @@ const mobileMenuText = document.querySelector("#mobileMenuText");
 let activePrefecture = "";
 let activeWork = "";
 let activeVisit = "";
+let workSuggestionsExpanded = false;
 const places = window.places;
 const workInfo = window.workInfo || {};
 const supabaseClient = window.supabase.createClient(
@@ -32,6 +34,34 @@ const safeImageUrl = (value = "") => {
   try { const url = new URL(value); return ["https:", "http:"].includes(url.protocol) ? url.href : ""; }
   catch { return ""; }
 };
+const escapeHtml = (value = "") => String(value).replace(/[&<>'"]/g, (character) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "'": "&#39;", '"': "&quot;" })[character]);
+const allowedImageTypes = ["image/jpeg", "image/png", "image/webp"];
+
+async function uploadSubmissionImage(file) {
+  if (!file || !file.size) return "";
+  if (!allowedImageTypes.includes(file.type)) throw new Error("写真はJPEG・PNG・WebPを選んでください。");
+  if (file.size > 5 * 1024 * 1024) throw new Error("写真は5MB以下にしてください。");
+  const extension = file.name.split(".").pop().toLowerCase().replace(/[^a-z0-9]/g, "") || "jpg";
+  const path = `${new Date().toISOString().slice(0, 10)}/${crypto.randomUUID()}.${extension}`;
+  const { error } = await supabaseClient.storage.from("submission-images").upload(path, file, { contentType: file.type, upsert: false });
+  if (error) {
+    const message = String(error.message || "").toLowerCase();
+    if (message.includes("bucket") || message.includes("not found")) {
+      throw new Error("写真保存の初期設定がまだ完了していません。Supabaseで画像・訂正申請用SQLを実行してください。");
+    }
+    if (message.includes("row-level") || message.includes("policy") || message.includes("unauthorized")) {
+      throw new Error("写真を保存する権限が設定されていません。Supabaseの画像保存ポリシーを確認してください。");
+    }
+    if (message.includes("mime") || message.includes("type")) {
+      throw new Error("この画像形式はアップロードできません。JPEG・PNG・WebPを選んでください。");
+    }
+    if (message.includes("size") || message.includes("large")) {
+      throw new Error("画像サイズが大きすぎます。5MB以下の写真を選んでください。");
+    }
+    throw new Error(`写真をアップロードできませんでした。${error.message || "時間をおいて再度お試しください。"}`);
+  }
+  return path;
+}
 
 const unique = (key) => [...new Set(places.map((place) => place[key]))];
 const prefectureOrder = [
@@ -77,6 +107,7 @@ function renderWorkSuggestions() {
   workSuggestions.innerHTML = "";
   if (!matchedWorks.length) {
     workSuggestions.hidden = true;
+    workSuggestionsToggle.setAttribute("aria-expanded", "false");
     return;
   }
   matchedWorks.forEach((work) => {
@@ -87,12 +118,22 @@ function renderWorkSuggestions() {
       event.preventDefault();
       activeWork = work;
       workFilter.value = work;
-      workSuggestions.hidden = true;
+      setWorkSuggestions(false);
       renderPlaces();
     });
     workSuggestions.append(button);
   });
-  workSuggestions.hidden = false;
+  workSuggestions.hidden = !workSuggestionsExpanded;
+  workSuggestionsToggle.setAttribute("aria-expanded", String(workSuggestionsExpanded));
+}
+
+function setWorkSuggestions(open) {
+  workSuggestionsExpanded = open;
+  workSuggestionsToggle.textContent = open ? "⌃" : "⌄";
+  workSuggestionsToggle.setAttribute("aria-expanded", String(open));
+  workSuggestionsToggle.setAttribute("aria-label", open ? "作品候補を閉じる" : "作品候補を開く");
+  if (open) renderWorkSuggestions();
+  else workSuggestions.hidden = true;
 }
 
 function renderPlaces() {
@@ -152,8 +193,63 @@ function showDetail(place) {
     </dl>
     ${mapLink}
     ${workInfoPanel}
-    <p class="checked">最終確認日：${place.checkedAt}</p>`;
+    ${place.communityUpdate ? `<aside class="community-update"><strong>承認済みの訂正情報</strong><p>${escapeHtml(place.communityUpdate)}</p></aside>` : ""}
+    <p class="checked">最終確認日：${place.checkedAt}</p>
+    <details class="correction-panel">
+      <summary>この情報の訂正・写真追加を申請する</summary>
+      <form class="correction-form" id="correctionForm">
+        <label>申請内容<select name="requestType" required><option value="correction">情報の訂正</option><option value="image_addition">写真の追加</option></select></label>
+        <label>訂正・追加内容<textarea name="details" rows="4" required placeholder="どの情報を、どのように直すべきか入力してください"></textarea></label>
+        <label>確認できるURL<input name="source" type="url" required placeholder="公式サイトや地図など" /></label>
+        <label>写真（任意）<input name="photoFile" type="file" accept="image/jpeg,image/png,image/webp" /><small>JPEG・PNG・WebP、5MBまで</small></label>
+        <label>連絡先（任意）<input name="contact" type="email" /></label>
+        <button class="submit-button" type="submit">申請を送信する <span>→</span></button>
+        <p class="form-status" aria-live="polite"></p>
+      </form>
+    </details>`;
+  document.querySelector("#correctionForm").addEventListener("submit", (event) => submitCorrection(event, place));
   dialog.showModal();
+}
+
+async function submitCorrection(event, place) {
+  event.preventDefault();
+  const form = event.currentTarget;
+  const button = form.querySelector("button[type=submit]");
+  const status = form.querySelector(".form-status");
+  const values = Object.fromEntries(new FormData(form));
+  const file = form.elements.photoFile.files[0];
+  if (values.requestType === "image_addition" && !file) {
+    status.textContent = "写真の追加を選んだ場合は、写真を選択してください。";
+    return;
+  }
+  button.disabled = true;
+  status.textContent = "申請を送信しています…";
+  try {
+    const imagePath = await uploadSubmissionImage(file);
+    const { error } = await supabaseClient.from("spot_submissions").insert({
+      submission_type: values.requestType,
+      target_place_id: place.id,
+      target_place_name: place.name,
+      work: place.work,
+      spot: place.name,
+      prefecture: place.prefecture,
+      city: place.city || null,
+      coordinates: place.coordinates || null,
+      visit_status: ["自由訪問可能", "条件付き", "外観のみ"].includes(place.visit) ? place.visit : null,
+      visit_conditions: place.visitConditions || null,
+      image_path: imagePath || null,
+      scene: values.details,
+      source_url: values.source,
+      contact_email: values.contact || null
+    });
+    if (error) throw error;
+    form.reset();
+    status.textContent = "申請を受け付けました。管理者が確認します。";
+  } catch (error) {
+    status.textContent = error.message || "送信できませんでした。時間をおいてもう一度試してください。";
+  } finally {
+    button.disabled = false;
+  }
 }
 
 searchInput.addEventListener("input", renderPlaces);
@@ -161,11 +257,20 @@ searchBox.addEventListener("click", () => searchInput.focus());
 prefectureFilter.addEventListener("change", () => { activePrefecture = prefectureFilter.value; renderPlaces(); });
 workFilter.addEventListener("input", () => {
   activeWork = workFilter.value.trim();
+  workSuggestionsExpanded = true;
   renderWorkSuggestions();
   renderPlaces();
 });
-workFilter.addEventListener("focus", renderWorkSuggestions);
-workFilter.addEventListener("blur", () => { setTimeout(() => { workSuggestions.hidden = true; }, 120); });
+workFilter.addEventListener("focus", () => setWorkSuggestions(true));
+workFilter.addEventListener("keydown", (event) => { if (event.key === "Escape") setWorkSuggestions(false); });
+workSuggestionsToggle.addEventListener("click", (event) => {
+  event.preventDefault();
+  event.stopPropagation();
+  setWorkSuggestions(!workSuggestionsExpanded);
+});
+document.addEventListener("click", (event) => {
+  if (!event.target.closest(".work-filter")) setWorkSuggestions(false);
+});
 visitFilter.addEventListener("change", () => { activeVisit = visitFilter.value; renderPlaces(); });
 filterReset.addEventListener("click", () => {
   activePrefecture = "";
@@ -193,33 +298,38 @@ submissionForm.addEventListener("submit", async (event) => {
   button.disabled = true;
   formStatus.textContent = "申請内容を送信しています…";
   const values = Object.fromEntries(new FormData(submissionForm));
-  const { error } = await supabaseClient.from("spot_submissions").insert({
-    work: values.work,
-    spot: values.spot,
-    prefecture: values.prefecture,
-    city: values.city || null,
-    coordinates: values.coordinates,
-    visit_status: values.visitStatus,
-    visit_conditions: values.visitConditions || null,
-    image_url: values.photoUrl || null,
-    scene: values.scene,
-    source_url: values.source,
-    contact_email: values.contact || null
-  });
-  button.disabled = false;
-  if (error) {
-    formStatus.textContent = "送信できませんでした。時間をおいてもう一度試してください。";
-    return;
+  try {
+    const imagePath = await uploadSubmissionImage(submissionForm.elements.photoFile.files[0]);
+    const { error } = await supabaseClient.from("spot_submissions").insert({
+      submission_type: "new_spot",
+      work: values.work,
+      spot: values.spot,
+      prefecture: values.prefecture,
+      city: values.city || null,
+      coordinates: values.coordinates,
+      visit_status: values.visitStatus,
+      visit_conditions: values.visitConditions || null,
+      image_path: imagePath || null,
+      scene: values.scene,
+      source_url: values.source,
+      contact_email: values.contact || null
+    });
+    if (error) throw error;
+    submissionForm.reset();
+    syncVisitConditions();
+    formStatus.textContent = "申請を受け付けました。確認後、掲載可否を判断します。";
+  } catch (error) {
+    formStatus.textContent = error.message || "送信できませんでした。時間をおいてもう一度試してください。";
+  } finally {
+    button.disabled = false;
   }
-  submissionForm.reset();
-  formStatus.textContent = "申請を受け付けました。確認後、掲載可否を判断します。";
 });
 
 async function loadApprovedSubmissions() {
   const { data, error } = await supabaseClient.rpc("get_approved_spots");
   if (error || !data?.length) return;
   data.forEach((item, index) => {
-    if (places.some((place) => place.id === `submission-${item.id}`)) return;
+    if (places.some((place) => place.id === `submission-${item.id}` || (place.work === item.work && place.name === item.spot))) return;
     places.push({
       id: `submission-${item.id}`,
       name: item.spot,
@@ -247,10 +357,22 @@ async function loadApprovedSubmissions() {
   renderPlaces();
 }
 
+async function loadApprovedCorrections() {
+  const { data, error } = await supabaseClient.rpc("get_approved_spot_updates");
+  if (error || !data?.length) return;
+  data.forEach((item) => {
+    const place = places.find((candidate) => candidate.id === item.target_place_id);
+    if (!place) return;
+    if (item.correction_text) place.communityUpdate = item.correction_text;
+    if (item.image_url) place.imageUrl = item.image_url;
+  });
+  renderPlaces();
+}
+
 updateStats();
 renderFilters();
 renderPlaces();
-loadApprovedSubmissions();
+loadApprovedSubmissions().then(loadApprovedCorrections);
 
 function setTheme(theme) {
   document.body.dataset.theme = theme;

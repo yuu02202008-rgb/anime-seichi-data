@@ -23,7 +23,7 @@
         <label class="search-box" id="searchBox" for="searchInput"><span>⌕</span><input id="searchInput" type="search" placeholder="場所・シーンから検索" autocomplete="off" /></label>
         <div class="filter-controls">
           <label>都道府県<select id="prefectureFilter"><option value="">すべての都道府県</option></select></label>
-          <label class="work-filter">作品名<input id="workFilter" type="search" placeholder="作品名を入力" autocomplete="off" /><span class="work-suggestions" id="workSuggestions" hidden></span></label>
+          <label class="work-filter">作品名<span class="work-input-wrap"><input id="workFilter" type="search" placeholder="作品名を入力" autocomplete="off" /><button class="work-suggestions-toggle" id="workSuggestionsToggle" type="button" aria-expanded="false" aria-label="作品候補を開く">⌄</button></span><span class="work-suggestions" id="workSuggestions" hidden></span></label>
           <label>訪問可否<select id="visitFilter"><option value="">すべて</option><option value="自由訪問可能">自由訪問可能</option><option value="条件付き">条件付き</option><option value="外観のみ">外観のみ</option></select></label>
           <button class="filter-reset" id="filterReset" type="button">リセット</button>
         </div>
@@ -71,7 +71,7 @@
           <label>座標<input name="coordinates" required placeholder="例：35.306661, 139.502170" /></label>
           <label>訪問可否<select name="visitStatus" id="visitStatus" required><option value="" selected disabled>選択してください</option><option value="自由訪問可能">自由訪問可能</option><option value="条件付き">条件付き</option><option value="外観のみ">外観のみ</option></select></label>
           <label class="form-wide conditional-field" id="visitConditionsField" hidden>訪問条件<textarea name="visitConditions" id="visitConditions" rows="3" placeholder="例：施設利用者を優先するため、開館時間内のみ外観から見学可能"></textarea></label>
-          <label class="form-wide">写真URL（任意）<input name="photoUrl" type="url" placeholder="後から写真のURLを追加できます" /></label>
+          <label class="form-wide">写真（任意）<input name="photoFile" type="file" accept="image/jpeg,image/png,image/webp" /><small>JPEG・PNG・WebP、5MBまで。権利を持つ写真だけ送信してください。</small></label>
           <label class="form-wide">登場シーン・補足<textarea name="scene" required rows="4" placeholder="何話のどの場面か、分かる範囲で教えてください。"></textarea></label>
           <label class="form-wide">根拠となるURL・資料<input name="source" type="url" required placeholder="https://..." /></label>
           <label class="form-wide">連絡先（任意）<input name="contact" type="email" placeholder="確認が必要な場合だけ使用します" /></label>
