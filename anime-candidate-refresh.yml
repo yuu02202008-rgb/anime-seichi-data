@@ -1,4 +1,4 @@
-name: Refresh anime research candidates
+name: .github/workflows/anime-candidate-refresh.yml
 
 on:
   schedule:
