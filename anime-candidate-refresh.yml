@@ -1,0 +1,25 @@
+name: Refresh anime research candidates
+
+on:
+  schedule:
+    - cron: "15 0 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: node fetch-anime-candidates.mjs
+      - run: |
+          git config user.name "anime-seichi-data-bot"
+          git config user.email "actions@github.com"
+          git add anime-candidates.js
+          git diff --cached --quiet || git commit -m "Update weekly anime candidates"
+          git push
