@@ -23,7 +23,8 @@
         <nav class="mobile-nav" aria-label="スマートフォンメニュー"><a href="#places" data-i18n="exploreNav">聖地を探す</a><a href="works.html" data-i18n="worksNav">作品から探す</a><a href="#submission" data-i18n="submitNav">聖地申請</a></nav>
         <label class="search-box" id="searchBox" for="searchInput"><span>⌕</span><input id="searchInput" type="search" placeholder="場所・シーンから検索" data-i18n-placeholder="searchPlaceholder" autocomplete="off" /></label>
         <div class="filter-controls">
-          <label><span data-i18n="prefectureLabel">都道府県</span><select id="prefectureFilter"><option value="">すべての都道府県</option></select></label>
+          <label><span data-i18n="countryLabel">国</span><select id="countryFilter"><option value="">すべての国</option></select></label>
+          <label><span data-i18n="prefectureLabel">都道府県・地域</span><select id="prefectureFilter" disabled><option value="">先に国を選択</option></select></label>
           <label class="work-filter"><span data-i18n="workLabel">作品名</span><span class="work-input-wrap"><input id="workFilter" type="search" placeholder="作品名を入力" data-i18n-placeholder="workPlaceholder" autocomplete="off" /><button class="work-suggestions-toggle" id="workSuggestionsToggle" type="button" aria-expanded="false" aria-label="作品候補を開く">⌄</button></span><span class="work-suggestions" id="workSuggestions" hidden></span></label>
           <label><span data-i18n="visitLabel">訪問可否</span><select id="visitFilter"><option value="">すべて</option><option value="自由訪問可能">自由訪問可能</option><option value="条件付き">条件付き</option><option value="外観のみ">外観のみ</option></select></label>
           <button class="filter-reset" id="filterReset" type="button" data-i18n="reset">リセット</button>

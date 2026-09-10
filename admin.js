@@ -10,6 +10,7 @@ const submissionList = document.querySelector("#submissionList");
 const statusTabs = document.querySelector("#statusTabs");
 const adminStatus = document.querySelector("#adminStatus");
 let selectedStatus = "pending";
+let submissionById = new Map();
 
 const escapeHtml = (value = "") => String(value).replace(/[&<>'"]/g, (character) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "'": "&#39;", '"': "&quot;" })[character]);
 const safeUrl = (value = "") => {
@@ -26,12 +27,20 @@ async function refreshSubmissions() {
   adminStatus.textContent = "申請を読み込んでいます…";
   const { data, error } = await client.from("spot_submissions").select("*").eq("status", selectedStatus).order("created_at", { ascending: false });
   if (error) { adminStatus.textContent = "申請を読み込めませんでした。"; return; }
-  adminStatus.textContent = `${data.length} 件の申請`;
-  submissionList.innerHTML = data.length ? data.map((item) => `
+  const submissions = await Promise.all(data.map(async (item) => {
+    if (!item.image_path) return item;
+    const { data: signed } = await client.storage.from("submission-images").createSignedUrl(item.image_path, 900);
+    return { ...item, signed_image_url: signed?.signedUrl || "" };
+  }));
+  submissionById = new Map(submissions.map((item) => [item.id, item]));
+  adminStatus.textContent = `${submissions.length} 件の申請`;
+  submissionList.innerHTML = submissions.length ? submissions.map((item) => `
     <article class="submission-item">
-      <div class="submission-item-head"><span class="status-badge ${item.status}">${item.status}</span><span>${new Date(item.created_at).toLocaleString("ja-JP")}</span></div>
+      <div class="submission-item-head"><span class="status-badge ${item.status}">${item.submission_type === "correction" ? "情報訂正" : item.submission_type === "image_addition" ? "写真追加" : "新規聖地"} / ${item.status}</span><span>${new Date(item.created_at).toLocaleString("ja-JP")}</span></div>
       <h2>${escapeHtml(item.spot)}</h2><p class="submission-work">${escapeHtml(item.work)} / ${escapeHtml(item.prefecture)} ${escapeHtml(item.city || "")}</p>
-      <dl><div><dt>座標</dt><dd>${escapeHtml(item.coordinates || "未登録")}</dd></div><div><dt>訪問可否</dt><dd>${escapeHtml(item.visit_status || "未登録")}</dd></div>${item.visit_conditions ? `<div><dt>訪問条件</dt><dd>${escapeHtml(item.visit_conditions)}</dd></div>` : ""}<div><dt>シーン・補足</dt><dd>${escapeHtml(item.scene)}</dd></div><div><dt>根拠URL</dt><dd><a href="${safeUrl(item.source_url)}" target="_blank" rel="noopener">資料を開く ↗</a></dd></div>${item.contact_email ? `<div><dt>連絡先</dt><dd>${escapeHtml(item.contact_email)}</dd></div>` : ""}</dl>
+      ${item.target_place_name ? `<p class="submission-target">対象：${escapeHtml(item.target_place_name)}（${escapeHtml(item.target_place_id || "")}）</p>` : ""}
+      ${item.signed_image_url ? `<img class="admin-submission-image" src="${safeUrl(item.signed_image_url)}" alt="申請された写真" />` : ""}
+      <dl><div><dt>座標</dt><dd>${escapeHtml(item.coordinates || "未登録")}</dd></div><div><dt>訪問可否</dt><dd>${escapeHtml(item.visit_status || "未登録")}</dd></div>${item.visit_conditions ? `<div><dt>訪問条件</dt><dd>${escapeHtml(item.visit_conditions)}</dd></div>` : ""}<div><dt>写真</dt><dd>${item.image_path ? "画像ファイルあり" : item.image_url ? `<a href="${safeUrl(item.image_url)}" target="_blank" rel="noopener">写真を開く ↗</a>` : "未登録"}</dd></div><div><dt>申請内容・補足</dt><dd>${escapeHtml(item.scene)}</dd></div><div><dt>根拠URL</dt><dd><a href="${safeUrl(item.source_url)}" target="_blank" rel="noopener">資料を開く ↗</a></dd></div>${item.contact_email ? `<div><dt>連絡先</dt><dd>${escapeHtml(item.contact_email)}</dd></div>` : ""}</dl>
       <label>管理メモ<textarea data-note="${item.id}" rows="2" placeholder="確認内容や差し戻し理由を記録">${escapeHtml(item.admin_note || "")}</textarea></label>
       <div class="review-actions"><button data-action="approved" data-id="${item.id}" type="button">承認</button><button data-action="returned" data-id="${item.id}" type="button">差し戻し</button></div>
     </article>`).join("") : '<p class="empty-state">この状態の申請はありません。</p>';
@@ -69,7 +78,19 @@ document.querySelector("#signOutButton").addEventListener("click", async () => {
 submissionList.addEventListener("click", async (event) => {
   const button = event.target.closest("button[data-action]"); if (!button) return;
   const id = button.dataset.id; const adminNote = document.querySelector(`[data-note="${id}"]`).value;
-  const { error } = await client.from("spot_submissions").update({ status: button.dataset.action, admin_note: adminNote, reviewed_at: new Date().toISOString() }).eq("id", id);
+  const item = submissionById.get(id);
+  const update = { status: button.dataset.action, admin_note: adminNote, reviewed_at: new Date().toISOString() };
+  button.disabled = true;
+  if (button.dataset.action === "approved" && item?.image_path && !item.image_url) {
+    const { data: file, error: downloadError } = await client.storage.from("submission-images").download(item.image_path);
+    if (downloadError) { adminStatus.textContent = "画像を公開用に移せませんでした。"; button.disabled = false; return; }
+    const extension = item.image_path.split(".").pop();
+    const publicPath = `${item.submission_type || "new_spot"}/${id}.${extension}`;
+    const { error: uploadError } = await client.storage.from("spot-images").upload(publicPath, file, { contentType: file.type, upsert: true });
+    if (uploadError) { adminStatus.textContent = "画像を公開用に保存できませんでした。"; button.disabled = false; return; }
+    update.image_url = client.storage.from("spot-images").getPublicUrl(publicPath).data.publicUrl;
+  }
+  const { error } = await client.from("spot_submissions").update(update).eq("id", id);
   if (error) { adminStatus.textContent = "更新できませんでした。"; return; } refreshSubmissions();
 });
 

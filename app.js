@@ -1,6 +1,7 @@
 const grid = document.querySelector("#placeGrid");
 const searchInput = document.querySelector("#searchInput");
 const searchBox = document.querySelector("#searchBox");
+const countryFilter = document.querySelector("#countryFilter");
 const prefectureFilter = document.querySelector("#prefectureFilter");
 const workFilter = document.querySelector("#workFilter");
 const workSuggestions = document.querySelector("#workSuggestions");
@@ -24,11 +25,11 @@ const languageSelect = document.querySelector("#languageSelect");
 const translations = {
   ja: {
     homeAria:"ホームへ", mainNavAria:"メインナビゲーション", exploreNav:"聖地を探す", worksNav:"作品から探す", submitNav:"聖地申請",
-    searchPlaceholder:"場所・シーンから検索", prefectureLabel:"都道府県", workLabel:"作品名", visitLabel:"訪問可否", workPlaceholder:"作品名を入力", reset:"リセット",
+    searchPlaceholder:"場所・シーンから検索", countryLabel:"国", prefectureLabel:"都道府県・地域", workLabel:"作品名", visitLabel:"訪問可否", workPlaceholder:"作品名を入力", reset:"リセット",
     heroHeading:"アニメの記憶を、<br /><em>地図の上へ。</em>", heroCopy:"提供データをもとに、作品・場面・実在の場所を記録する<br />聖地データベース。", worksStat:"作品", placesStat:"登録地点", prefecturesStat:"都道府県", scenesStat:"シーン", footerText:"データ探索プロトタイプ",
     exploreHeading:"聖地を探す", exploreDescription:"キーワードと条件を組み合わせて、行きたい聖地を探せます。", submissionHeading:"知っている聖地を<br /><em>申請する。</em>",
     submissionDescription:"未登録の場所や、より正確な情報があれば教えてください。根拠が分かるリンクや資料があると確認しやすくなります。", submissionDisclaimer:"申請内容は運営の確認待ちとして保存されます。個人情報は掲載せず、確認作業にのみ使用します。",
-    allPrefectures:"すべての都道府県", allVisits:"すべて", visitFree:"自由訪問可能", visitConditional:"条件付き", visitExterior:"外観のみ", results:n=>`${n} 件の地点を表示中`, noResults:"条件に一致する地点がありません。別の言葉で検索してみてください。",
+    allCountries:"すべての国", selectCountry:"先に国を選択", allPrefectures:"すべての都道府県・地域", regionUnavailable:"この国は地域情報が未登録です", allVisits:"すべて", visitFree:"自由訪問可能", visitConditional:"条件付き", visitExterior:"外観のみ", results:n=>`${n} 件の地点を表示中`, noResults:"条件に一致する地点がありません。別の言葉で検索してみてください。",
     openWorks:"作品候補を開く", closeWorks:"作品候補を閉じる", photoPending:"写真は準備中です", photoAfterReview:"確認後に追加されます", photoCredit:"写真提供：掲載情報",
     work:"登場作品", episode:"収録", category:"カテゴリ", coordinates:"座標", visit:"訪問可否", address:"住所", scene:"シーン", visitConditions:"訪問条件", source:"確認根拠", sourceLink:"公式情報を確認 ↗", map:"Google マップで確認 ↗", workData:w=>`「${w}」の作品データを表示`, checked:"最終確認日：", approvedCorrection:"承認済みの訂正情報", correctionSummary:"この情報の訂正・写真追加を申請する",
     correctionLabels:["申請内容","訂正・追加内容","確認できるURL","写真（任意）","連絡先（任意）"], submissionLabels:["作品名","聖地スポット名","都道府県","市区町村","座標","訪問可否","訪問条件","写真（任意）","登場シーン・補足","根拠となるURL・資料","連絡先（任意）"], correctionOption:"情報の訂正", imageOption:"写真の追加", send:"申請を送信する",
@@ -36,11 +37,11 @@ const translations = {
   },
   en: {
     homeAria:"Go to home", mainNavAria:"Main navigation", exploreNav:"Explore locations", worksNav:"Browse anime", submitNav:"Submit a location",
-    searchPlaceholder:"Search by location or scene", prefectureLabel:"Prefecture", workLabel:"Anime title", visitLabel:"Visitor access", workPlaceholder:"Enter an anime title", reset:"Reset",
+    searchPlaceholder:"Search by location or scene", countryLabel:"Country", prefectureLabel:"Prefecture / region", workLabel:"Anime title", visitLabel:"Visitor access", workPlaceholder:"Enter an anime title", reset:"Reset",
     heroHeading:"Anime memories,<br /><em>mapped to the real world.</em>", heroCopy:"A database connecting anime titles and scenes<br />with their real-world locations.", worksStat:"Titles", placesStat:"Locations", prefecturesStat:"Prefectures", scenesStat:"Scenes", footerText:"Prototype for data exploration",
     exploreHeading:"Explore locations", exploreDescription:"Combine keywords and filters to find locations you want to visit.", submissionHeading:"Share a location<br /><em>you know.</em>",
     submissionDescription:"Tell us about an unlisted location or a correction. A supporting official link or document helps us verify it.", submissionDisclaimer:"Submissions are stored for editorial review. Contact details are used only for verification and are never published.",
-    allPrefectures:"All prefectures", allVisits:"All", visitFree:"Open to visitors", visitConditional:"Conditional access", visitExterior:"Exterior only", results:n=>`Showing ${n} locations`, noResults:"No locations match these filters. Try another search.",
+    allCountries:"All countries", selectCountry:"Select a country first", allPrefectures:"All prefectures / regions", regionUnavailable:"Regional data is not registered for this country", allVisits:"All", visitFree:"Open to visitors", visitConditional:"Conditional access", visitExterior:"Exterior only", results:n=>`Showing ${n} locations`, noResults:"No locations match these filters. Try another search.",
     openWorks:"Open title suggestions", closeWorks:"Close title suggestions", photoPending:"Photo coming soon", photoAfterReview:"Added after verification", photoCredit:"Photo supplied with listing",
     work:"Anime title", episode:"Episode", category:"Category", coordinates:"Coordinates", visit:"Visitor access", address:"Address", scene:"Scene", visitConditions:"Access conditions", source:"Evidence", sourceLink:"View official source ↗", map:"View on Google Maps ↗", workData:w=>`View data for “${w}”`, checked:"Last reviewed: ", approvedCorrection:"Approved community correction", correctionSummary:"Submit a correction or photo",
     correctionLabels:["Request type","Correction or addition","Supporting URL","Photo (optional)","Contact (optional)"], submissionLabels:["Anime title","Location name","Prefecture","City / ward","Coordinates","Visitor access","Access conditions","Photo (optional)","Scene and notes","Supporting URL or document","Contact (optional)"], correctionOption:"Information correction", imageOption:"Add a photo", send:"Send submission",
@@ -50,6 +51,7 @@ const translations = {
 let currentLanguage = localStorage.getItem("anime-seichi-language") === "en" ? "en" : "ja";
 const t = (key, ...args) => typeof translations[currentLanguage][key] === "function" ? translations[currentLanguage][key](...args) : translations[currentLanguage][key];
 let activePrefecture = "";
+let activeCountry = "";
 let activeWork = "";
 let activeVisit = "";
 let workSuggestionsExpanded = false;
@@ -137,6 +139,21 @@ function orderedPrefectures() {
     return (aIndex === -1 ? 999 : aIndex) - (bIndex === -1 ? 999 : bIndex);
   });
 }
+function countryForPlace(place) {
+  return prefectureOrder.some((prefecture) => String(place.prefecture).includes(prefecture)) ? "日本" : place.prefecture;
+}
+function availableCountries() {
+  return [...new Set(places.map(countryForPlace))].sort((a, b) => {
+    if (a === "日本") return -1;
+    if (b === "日本") return 1;
+    return a.localeCompare(b, "ja");
+  });
+}
+function regionsForCountry(country) {
+  if (country === "日本") return prefectures.filter((prefecture) => prefectureOrder.some((item) => prefecture.includes(item)));
+  return [...new Set(places.filter((place) => countryForPlace(place) === country).map((place) => place.city).filter(Boolean))]
+    .sort((a, b) => a.localeCompare(b, "ja"));
+}
 let prefectures = orderedPrefectures();
 let works = unique("work");
 const requestedWork = new URLSearchParams(window.location.search).get("work");
@@ -152,7 +169,20 @@ function updateStats() {
 }
 
 function renderFilters() {
-  prefectureFilter.innerHTML = `<option value="">${t("allPrefectures")}</option>${prefectures.map((prefecture) => `<option value="${prefecture}">${prefecture}</option>`).join("")}`;
+  const countries = availableCountries();
+  countryFilter.innerHTML = `<option value="">${t("allCountries")}</option>${countries.map((country) => `<option value="${country}">${country}</option>`).join("")}`;
+  countryFilter.value = activeCountry;
+  const regions = regionsForCountry(activeCountry);
+  if (!activeCountry) {
+    prefectureFilter.innerHTML = `<option value="">${t("selectCountry")}</option>`;
+    prefectureFilter.disabled = true;
+  } else if (!regions.length) {
+    prefectureFilter.innerHTML = `<option value="">${t("regionUnavailable")}</option>`;
+    prefectureFilter.disabled = true;
+  } else {
+    prefectureFilter.innerHTML = `<option value="">${t("allPrefectures")}</option>${regions.map((prefecture) => `<option value="${prefecture}">${prefecture}</option>`).join("")}`;
+    prefectureFilter.disabled = false;
+  }
   prefectureFilter.value = activePrefecture;
   workFilter.value = activeWork;
   visitFilter.options[0].textContent = t("allVisits");
@@ -203,7 +233,9 @@ function renderPlaces() {
   const query = searchInput.value.trim().toLowerCase();
   const results = places.filter((place) => {
     const searchable = [place.name, place.prefecture, place.city, place.category, place.work, place.scene, place.visit].join(" ").toLowerCase();
-    return (!activePrefecture || place.prefecture === activePrefecture)
+    const matchesRegion = !activePrefecture || (activeCountry === "日本" ? place.prefecture === activePrefecture : place.city === activePrefecture);
+    return (!activeCountry || countryForPlace(place) === activeCountry)
+      && matchesRegion
       && (!activeWork || place.work.toLocaleLowerCase("ja").includes(activeWork.toLocaleLowerCase("ja")))
       && (!activeVisit || place.visit === activeVisit)
       && searchable.includes(query);
@@ -325,6 +357,7 @@ async function submitCorrection(event, place) {
 
 searchInput.addEventListener("input", renderPlaces);
 searchBox.addEventListener("click", () => searchInput.focus());
+countryFilter.addEventListener("change", () => { activeCountry = countryFilter.value; activePrefecture = ""; renderFilters(); renderPlaces(); });
 prefectureFilter.addEventListener("change", () => { activePrefecture = prefectureFilter.value; renderPlaces(); });
 workFilter.addEventListener("input", () => {
   activeWork = workFilter.value.trim();
@@ -344,6 +377,7 @@ document.addEventListener("click", (event) => {
 });
 visitFilter.addEventListener("change", () => { activeVisit = visitFilter.value; renderPlaces(); });
 filterReset.addEventListener("click", () => {
+  activeCountry = "";
   activePrefecture = "";
   activeWork = "";
   activeVisit = "";
