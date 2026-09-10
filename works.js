@@ -1,6 +1,7 @@
 const places = window.places || [];
 const workInfo = window.workInfo || {};
 const officialSources = window.officialSources || {};
+const animeArtwork = window.animeArtwork || {};
 const grid = document.querySelector("#worksGrid");
 const search = document.querySelector("#worksSearch");
 const result = document.querySelector("#worksResult");
@@ -11,12 +12,6 @@ const themeToggle = document.querySelector("#worksThemeToggle");
 const themeText = document.querySelector("#worksThemeText");
 const menuToggle = document.querySelector("#worksMenuToggle");
 const mobileMenu = document.querySelector("#worksMobileMenu");
-const artworkCacheKey = "anime-seichi-anilist-artwork-v1";
-let artworkCache = {};
-try { artworkCache = JSON.parse(localStorage.getItem(artworkCacheKey) || "{}"); } catch {}
-const artworkRequests = new Set();
-const artworkQueue = [];
-let artworkInFlight = 0;
 
 const copy = {
   ja: { places:"聖地を探す", works:"作品から探す", submit:"聖地申請", heading:"作品から探す", description:"作品を選ぶと、その作品に登録されている聖地をまとめて確認できます。", placeholder:"作品名を検索", footer:"作品別データ一覧", titles:n=>`${n} 作品を表示中`, spots:n=>`${n} 地点`, prefs:n=>`${n} 都道府県`, details:"聖地を見る", story:"作品紹介", studio:"アニメーション制作", author:"作者", access:"訪問可否", scene:"登場シーン", map:"Google マップで見る ↗", filter:"この作品の聖地だけを表示", officialSite:"公式サイトを見る ↗", noResults:"一致する作品がありません。" },
@@ -45,81 +40,10 @@ function render() {
     const genres = [work.info["ジャンル1"], work.info["ジャンル2"]].filter(Boolean).join(" / ");
     const prefectures = work.prefectures.slice(0, 4).join("・") + (work.prefectures.length > 4 ? ` +${work.prefectures.length - 4}` : "");
     const official = officialSources[work.name];
-    const artwork = official?.artworkUrl ? { image:official.artworkUrl, credit:"OFFICIAL" } : artworkCache[work.name];
+    const artwork = official?.artworkUrl ? { image:official.artworkUrl, credit:"OFFICIAL" } : animeArtwork[work.name];
     const artMarkup = artwork?.image ? `<span class="work-card-art"><img src="${escapeHtml(artwork.image)}" alt="${escapeHtml(`${work.name} artwork`)}" loading="lazy" referrerpolicy="no-referrer" /><small>${escapeHtml(artwork.credit || "AniList")}</small></span>` : `<span class="work-card-art work-card-art-placeholder" data-artwork-work="${escapeHtml(work.name)}" aria-label="作品画像を読み込み中"><span>ASD</span></span>`;
     return `<button class="work-card" type="button" data-work="${escapeHtml(work.name)}" style="--delay:${Math.min(index, 12) * 25}ms">${artMarkup}<span class="work-card-number">${String(index + 1).padStart(3, "0")}</span><span class="work-card-meta">${escapeHtml(genres || "ANIMATION")}</span><strong>${escapeHtml(work.name)}</strong><span class="work-card-prefectures">${escapeHtml(prefectures)}</span><span class="work-card-stats"><b>${t("spots", work.spots.length)}</b><b>${t("prefs", work.prefectures.length)}</b></span><span class="work-card-action">${t("details")} →</span></button>`;
   }).join("");
-  observeArtwork();
-}
-
-function saveArtworkCache() {
-  try { localStorage.setItem(artworkCacheKey, JSON.stringify(artworkCache)); } catch {}
-}
-
-function enqueueArtwork(workName) {
-  if (artworkCache[workName] || artworkRequests.has(workName) || artworkQueue.includes(workName)) return;
-  artworkQueue.push(workName);
-  processArtworkQueue();
-}
-
-function processArtworkQueue() {
-  while (artworkInFlight < 2 && artworkQueue.length) {
-    const workName = artworkQueue.shift();
-    artworkInFlight += 1;
-    fetchArtwork(workName).finally(() => {
-      artworkInFlight -= 1;
-      window.setTimeout(processArtworkQueue, 550);
-    });
-  }
-}
-
-async function fetchArtwork(workName) {
-  if (artworkRequests.has(workName) || artworkCache[workName]) return;
-  artworkRequests.add(workName);
-  try {
-    const response = await fetch("https://graphql.anilist.co", {
-      method:"POST",
-      headers:{ "Content-Type":"application/json", Accept:"application/json" },
-      body:JSON.stringify({ query:"query ($search: String) { Media(search: $search, type: ANIME) { coverImage { extraLarge large } } }", variables:{ search:workName } })
-    });
-    if (!response.ok) return;
-    const media = (await response.json()).data?.Media;
-    const image = media?.coverImage?.extraLarge || media?.coverImage?.large;
-    if (!image) return;
-    artworkCache[workName] = { image, credit:"AniList" };
-    saveArtworkCache();
-    const placeholder = grid.querySelector(`[data-artwork-work="${CSS.escape(workName)}"]`);
-    if (placeholder) {
-      const imageElement = document.createElement("img");
-      imageElement.src = image;
-      imageElement.alt = `${workName} artwork`;
-      imageElement.loading = "lazy";
-      imageElement.referrerPolicy = "no-referrer";
-      const credit = document.createElement("small");
-      credit.textContent = "AniList";
-      placeholder.classList.remove("work-card-art-placeholder");
-      placeholder.replaceChildren(imageElement, credit);
-    }
-  } catch {
-    // An unavailable image keeps the site-designed placeholder.
-  } finally {
-    artworkRequests.delete(workName);
-  }
-}
-
-function observeArtwork() {
-  const placeholders = grid.querySelectorAll("[data-artwork-work]");
-  if (!("IntersectionObserver" in window)) {
-    placeholders.forEach((element) => enqueueArtwork(element.dataset.artworkWork));
-    return;
-  }
-  const observer = new IntersectionObserver((entries, currentObserver) => {
-    entries.filter((entry) => entry.isIntersecting).forEach((entry) => {
-      currentObserver.unobserve(entry.target);
-      enqueueArtwork(entry.target.dataset.artworkWork);
-    });
-  }, { rootMargin:"280px 0px" });
-  placeholders.forEach((element) => observer.observe(element));
 }
 
 function mapUrl(place) {
