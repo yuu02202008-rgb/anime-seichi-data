@@ -9,8 +9,21 @@ const authStatus = document.querySelector("#authStatus");
 const submissionList = document.querySelector("#submissionList");
 const statusTabs = document.querySelector("#statusTabs");
 const adminStatus = document.querySelector("#adminStatus");
+const reviewTabs = document.querySelector("#reviewTabs");
+const spotReviewPanel = document.querySelector("#spotReviewPanel");
+const animeReviewPanel = document.querySelector("#animeReviewPanel");
+const animeCandidateList = document.querySelector("#animeCandidateList");
+const animeCandidateStatus = document.querySelector("#animeCandidateStatus");
+const animeQueueList = document.querySelector("#animeQueueList");
+const animeQueueStatus = document.querySelector("#animeQueueStatus");
+const animeCandidateYear = document.querySelector("#animeCandidateYear");
+const animeCandidateSeason = document.querySelector("#animeCandidateSeason");
+const loadAnimeCandidates = document.querySelector("#loadAnimeCandidates");
 let selectedStatus = "pending";
 let submissionById = new Map();
+let queuedAnimeIds = new Set();
+let activeReview = "spots";
+let displayedCandidates = Array.isArray(window.animeCandidates) ? window.animeCandidates : [];
 
 const escapeHtml = (value = "") => String(value).replace(/[&<>'"]/g, (character) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "'": "&#39;", '"': "&quot;" })[character]);
 const safeUrl = (value = "") => {
@@ -54,10 +67,87 @@ function renderTabs() {
   });
 }
 
+function renderReviewTabs() {
+  reviewTabs.innerHTML = "";
+  [["spots", "聖地承認"], ["anime", "アニメ承認・調査"]].forEach(([id, label]) => {
+    const button = document.createElement("button");
+    button.type = "button"; button.textContent = label;
+    button.className = id === activeReview ? "filter active" : "filter";
+    button.addEventListener("click", () => {
+      activeReview = id;
+      spotReviewPanel.hidden = id !== "spots";
+      animeReviewPanel.hidden = id !== "anime";
+      renderReviewTabs();
+    });
+    reviewTabs.append(button);
+  });
+}
+
+function setupCandidateControls() {
+  const currentYear = new Date().getFullYear();
+  for (let year = currentYear; year >= 2000; year -= 1) {
+    const option = document.createElement("option"); option.value = String(year); option.textContent = `${year}年`; animeCandidateYear.append(option);
+  }
+  const month = new Date().getMonth() + 1;
+  animeCandidateSeason.value = month <= 3 ? "WINTER" : month <= 6 ? "SPRING" : month <= 9 ? "SUMMER" : "FALL";
+}
+
+async function loadSeasonCandidates() {
+  const year = Number(animeCandidateYear.value);
+  const season = animeCandidateSeason.value;
+  loadAnimeCandidates.disabled = true;
+  animeCandidateStatus.textContent = `${year}年${season}の候補を取得しています…`;
+  const query = `query ($season: MediaSeason!, $seasonYear: Int!) { Page(page: 1, perPage: 24) { media(type: ANIME, format: TV, countryOfOrigin: JP, season: $season, seasonYear: $seasonYear, sort: POPULARITY_DESC) { id title { native romaji english } startDate { year month day } season seasonYear genres siteUrl description(asHtml: false) coverImage { large color } } } }`;
+  try {
+    const response = await fetch("https://graphql.anilist.co", { method:"POST", headers:{ "content-type":"application/json", accept:"application/json" }, body:JSON.stringify({ query, variables:{ season, seasonYear:year } }) });
+    const payload = await response.json();
+    if (!response.ok || payload.errors?.length) throw new Error("AniList error");
+    displayedCandidates = (payload.data?.Page?.media || []).map((media) => ({ anilistId:media.id, title:media.title.native || media.title.romaji || media.title.english, titleRomaji:media.title.romaji || "", titleEnglish:media.title.english || "", startDate:[media.startDate?.year, media.startDate?.month, media.startDate?.day].filter(Boolean).join("-") || "未定", season:[media.seasonYear, media.season].filter(Boolean).join(" "), genres:media.genres || [], sourceUrl:media.siteUrl || "", dataSource:"AniList", description:String(media.description || "").replace(/\s+/g," ").trim(), coverImage:media.coverImage?.large || "", color:media.coverImage?.color || "" }));
+    animeCandidateStatus.textContent = `${year}年${season}の候補 ${displayedCandidates.length}件`;
+    renderAnimeCandidates();
+  } catch {
+    animeCandidateStatus.textContent = "候補を取得できませんでした。少し時間を空けて再度お試しください。";
+  } finally { loadAnimeCandidates.disabled = false; }
+}
+
 async function showDashboard() {
   if (!(await isAdmin())) { authStatus.textContent = "このアカウントには管理者権限がありません。"; return; }
-  loginPanel.hidden = true; dashboard.hidden = false; renderTabs(); refreshSubmissions();
+  loginPanel.hidden = true; dashboard.hidden = false; renderReviewTabs(); renderTabs(); refreshSubmissions(); refreshAnimeQueue(); renderAnimeCandidates();
 }
+
+function candidateMarkup(candidate) {
+  const queued = queuedAnimeIds.has(candidate.anilistId);
+  const genres = (candidate.genres || []).slice(0, 3).join("・");
+  return `<article class="anime-candidate-item"><div class="anime-candidate-art">${candidate.coverImage ? `<img src="${safeUrl(candidate.coverImage)}" alt="" loading="lazy" referrerpolicy="no-referrer" />` : ""}</div><div><p class="eyebrow">${escapeHtml(candidate.season || "UPCOMING")} / ${escapeHtml(candidate.dataSource || "Anime data")}</p><h3>${escapeHtml(candidate.title)}</h3><p>${escapeHtml([candidate.startDate, genres].filter(Boolean).join(" / "))}</p><div class="review-actions">${candidate.sourceUrl ? `<a class="secondary-button" href="${safeUrl(candidate.sourceUrl)}" target="_blank" rel="noopener">作品データを見る ↗</a>` : ""}<button data-anime-action="queue" data-anime-id="${candidate.anilistId}" type="button" ${queued ? "disabled" : ""}>${queued ? "調査キュー追加済み" : "聖地調査キューに追加"}</button></div></div></article>`;
+}
+
+function renderAnimeCandidates() {
+  const candidates = displayedCandidates;
+  animeCandidateStatus.textContent = candidates.length ? `${candidates.length} 件の候補（週次更新）` : "候補データを準備中です。";
+  animeCandidateList.innerHTML = candidates.length ? candidates.map(candidateMarkup).join("") : '<p class="empty-state">次回の候補取得を待っています。</p>';
+}
+
+async function refreshAnimeQueue() {
+  animeQueueStatus.textContent = "聖地調査キューを読み込んでいます…";
+  const { data, error } = await client.from("anime_research_queue").select("*").order("created_at", { ascending: false });
+  if (error) { animeQueueStatus.textContent = "調査キューを使うには、専用の設定を一度だけ追加してください。"; animeQueueList.innerHTML = ""; return; }
+  queuedAnimeIds = new Set(data.map((item) => item.anilist_id));
+  animeQueueStatus.textContent = `${data.length} 件を調査中`;
+  animeQueueList.innerHTML = data.length ? data.map((item) => `<article class="anime-queue-item"><div>${item.cover_image ? `<img src="${safeUrl(item.cover_image)}" alt="" loading="lazy" referrerpolicy="no-referrer" />` : ""}</div><div><span class="status-badge ${escapeHtml(item.status)}">${escapeHtml(item.status)}</span><h3>${escapeHtml(item.title)}</h3><p>${escapeHtml([item.start_date, item.season, (item.genres || []).slice(0, 3).join("・")].filter(Boolean).join(" / "))}</p><a class="secondary-button" href="https://www.google.com/search?q=${encodeURIComponent(`${item.title} アニメ 聖地`)}" target="_blank" rel="noopener">聖地候補を調べる ↗</a></div></article>`).join("") : '<p class="empty-state">調査中の作品はありません。</p>';
+  renderAnimeCandidates();
+}
+
+animeCandidateList.addEventListener("click", async (event) => {
+  const button = event.target.closest("button[data-anime-action=queue]"); if (!button) return;
+  const candidate = displayedCandidates.find((item) => String(item.anilistId) === button.dataset.animeId); if (!candidate) return;
+  button.disabled = true; button.textContent = "追加しています…";
+  const { error } = await client.from("anime_research_queue").insert({ anilist_id:candidate.anilistId, title:candidate.title, title_romaji:candidate.titleRomaji, title_english:candidate.titleEnglish, start_date:candidate.startDate, season:candidate.season, genres:candidate.genres || [], cover_image:candidate.coverImage, official_url:candidate.sourceUrl, description:candidate.description });
+  if (error) { animeCandidateStatus.textContent = "追加できませんでした。調査キュー用の設定を確認してください。"; button.disabled = false; button.textContent = "聖地調査キューに追加"; return; }
+  await refreshAnimeQueue();
+});
+
+setupCandidateControls();
+loadAnimeCandidates.addEventListener("click", loadSeasonCandidates);
 
 authForm.addEventListener("submit", async (event) => {
   event.preventDefault(); authStatus.textContent = "ログインしています…";
