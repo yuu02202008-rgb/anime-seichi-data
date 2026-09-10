@@ -40,7 +40,7 @@ function render() {
     const genres = [work.info["ジャンル1"], work.info["ジャンル2"]].filter(Boolean).join(" / ");
     const prefectures = work.prefectures.slice(0, 4).join("・") + (work.prefectures.length > 4 ? ` +${work.prefectures.length - 4}` : "");
     const official = officialSources[work.name];
-    const artwork = official?.artworkUrl ? { image:official.artworkUrl, credit:"OFFICIAL" } : animeArtwork[work.name];
+    const artwork = official?.artworkDisabled ? null : (official?.artworkUrl ? { image:official.artworkUrl, credit:"OFFICIAL" } : animeArtwork[work.name]);
     const artMarkup = artwork?.image ? `<span class="work-card-art"><img src="${escapeHtml(artwork.image)}" alt="${escapeHtml(`${work.name} artwork`)}" loading="lazy" referrerpolicy="no-referrer" /><small>${escapeHtml(artwork.credit || "AniList")}</small></span>` : `<span class="work-card-art work-card-art-placeholder" data-artwork-work="${escapeHtml(work.name)}" aria-label="作品画像を読み込み中"><span>ASD</span></span>`;
     return `<button class="work-card" type="button" data-work="${escapeHtml(work.name)}" style="--delay:${Math.min(index, 12) * 25}ms">${artMarkup}<span class="work-card-number">${String(index + 1).padStart(3, "0")}</span><span class="work-card-meta">${escapeHtml(genres || "ANIMATION")}</span><strong>${escapeHtml(work.name)}</strong><span class="work-card-prefectures">${escapeHtml(prefectures)}</span><span class="work-card-stats"><b>${t("spots", work.spots.length)}</b><b>${t("prefs", work.prefectures.length)}</b></span><span class="work-card-action">${t("details")} →</span></button>`;
   }).join("");
