@@ -20,6 +20,35 @@ const themeToggleText = document.querySelector("#themeToggleText");
 const siteHeader = document.querySelector(".site-header");
 const mobileMenuToggle = document.querySelector("#mobileMenuToggle");
 const mobileMenuText = document.querySelector("#mobileMenuText");
+const languageSelect = document.querySelector("#languageSelect");
+const translations = {
+  ja: {
+    homeAria:"ホームへ", mainNavAria:"メインナビゲーション", exploreNav:"聖地を探す", worksNav:"作品から探す", submitNav:"聖地申請",
+    searchPlaceholder:"場所・シーンから検索", prefectureLabel:"都道府県", workLabel:"作品名", visitLabel:"訪問可否", workPlaceholder:"作品名を入力", reset:"リセット",
+    heroHeading:"アニメの記憶を、<br /><em>地図の上へ。</em>", heroCopy:"提供データをもとに、作品・場面・実在の場所を記録する<br />聖地データベース。", worksStat:"作品", placesStat:"登録地点", prefecturesStat:"都道府県", scenesStat:"シーン", footerText:"データ探索プロトタイプ",
+    exploreHeading:"聖地を探す", exploreDescription:"キーワードと条件を組み合わせて、行きたい聖地を探せます。", submissionHeading:"知っている聖地を<br /><em>申請する。</em>",
+    submissionDescription:"未登録の場所や、より正確な情報があれば教えてください。根拠が分かるリンクや資料があると確認しやすくなります。", submissionDisclaimer:"申請内容は運営の確認待ちとして保存されます。個人情報は掲載せず、確認作業にのみ使用します。",
+    allPrefectures:"すべての都道府県", allVisits:"すべて", visitFree:"自由訪問可能", visitConditional:"条件付き", visitExterior:"外観のみ", results:n=>`${n} 件の地点を表示中`, noResults:"条件に一致する地点がありません。別の言葉で検索してみてください。",
+    openWorks:"作品候補を開く", closeWorks:"作品候補を閉じる", photoPending:"写真は準備中です", photoAfterReview:"確認後に追加されます", photoCredit:"写真提供：掲載情報",
+    work:"登場作品", episode:"収録", category:"カテゴリ", coordinates:"座標", visit:"訪問可否", address:"住所", scene:"シーン", visitConditions:"訪問条件", source:"確認根拠", sourceLink:"公式情報を確認 ↗", map:"Google マップで確認 ↗", workData:w=>`「${w}」の作品データを表示`, checked:"最終確認日：", approvedCorrection:"承認済みの訂正情報", correctionSummary:"この情報の訂正・写真追加を申請する",
+    correctionLabels:["申請内容","訂正・追加内容","確認できるURL","写真（任意）","連絡先（任意）"], submissionLabels:["作品名","聖地スポット名","都道府県","市区町村","座標","訪問可否","訪問条件","写真（任意）","登場シーン・補足","根拠となるURL・資料","連絡先（任意）"], correctionOption:"情報の訂正", imageOption:"写真の追加", send:"申請を送信する",
+    lightAria:"ライトモードに切り替える", darkAria:"ダークモードに切り替える"
+  },
+  en: {
+    homeAria:"Go to home", mainNavAria:"Main navigation", exploreNav:"Explore locations", worksNav:"Browse anime", submitNav:"Submit a location",
+    searchPlaceholder:"Search by location or scene", prefectureLabel:"Prefecture", workLabel:"Anime title", visitLabel:"Visitor access", workPlaceholder:"Enter an anime title", reset:"Reset",
+    heroHeading:"Anime memories,<br /><em>mapped to the real world.</em>", heroCopy:"A database connecting anime titles and scenes<br />with their real-world locations.", worksStat:"Titles", placesStat:"Locations", prefecturesStat:"Prefectures", scenesStat:"Scenes", footerText:"Prototype for data exploration",
+    exploreHeading:"Explore locations", exploreDescription:"Combine keywords and filters to find locations you want to visit.", submissionHeading:"Share a location<br /><em>you know.</em>",
+    submissionDescription:"Tell us about an unlisted location or a correction. A supporting official link or document helps us verify it.", submissionDisclaimer:"Submissions are stored for editorial review. Contact details are used only for verification and are never published.",
+    allPrefectures:"All prefectures", allVisits:"All", visitFree:"Open to visitors", visitConditional:"Conditional access", visitExterior:"Exterior only", results:n=>`Showing ${n} locations`, noResults:"No locations match these filters. Try another search.",
+    openWorks:"Open title suggestions", closeWorks:"Close title suggestions", photoPending:"Photo coming soon", photoAfterReview:"Added after verification", photoCredit:"Photo supplied with listing",
+    work:"Anime title", episode:"Episode", category:"Category", coordinates:"Coordinates", visit:"Visitor access", address:"Address", scene:"Scene", visitConditions:"Access conditions", source:"Evidence", sourceLink:"View official source ↗", map:"View on Google Maps ↗", workData:w=>`View data for “${w}”`, checked:"Last reviewed: ", approvedCorrection:"Approved community correction", correctionSummary:"Submit a correction or photo",
+    correctionLabels:["Request type","Correction or addition","Supporting URL","Photo (optional)","Contact (optional)"], submissionLabels:["Anime title","Location name","Prefecture","City / ward","Coordinates","Visitor access","Access conditions","Photo (optional)","Scene and notes","Supporting URL or document","Contact (optional)"], correctionOption:"Information correction", imageOption:"Add a photo", send:"Send submission",
+    lightAria:"Switch to light mode", darkAria:"Switch to dark mode"
+  }
+};
+let currentLanguage = localStorage.getItem("anime-seichi-language") === "en" ? "en" : "ja";
+const t = (key, ...args) => typeof translations[currentLanguage][key] === "function" ? translations[currentLanguage][key](...args) : translations[currentLanguage][key];
 let activePrefecture = "";
 let activeWork = "";
 let activeVisit = "";
@@ -36,6 +65,34 @@ const safeImageUrl = (value = "") => {
 };
 const escapeHtml = (value = "") => String(value).replace(/[&<>'"]/g, (character) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "'": "&#39;", '"': "&quot;" })[character]);
 const allowedImageTypes = ["image/jpeg", "image/png", "image/webp"];
+
+function replaceLeadingText(element, value) {
+  const textNode = [...element.childNodes].find((node) => node.nodeType === Node.TEXT_NODE && node.textContent.trim());
+  if (textNode) textNode.textContent = value;
+}
+
+function applyLanguage(language, save = true) {
+  currentLanguage = language === "en" ? "en" : "ja";
+  document.documentElement.lang = currentLanguage;
+  languageSelect.value = currentLanguage;
+  if (save) localStorage.setItem("anime-seichi-language", currentLanguage);
+  document.querySelectorAll("[data-i18n]").forEach((element) => { element.textContent = t(element.dataset.i18n); });
+  document.querySelectorAll("[data-i18n-html]").forEach((element) => { element.innerHTML = t(element.dataset.i18nHtml); });
+  document.querySelectorAll("[data-i18n-placeholder]").forEach((element) => { element.placeholder = t(element.dataset.i18nPlaceholder); });
+  document.querySelectorAll("[data-i18n-aria-label]").forEach((element) => { element.setAttribute("aria-label", t(element.dataset.i18nAriaLabel)); });
+  const submissionLabels = submissionForm.querySelectorAll("label");
+  translations[currentLanguage].submissionLabels.forEach((label, index) => { if (submissionLabels[index]) replaceLeadingText(submissionLabels[index], label); });
+  const visitOptions = visitStatus.options;
+  visitOptions[0].textContent = currentLanguage === "en" ? "Select an option" : "選択してください";
+  visitOptions[1].textContent = t("visitFree");
+  visitOptions[2].textContent = t("visitConditional");
+  visitOptions[3].textContent = t("visitExterior");
+  submissionForm.querySelector(".submit-button").childNodes[0].textContent = `${t("send")} `;
+  renderFilters();
+  setWorkSuggestions(false);
+  renderPlaces();
+  setTheme(document.body.dataset.theme || "light");
+}
 
 async function uploadSubmissionImage(file) {
   if (!file || !file.size) return "";
@@ -82,6 +139,8 @@ function orderedPrefectures() {
 }
 let prefectures = orderedPrefectures();
 let works = unique("work");
+const requestedWork = new URLSearchParams(window.location.search).get("work");
+if (requestedWork && works.includes(requestedWork)) activeWork = requestedWork;
 
 function updateStats() {
   works = unique("work");
@@ -93,9 +152,13 @@ function updateStats() {
 }
 
 function renderFilters() {
-  prefectureFilter.innerHTML = `<option value="">すべての都道府県</option>${prefectures.map((prefecture) => `<option value="${prefecture}">${prefecture}</option>`).join("")}`;
+  prefectureFilter.innerHTML = `<option value="">${t("allPrefectures")}</option>${prefectures.map((prefecture) => `<option value="${prefecture}">${prefecture}</option>`).join("")}`;
   prefectureFilter.value = activePrefecture;
   workFilter.value = activeWork;
+  visitFilter.options[0].textContent = t("allVisits");
+  visitFilter.options[1].textContent = t("visitFree");
+  visitFilter.options[2].textContent = t("visitConditional");
+  visitFilter.options[3].textContent = t("visitExterior");
   visitFilter.value = activeVisit;
 }
 
@@ -131,7 +194,7 @@ function setWorkSuggestions(open) {
   workSuggestionsExpanded = open;
   workSuggestionsToggle.textContent = open ? "⌃" : "⌄";
   workSuggestionsToggle.setAttribute("aria-expanded", String(open));
-  workSuggestionsToggle.setAttribute("aria-label", open ? "作品候補を閉じる" : "作品候補を開く");
+  workSuggestionsToggle.setAttribute("aria-label", open ? t("closeWorks") : t("openWorks"));
   if (open) renderWorkSuggestions();
   else workSuggestions.hidden = true;
 }
@@ -146,9 +209,9 @@ function renderPlaces() {
       && searchable.includes(query);
   });
   grid.innerHTML = "";
-  resultStatus.textContent = `${results.length} 件の地点を表示中`;
+  resultStatus.textContent = t("results", results.length);
   if (!results.length) {
-    grid.innerHTML = '<p class="empty-state">条件に一致する地点がありません。別の言葉で検索してみてください。</p>';
+    grid.innerHTML = `<p class="empty-state">${t("noResults")}</p>`;
     return;
   }
   results.forEach((place, index) => {
@@ -171,32 +234,34 @@ function showDetail(place) {
   const mapQuery = encodeURIComponent(`${place.name} ${place.address}`);
   const workFields = Object.entries(workInfo[place.work] || {}).filter(([, value]) => value !== "");
   const workDetail = workFields.map(([label, value]) => `<div><dt>${label}</dt><dd>${value}</dd></div>`).join("");
-  const workInfoPanel = workFields.length ? `<details class="work-details"><summary>「${place.work}」の作品データを表示</summary><dl>${workDetail}</dl></details>` : "";
-  const mapLink = place.privacyProtected ? "" : `<a class="map-link" href="${place.mapUrl || `https://www.google.com/maps/search/?api=1&query=${mapQuery}`}" target="_blank" rel="noopener">Google マップで確認 ↗</a>`;
+  const workInfoPanel = workFields.length ? `<details class="work-details"><summary>${t("workData", place.work)}</summary><dl>${workDetail}</dl></details>` : "";
+  const mapLink = place.privacyProtected ? "" : `<a class="map-link" href="${place.mapUrl || `https://www.google.com/maps/search/?api=1&query=${mapQuery}`}" target="_blank" rel="noopener">${t("map")}</a>`;
   const imageUrl = safeImageUrl(place.imageUrl);
+  const sourceUrl = safeImageUrl(place.sourceUrl);
   const imagePanel = imageUrl
-    ? `<figure class="place-photo"><img src="${imageUrl}" alt="${place.name}の写真" loading="lazy" /><figcaption>写真提供：掲載情報</figcaption></figure>`
-    : `<div class="place-photo place-photo-empty" aria-label="写真は準備中です"><span>PHOTO</span><strong>写真は準備中です</strong><small>確認後に追加されます</small></div>`;
+    ? `<figure class="place-photo"><img src="${imageUrl}" alt="${place.name}" loading="lazy" /><figcaption>${t("photoCredit")}</figcaption></figure>`
+    : `<div class="place-photo place-photo-empty" aria-label="${t("photoPending")}"><span>PHOTO</span><strong>${t("photoPending")}</strong><small>${t("photoAfterReview")}</small></div>`;
   dialogContent.innerHTML = `
     <p class="eyebrow">LOCATION DETAIL / ${place.id.toUpperCase()}</p>
     <div class="dialog-title-row"><div><p class="dialog-place">${place.prefecture}・${place.city}</p><h2>${place.name}</h2></div></div>
     ${imagePanel}
     <dl class="detail-grid">
-      <div><dt>登場作品</dt><dd>${place.work}</dd></div>
-      <div><dt>収録</dt><dd>${place.episode}</dd></div>
-      <div><dt>カテゴリ</dt><dd>${place.category}</dd></div>
-      <div><dt>座標</dt><dd>${place.coordinates}</dd></div>
-      <div><dt>訪問可否</dt><dd>${place.visit}</dd></div>
-      <div><dt>住所</dt><dd>${place.address}</dd></div>
-      <div class="wide"><dt>シーン</dt><dd>${place.scene}</dd></div>
-      ${place.visitConditions ? `<div class="wide"><dt>訪問条件</dt><dd>${place.visitConditions}</dd></div>` : ""}
+      <div><dt>${t("work")}</dt><dd>${place.work}</dd></div>
+      <div><dt>${t("episode")}</dt><dd>${place.episode}</dd></div>
+      <div><dt>${t("category")}</dt><dd>${place.category}</dd></div>
+      <div><dt>${t("coordinates")}</dt><dd>${place.coordinates}</dd></div>
+      <div><dt>${t("visit")}</dt><dd>${place.visit}</dd></div>
+      <div><dt>${t("address")}</dt><dd>${place.address}</dd></div>
+      <div class="wide"><dt>${t("scene")}</dt><dd>${place.scene}</dd></div>
+      ${place.visitConditions ? `<div class="wide"><dt>${t("visitConditions")}</dt><dd>${place.visitConditions}</dd></div>` : ""}
+      ${sourceUrl ? `<div class="wide"><dt>${t("source")}</dt><dd><a href="${sourceUrl}" target="_blank" rel="noopener">${t("sourceLink")}</a></dd></div>` : ""}
     </dl>
     ${mapLink}
     ${workInfoPanel}
-    ${place.communityUpdate ? `<aside class="community-update"><strong>承認済みの訂正情報</strong><p>${escapeHtml(place.communityUpdate)}</p></aside>` : ""}
-    <p class="checked">最終確認日：${place.checkedAt}</p>
+    ${place.communityUpdate ? `<aside class="community-update"><strong>${t("approvedCorrection")}</strong><p>${escapeHtml(place.communityUpdate)}</p></aside>` : ""}
+    <p class="checked">${t("checked")}${place.checkedAt}</p>
     <details class="correction-panel">
-      <summary>この情報の訂正・写真追加を申請する</summary>
+      <summary>${t("correctionSummary")}</summary>
       <form class="correction-form" id="correctionForm">
         <label>申請内容<select name="requestType" required><option value="correction">情報の訂正</option><option value="image_addition">写真の追加</option></select></label>
         <label>訂正・追加内容<textarea name="details" rows="4" required placeholder="どの情報を、どのように直すべきか入力してください"></textarea></label>
@@ -208,6 +273,12 @@ function showDetail(place) {
       </form>
     </details>`;
   document.querySelector("#correctionForm").addEventListener("submit", (event) => submitCorrection(event, place));
+  const correctionLabels = document.querySelectorAll("#correctionForm label");
+  translations[currentLanguage].correctionLabels.forEach((label, index) => { if (correctionLabels[index]) replaceLeadingText(correctionLabels[index], label); });
+  const requestTypeOptions = document.querySelector("#correctionForm select[name=requestType]").options;
+  requestTypeOptions[0].textContent = t("correctionOption");
+  requestTypeOptions[1].textContent = t("imageOption");
+  document.querySelector("#correctionForm .submit-button").childNodes[0].textContent = `${t("send")} `;
   dialog.showModal();
 }
 
@@ -378,11 +449,13 @@ function setTheme(theme) {
   document.body.dataset.theme = theme;
   themeToggleText.textContent = theme === "dark" ? "DARK MODE" : "LIGHT MODE";
   themeToggle.firstElementChild.textContent = theme === "dark" ? "☾" : "☀";
-  themeToggle.setAttribute("aria-label", theme === "dark" ? "ライトモードに切り替える" : "ダークモードに切り替える");
+  themeToggle.setAttribute("aria-label", theme === "dark" ? t("lightAria") : t("darkAria"));
   localStorage.setItem("anime-seichi-theme", theme);
 }
 
 setTheme(localStorage.getItem("anime-seichi-theme") || "light");
+languageSelect.addEventListener("change", () => applyLanguage(languageSelect.value));
+applyLanguage(currentLanguage, false);
 themeToggle.addEventListener("click", () => setTheme(document.body.dataset.theme === "dark" ? "light" : "dark"));
 
 function setMobileMenu(open) {
