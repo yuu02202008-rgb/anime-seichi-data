@@ -62,7 +62,7 @@ function render() {
     const prefectures = work.prefectures.slice(0, 4).join("・") + (work.prefectures.length > 4 ? ` +${work.prefectures.length - 4}` : "");
     const candidates = artworkCandidates(work.name);
     const artwork = candidates[0];
-    const artMarkup = artwork?.image ? `<span class="work-card-art"><img src="${escapeHtml(artwork.image)}" alt="${escapeHtml(`${work.name} artwork`)}" loading="lazy" referrerpolicy="no-referrer" data-artwork-work="${escapeHtml(work.name)}" data-artwork-index="0" /><small>${escapeHtml(artwork.credit || "Artwork")}</small></span>` : `<span class="work-card-art work-card-art-placeholder" aria-label="作品画像を準備中"><span>ASD</span></span>`;
+    const artMarkup = artwork?.image ? `<span class="work-card-art${artwork.coverPosition === "right" ? " work-card-art-focus-right" : ""}"><img src="${escapeHtml(artwork.image)}" alt="${escapeHtml(`${work.name} artwork`)}" loading="lazy" referrerpolicy="no-referrer" data-artwork-work="${escapeHtml(work.name)}" data-artwork-index="0" /><small>${escapeHtml(artwork.credit || "Artwork")}</small></span>` : `<span class="work-card-art work-card-art-placeholder" aria-label="作品画像を準備中"><span>ASD</span></span>`;
     return `<button class="work-card" type="button" data-work="${escapeHtml(work.name)}" style="--delay:${Math.min(index, 12) * 25}ms">${artMarkup}<span class="work-card-number">${String(index + 1).padStart(3, "0")}</span><span class="work-card-meta">${escapeHtml(genres || "ANIMATION")}</span><strong>${escapeHtml(work.name)}</strong><span class="work-card-prefectures">${escapeHtml(prefectures)}</span><span class="work-card-stats"><b>${t("spots", work.spots.length)}</b></span><span class="work-card-action">${t("details")} →</span></button>`;
   }).join("");
 }
