@@ -132,8 +132,12 @@ async function refreshAnimeQueue() {
   const { data, error } = await client.from("anime_research_queue").select("*").order("created_at", { ascending: false });
   if (error) { animeQueueStatus.textContent = "調査キューを使うには、専用の設定を一度だけ追加してください。"; animeQueueList.innerHTML = ""; return; }
   queuedAnimeIds = new Set(data.map((item) => item.anilist_id));
-  animeQueueStatus.textContent = `${data.length} 件を調査中`;
-  animeQueueList.innerHTML = data.length ? data.map((item) => `<article class="anime-queue-item"><div>${item.cover_image ? `<img src="${safeUrl(item.cover_image)}" alt="" loading="lazy" referrerpolicy="no-referrer" />` : ""}</div><div><span class="status-badge ${escapeHtml(item.status)}">${escapeHtml(item.status)}</span><h3>${escapeHtml(item.title)}</h3><p>${escapeHtml([item.start_date, item.season, (item.genres || []).slice(0, 3).join("・")].filter(Boolean).join(" / "))}</p><a class="secondary-button" href="https://www.google.com/search?q=${encodeURIComponent(`${item.title} アニメ 聖地`)}" target="_blank" rel="noopener">聖地候補を調べる ↗</a></div></article>`).join("") : '<p class="empty-state">調査中の作品はありません。</p>';
+  animeQueueStatus.textContent = `${data.length} 件を調査中。自動調査の結果は「確認待ち」の下書きとして届きます。`;
+  animeQueueList.innerHTML = data.length ? data.map((item) => {
+    const researchStatus = item.research_status || "queued";
+    const label = ({ queued:"自動調査待ち", processing:"自動調査中", drafted:`下書き ${item.drafted_spot_count || 0} 件作成`, no_match:"根拠を確認できず", failed:"再調査待ち" })[researchStatus] || researchStatus;
+    return `<article class="anime-queue-item"><div>${item.cover_image ? `<img src="${safeUrl(item.cover_image)}" alt="" loading="lazy" referrerpolicy="no-referrer" />` : ""}</div><div><span class="status-badge ${escapeHtml(item.status)}">${escapeHtml(item.status)}</span><span class="status-badge">${escapeHtml(label)}</span><h3>${escapeHtml(item.title)}</h3><p>${escapeHtml([item.start_date, item.season, (item.genres || []).slice(0, 3).join("・")].filter(Boolean).join(" / "))}</p>${item.research_error ? `<p class="form-status">${escapeHtml(item.research_error)}</p>` : ""}<div class="review-actions queue-actions"><a class="secondary-button" href="https://www.google.com/search?q=${encodeURIComponent(`${item.title} アニメ 聖地`)}" target="_blank" rel="noopener">聖地候補を調べる ↗</a><button class="queue-delete-button" data-queue-action="delete" data-queue-id="${escapeHtml(item.id)}" data-queue-title="${escapeHtml(item.title)}" type="button">キューから削除</button></div></div></article>`;
+  }).join("") : '<p class="empty-state">調査中の作品はありません。</p>';
   renderAnimeCandidates();
 }
 
@@ -143,6 +147,23 @@ animeCandidateList.addEventListener("click", async (event) => {
   button.disabled = true; button.textContent = "追加しています…";
   const { error } = await client.from("anime_research_queue").insert({ anilist_id:candidate.anilistId, title:candidate.title, title_romaji:candidate.titleRomaji, title_english:candidate.titleEnglish, start_date:candidate.startDate, season:candidate.season, genres:candidate.genres || [], cover_image:candidate.coverImage, official_url:candidate.sourceUrl, description:candidate.description });
   if (error) { animeCandidateStatus.textContent = "追加できませんでした。調査キュー用の設定を確認してください。"; button.disabled = false; button.textContent = "聖地調査キューに追加"; return; }
+  await refreshAnimeQueue();
+});
+
+animeQueueList.addEventListener("click", async (event) => {
+  const button = event.target.closest("button[data-queue-action=delete]");
+  if (!button) return;
+  const title = button.dataset.queueTitle || "この作品";
+  if (!window.confirm(`「${title}」を聖地調査キューから削除しますか？`)) return;
+  button.disabled = true;
+  button.textContent = "削除しています…";
+  const { error } = await client.from("anime_research_queue").delete().eq("id", button.dataset.queueId);
+  if (error) {
+    animeQueueStatus.textContent = "削除できませんでした。管理者としてログインしているか確認してください。";
+    button.disabled = false;
+    button.textContent = "キューから削除";
+    return;
+  }
   await refreshAnimeQueue();
 });
 
