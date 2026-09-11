@@ -33,12 +33,18 @@
       <section class="works-grid" id="worksGrid" aria-label="作品一覧"></section>
     </main>
 
-    <footer><span>© 2026 ANIME SEICHI DATA</span><span data-text="footer">作品別データ一覧</span></footer>
+    <footer><span>© 2026 ANIME SEICHI DATA</span><span data-text="footer">作品別データ一覧</span><a href="privacy.html">利用案内・プライバシー</a></footer>
     <dialog id="workDialog" class="place-dialog work-dialog">
       <button class="dialog-close" id="workDialogClose" type="button" aria-label="閉じる">×</button>
       <div id="workDialogContent"></div>
     </dialog>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="config.js"></script>
+    <script src="street-view.js"></script>
     <script src="data.js"></script>
+    <script src="data-cleanup.js"></script>
+    <script src="place-photos.js"></script>
+    <script src="photo-discovery.js"></script>
     <script src="official-sources.js"></script>
     <script src="anime-artwork.js"></script>
     <script src="works.js"></script>
