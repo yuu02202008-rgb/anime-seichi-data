@@ -84,14 +84,18 @@
 
     </main>
 
-    <footer><span>© 2026 ANIME SEICHI DATA</span><span data-i18n="footerText">データ探索プロトタイプ</span></footer>
+    <footer><span>© 2026 ANIME SEICHI DATA</span><span data-i18n="footerText">データ探索プロトタイプ</span><a href="privacy.html">利用案内・プライバシー</a></footer>
     <dialog id="placeDialog" class="place-dialog">
       <button class="dialog-close" id="dialogClose" type="button" aria-label="閉じる">×</button>
       <div id="dialogContent"></div>
     </dialog>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="config.js"></script>
+    <script src="street-view.js"></script>
     <script src="data.js"></script>
-    <script src="app.js"></script>
+    <script src="data-cleanup.js"></script>
+    <script src="place-photos.js"></script>
+    <script src="photo-discovery.js"></script>
+    <script src="app.js?v=20260912-place-cards"></script>
   </body>
 </html>

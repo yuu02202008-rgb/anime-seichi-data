@@ -57,6 +57,20 @@ let activeVisit = "";
 let workSuggestionsExpanded = false;
 const places = window.places;
 const workInfo = window.workInfo || {};
+const photoObserver = typeof IntersectionObserver === "undefined" ? null : new IntersectionObserver((entries) => {
+  entries.filter((entry) => entry.isIntersecting).forEach((entry) => {
+    const card = entry.target;
+    photoObserver.unobserve(card);
+    const place = card._placeForPhoto;
+    if (!place || !card.isConnected || placeCardImage(place)) return;
+    window.placePhotoDiscovery?.find(place).then((photo) => {
+      if (!photo || !card.isConnected) return;
+      Object.assign(place, photo);
+      const slot = card.querySelector(".place-card-photo");
+      if (slot) slot.outerHTML = cardPhotoMarkup(place);
+    });
+  });
+}, { rootMargin: "260px 0px" });
 const supabaseClient = window.supabase.createClient(
   window.supabaseConfig.url,
   window.supabaseConfig.publishableKey
@@ -229,6 +243,18 @@ function setWorkSuggestions(open) {
   else workSuggestions.hidden = true;
 }
 
+function placeCardImage(place) {
+  return safeImageUrl(place.imageUrl) || window.streetView?.imageFor(place) || "";
+}
+
+function cardPhotoMarkup(place) {
+  const imageUrl = placeCardImage(place);
+  if (!imageUrl) return `<span class="place-card-photo place-card-photo-empty" aria-hidden="true"><span>PHOTO</span><small>写真を探しています</small></span>`;
+  const creditText = place.photoCredit || (window.streetView?.isStreetView(imageUrl) ? "Google Maps · Street View" : "");
+  const credit = creditText ? `<small class="place-card-photo-credit">${escapeHtml(creditText)}</small>` : "";
+  return `<span class="place-card-photo"><img src="${escapeHtml(imageUrl)}" alt="${escapeHtml(place.name)}" loading="lazy" />${credit}</span>`;
+}
+
 function renderPlaces() {
   const query = searchInput.value.trim().toLowerCase();
   const results = places.filter((place) => {
@@ -251,14 +277,26 @@ function renderPlaces() {
     card.type = "button";
     card.className = `place-card ${place.color}`;
     card.style.setProperty("--delay", `${index * 55}ms`);
+    const location = place.address || [place.prefecture, place.city].filter(Boolean).join("");
     card.innerHTML = `
-      <span class="card-number">${String(index + 1).padStart(2, "0")}</span>
-      <span class="card-location">${place.prefecture}・${place.city}</span>
-      <strong>${place.name}</strong>
-      <span class="card-work">${place.work}</span>
-      <span class="card-arrow">↗</span>`;
+      ${cardPhotoMarkup(place)}
+      <span class="place-card-body">
+        <strong>${escapeHtml(place.name)}</strong>
+        <span class="card-location"><span aria-hidden="true">●</span>${escapeHtml(location)}</span>
+        <span class="card-scene">${escapeHtml(place.scene || "登場シーンの情報は準備中です")}</span>
+        <span class="card-work">${escapeHtml(place.work)}</span>
+      </span>`;
+    card.addEventListener("error", (event) => {
+      const image = event.target;
+      if (!(image instanceof HTMLImageElement)) return;
+      image.parentElement.outerHTML = `<span class="place-card-photo place-card-photo-empty" aria-hidden="true"><span>PHOTO</span><small>写真を追加できます</small></span>`;
+    }, true);
     card.addEventListener("click", () => showDetail(place));
     grid.append(card);
+    if (!placeCardImage(place) && photoObserver) {
+      card._placeForPhoto = place;
+      photoObserver.observe(card);
+    }
   });
 }
 
@@ -268,10 +306,12 @@ function showDetail(place) {
   const workDetail = workFields.map(([label, value]) => `<div><dt>${label}</dt><dd>${value}</dd></div>`).join("");
   const workInfoPanel = workFields.length ? `<details class="work-details"><summary>${t("workData", place.work)}</summary><dl>${workDetail}</dl></details>` : "";
   const mapLink = place.privacyProtected ? "" : `<a class="map-link" href="${place.mapUrl || `https://www.google.com/maps/search/?api=1&query=${mapQuery}`}" target="_blank" rel="noopener">${t("map")}</a>`;
-  const imageUrl = safeImageUrl(place.imageUrl);
+  const imageUrl = placeCardImage(place);
   const sourceUrl = safeImageUrl(place.sourceUrl);
+  const photoSourceUrl = safeImageUrl(place.photoSourceUrl);
+  const imageCredit = place.photoCredit || (window.streetView?.isStreetView(imageUrl) ? "Google Maps · Street View" : t("photoCredit"));
   const imagePanel = imageUrl
-    ? `<figure class="place-photo"><img src="${imageUrl}" alt="${place.name}" loading="lazy" /><figcaption>${t("photoCredit")}</figcaption></figure>`
+    ? `<figure class="place-photo"><img src="${imageUrl}" alt="${place.name}" loading="lazy" /><figcaption>${photoSourceUrl ? `<a href="${photoSourceUrl}" target="_blank" rel="noreferrer">${escapeHtml(imageCredit)}</a>` : escapeHtml(imageCredit)}</figcaption></figure>`
     : `<div class="place-photo place-photo-empty" aria-label="${t("photoPending")}"><span>PHOTO</span><strong>${t("photoPending")}</strong><small>${t("photoAfterReview")}</small></div>`;
   dialogContent.innerHTML = `
     <p class="eyebrow">LOCATION DETAIL / ${place.id.toUpperCase()}</p>
