@@ -8,5 +8,6 @@
 
   (window.places || []).forEach((place) => {
     if (corrections.has(place.work)) place.work = corrections.get(place.work);
+    if (place.id === "place-6" && place.name === "東京都立武蔵野北高等学校") place.coordinates = "35.7198, 139.5573";
   });
 })();

@@ -1,7 +1,11 @@
--- Supabase SQL Editorで一度実行してください。
--- 承認済みの申請だけを、連絡先を除いて公開サイトへ渡す関数です。
+-- 写真URLを保存・公開できるようにする更新です。一度だけ実行してください。
 
-create or replace function public.get_approved_spots()
+alter table public.spot_submissions
+  add column if not exists image_url text;
+
+drop function if exists public.get_approved_spots();
+
+create function public.get_approved_spots()
 returns table (
   id uuid,
   work text,

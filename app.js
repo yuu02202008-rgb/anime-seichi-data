@@ -257,7 +257,7 @@ function cardPhotoMarkup(place) {
 
 function renderPlaces() {
   const query = searchInput.value.trim().toLowerCase();
-  const results = places.filter((place) => {
+  let results = places.filter((place) => {
     const searchable = [place.name, place.prefecture, place.city, place.category, place.work, place.scene, place.visit].join(" ").toLowerCase();
     const matchesRegion = !activePrefecture || (activeCountry === "日本" ? place.prefecture === activePrefecture : place.city === activePrefecture);
     return (!activeCountry || countryForPlace(place) === activeCountry)
@@ -266,6 +266,8 @@ function renderPlaces() {
       && (!activeVisit || place.visit === activeVisit)
       && searchable.includes(query);
   });
+  results = window.nearby.order(results);
+  window.nearby.render(results, showDetail);
   grid.innerHTML = "";
   resultStatus.textContent = t("results", results.length);
   if (!results.length) {
@@ -283,6 +285,7 @@ function renderPlaces() {
       <span class="place-card-body">
         <strong>${escapeHtml(place.name)}</strong>
         <span class="card-location"><span aria-hidden="true">●</span>${escapeHtml(location)}</span>
+        ${window.nearby.distanceMarkup(place)}
         <span class="card-scene">${escapeHtml(place.scene || "登場シーンの情報は準備中です")}</span>
         <span class="card-work">${escapeHtml(place.work)}</span>
       </span>`;
@@ -301,7 +304,8 @@ function renderPlaces() {
 }
 
 function showDetail(place) {
-  const mapQuery = encodeURIComponent(`${place.name} ${place.address}`);
+  const point = window.nearby.coordinates(place);
+  const mapQuery = encodeURIComponent(point ? point.join(",") : `${place.name} ${place.address}`);
   const workFields = Object.entries(workInfo[place.work] || {}).filter(([, value]) => value !== "");
   const workDetail = workFields.map(([label, value]) => `<div><dt>${label}</dt><dd>${value}</dd></div>`).join("");
   const workInfoPanel = workFields.length ? `<details class="work-details"><summary>${t("workData", place.work)}</summary><dl>${workDetail}</dl></details>` : "";
@@ -328,6 +332,8 @@ function showDetail(place) {
       ${place.visitConditions ? `<div class="wide"><dt>${t("visitConditions")}</dt><dd>${place.visitConditions}</dd></div>` : ""}
       ${sourceUrl ? `<div class="wide"><dt>${t("source")}</dt><dd><a href="${sourceUrl}" target="_blank" rel="noopener">${t("sourceLink")}</a></dd></div>` : ""}
     </dl>
+    ${window.nearby.distanceMarkup(place)}
+    <p class="nearby-note">撮影地点未確認。登録されている場所の位置です。</p>
     ${mapLink}
     ${workInfoPanel}
     ${place.communityUpdate ? `<aside class="community-update"><strong>${t("approvedCorrection")}</strong><p>${escapeHtml(place.communityUpdate)}</p></aside>` : ""}
@@ -550,3 +556,5 @@ document.querySelectorAll('a[href^="#"]').forEach((link) => {
     requestAnimationFrame(() => target.scrollIntoView({ behavior: "smooth", block: "start" }));
   });
 });
+
+window.addEventListener("nearbychange", renderPlaces);

@@ -8,19 +8,20 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Noto+Sans+JP:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="styles.css?v=20260912-compact-cards" />
+    <link rel="stylesheet" href="styles.css?v=20260916-nearby-explorer" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   </head>
   <body>
     <header class="site-header">
       <div class="header-top">
         <a class="brand" href="#top" aria-label="ホームへ" data-i18n-aria-label="homeAria"><span class="brand-mark">ASD</span><span>ANIME SEICHI<br />DATA</span></a>
-        <nav aria-label="メインナビゲーション" data-i18n-aria-label="mainNavAria"><a href="#places" data-i18n="exploreNav">聖地を探す</a><a href="works.html" data-i18n="worksNav">作品から探す</a><a href="#submission" data-i18n="submitNav">聖地申請</a></nav>
+        <nav aria-label="メインナビゲーション" data-i18n-aria-label="mainNavAria"><a href="#places" data-i18n="exploreNav">聖地を探す</a><a href="works.html" data-i18n="worksNav">作品から探す</a><a href="#nearby">現在地から探す</a><a href="#submission" data-i18n="submitNav">聖地申請</a></nav>
         <label class="language-control"><span>LANG</span><select id="languageSelect" aria-label="言語を選択"><option value="ja">日本語</option><option value="en">English</option></select></label>
         <button class="theme-toggle" id="themeToggle" type="button" aria-label="ダークモードに切り替える"><span aria-hidden="true">◐</span><span id="themeToggleText">DARK</span></button>
         <button class="mobile-menu-toggle" id="mobileMenuToggle" type="button" aria-expanded="false" aria-controls="mobileHeaderPanel"><span id="mobileMenuText">MENU</span><span aria-hidden="true">＋</span></button>
       </div>
       <div class="header-search" id="mobileHeaderPanel" aria-label="聖地を絞り込む">
-        <nav class="mobile-nav" aria-label="スマートフォンメニュー"><a href="#places" data-i18n="exploreNav">聖地を探す</a><a href="works.html" data-i18n="worksNav">作品から探す</a><a href="#submission" data-i18n="submitNav">聖地申請</a></nav>
+        <nav class="mobile-nav" aria-label="スマートフォンメニュー"><a href="#places" data-i18n="exploreNav">聖地を探す</a><a href="works.html" data-i18n="worksNav">作品から探す</a><a href="#nearby">現在地から探す</a><a href="#submission" data-i18n="submitNav">聖地申請</a></nav>
         <label class="search-box" id="searchBox" for="searchInput"><span>⌕</span><input id="searchInput" type="search" placeholder="場所・シーンから検索" data-i18n-placeholder="searchPlaceholder" autocomplete="off" /></label>
         <div class="filter-controls">
           <label><span data-i18n="countryLabel">国</span><select id="countryFilter"><option value="">すべての国</option></select></label>
@@ -54,6 +55,14 @@
           <h2 data-i18n="exploreHeading">聖地を探す</h2>
           <p data-i18n="exploreDescription">キーワードと条件を組み合わせて、行きたい聖地を探せます。</p>
         </div>
+        <section class="nearby-panel" id="nearby" aria-label="現在地から聖地を探す">
+          <div class="nearby-heading"><div><p class="eyebrow">NEARBY EXPLORER</p><h3>現在地から探す</h3><p>近くの聖地を地図から見つけよう。</p></div><div class="nearby-toolbar"><button id="locateButton" type="button">◎ 現在地を使う</button><button id="clearLocation" type="button" hidden>現在地をクリア</button><button id="fitPlaces" type="button">全体を見る</button></div></div>
+          <p id="locationStatus" role="status">現在地を使うと、近い5件と直線距離を表示できます。許可しなくても地図は使えます。</p>
+          <div id="nearbyMap" aria-label="聖地の地図"></div>
+          <p id="mapStatus" role="status"></p>
+          <div id="nearbyResults" class="nearby-results" aria-live="polite"></div>
+          <p class="nearby-note">距離は登録地点までの直線距離です。現在地はこのページ内でのみ使用し、保存・投稿しません。</p>
+        </section>
         <p class="result-status" id="resultStatus" aria-live="polite"></p>
         <div class="place-grid" id="placeGrid"></div>
       </section>
@@ -96,6 +105,8 @@
     <script src="data-cleanup.js"></script>
     <script src="place-photos.js"></script>
     <script src="photo-discovery.js"></script>
-    <script src="app.js?v=20260912-place-cards"></script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="nearby.js?v=20260916-nearby-explorer"></script>
+    <script src="app.js?v=20260916-nearby-explorer"></script>
   </body>
 </html>

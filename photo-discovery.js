@@ -3,6 +3,9 @@
 window.placePhotoDiscovery = (() => {
   const storageKey = "anime-seichi-commons-photo-cache-v1";
   const bundledPhotos = window.placePhotos || {};
+  // 車両基地など、周辺の別施設・車両写真と取り違えやすい地点は
+  // 確認済みの写真が追加されるまで自動候補を表示しない。
+  const excludedPlaceIds = new Set(["place-18"]);
   let cache = {};
   try { cache = JSON.parse(localStorage.getItem(storageKey) || "{}"); } catch {}
 
@@ -27,6 +30,7 @@ window.placePhotoDiscovery = (() => {
 
   async function find(place) {
     if (place?.id && bundledPhotos[place.id]) return bundledPhotos[place.id];
+    if (place?.id && excludedPlaceIds.has(place.id)) return null;
     if (!place?.id || cache[place.id] !== undefined) return cache[place.id] || null;
     const query = [place.name, place.city, place.prefecture].filter(Boolean).join(" ");
     const endpoint = "https://commons.wikimedia.org/w/api.php?action=query&generator=search&gsrnamespace=6&gsrlimit=8&prop=imageinfo%7Ccoordinates&iiprop=url%7Cextmetadata&iiurlwidth=1200&format=json&origin=*&gsrsearch=" + encodeURIComponent(query);
