@@ -10,7 +10,11 @@
   const coordinates = (place) => {
     if (place.privacyProtected) return null;
     const values = String(place.coordinates || "").split(/[,，]/).map((value) => Number(value.trim()));
-    return values.length === 2 && values.every(Number.isFinite) && Math.abs(values[0]) <= 90 && Math.abs(values[1]) <= 180 ? values : null;
+    if (!(values.length === 2 && values.every(Number.isFinite) && Math.abs(values[0]) <= 90 && Math.abs(values[1]) <= 180)) return null;
+    const placeText = `${place.prefecture || ""}${place.city || ""}${place.address || ""}`;
+    const isJapaneseAddress = /[ぁ-んァ-ン一-龯]/.test(placeText);
+    if (isJapaneseAddress && !(values[0] >= 20 && values[0] <= 46 && values[1] >= 122 && values[1] <= 154)) return null;
+    return values;
   };
   const distance = (first, second) => {
     const radians = (value) => value * Math.PI / 180;
