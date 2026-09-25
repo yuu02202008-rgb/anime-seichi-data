@@ -172,7 +172,18 @@ let prefectures = orderedPrefectures();
 let works = unique("work");
 const requestedWork = new URLSearchParams(window.location.search).get("work");
 const requestedPlace = new URLSearchParams(window.location.search).get("place");
-if (requestedWork && works.includes(requestedWork)) activeWork = requestedWork;
+const knownWorkOrSeries = (value) => (places || []).some((place) => place.work === value || place.series === value);
+if (requestedWork && knownWorkOrSeries(requestedWork)) activeWork = requestedWork;
+
+function matchesActiveWork(place) {
+  if (!activeWork) return true;
+  const names = [place.work, place.series].filter(Boolean);
+  // 作品カードや候補から選んだタイトルは、別作品を混ぜない完全一致で絞る。
+  if (knownWorkOrSeries(activeWork)) return names.includes(activeWork);
+  // 手入力時だけ、候補を探しやすい部分一致を使う。
+  const query = activeWork.toLocaleLowerCase("ja");
+  return names.some((name) => name.toLocaleLowerCase("ja").includes(query));
+}
 
 function updateStats() {
   works = unique("work");
@@ -263,7 +274,7 @@ function renderPlaces() {
     const matchesRegion = !activePrefecture || (activeCountry === "日本" ? place.prefecture === activePrefecture : place.city === activePrefecture);
     return (!activeCountry || countryForPlace(place) === activeCountry)
       && matchesRegion
-      && (!activeWork || [place.work, place.series].filter(Boolean).some((work) => work.toLocaleLowerCase("ja").includes(activeWork.toLocaleLowerCase("ja"))))
+      && matchesActiveWork(place)
       && (!activeVisit || place.visit === activeVisit)
       && searchable.includes(query);
   });
