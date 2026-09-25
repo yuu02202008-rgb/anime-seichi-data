@@ -26,14 +26,21 @@ const supabaseClient = window.supabase?.createClient(
   window.supabaseConfig?.publishableKey
 );
 let groups = [];
+const levelRank = (level) => ({ S:4, A:3, B:2, C:1 })[level] || 0;
+const compareSpotsByLevel = (a, b) => levelRank(b.seichiLevel) - levelRank(a.seichiLevel) || (b.seichiScore || 0) - (a.seichiScore || 0) || a.name.localeCompare(b.name, "ja");
+const groupLevelSummary = (spots) => {
+  const sorted = [...spots].sort(compareSpotsByLevel);
+  return { level:sorted[0]?.seichiLevel || "C", score:sorted[0]?.seichiScore || 0, highCount:spots.filter((spot) => ["S", "A"].includes(spot.seichiLevel)).length };
+};
 
 function rebuildGroups() {
   groups = [...places.reduce((map, place) => {
-    if (!map.has(place.work)) map.set(place.work, []);
-    map.get(place.work).push(place);
+    const groupName = place.series || place.work;
+    if (!map.has(groupName)) map.set(groupName, []);
+    map.get(groupName).push(place);
     return map;
-  }, new Map())].map(([name, spots]) => ({ name, spots, info:workInfo[name] || {}, prefectures:[...new Set(spots.map((spot) => spot.prefecture).filter(Boolean))] }))
-    .sort((a, b) => (a.info["作品名カナ"] || a.name).localeCompare(b.info["作品名カナ"] || b.name, "ja"));
+  }, new Map())].map(([name, spots]) => ({ name, spots, ...groupLevelSummary(spots), info:workInfo[name] || workInfo[spots[0]?.work] || {}, titles:[...new Set(spots.map((spot) => spot.work))], prefectures:[...new Set(spots.map((spot) => spot.prefecture).filter(Boolean))] }))
+    .sort((a, b) => levelRank(b.level) - levelRank(a.level) || b.highCount - a.highCount || b.score - a.score || (a.info["作品名カナ"] || a.name).localeCompare(b.info["作品名カナ"] || b.name, "ja"));
 }
 
 rebuildGroups();
@@ -50,7 +57,7 @@ function artworkCandidates(workName) {
 }
 
 function searchable(work) {
-  return normalize([work.name, work.info["作品名カナ"], work.info["作品名略称"]].filter(Boolean).join(" "));
+  return normalize([work.name, ...work.titles, work.info["作品名カナ"], work.info["作品名略称"]].filter(Boolean).join(" "));
 }
 
 function render() {
@@ -63,7 +70,7 @@ function render() {
     const candidates = artworkCandidates(work.name);
     const artwork = candidates[0];
     const artMarkup = artwork?.image ? `<span class="work-card-art${artwork.coverPosition === "right" ? " work-card-art-focus-right" : ""}"><img src="${escapeHtml(artwork.image)}" alt="${escapeHtml(`${work.name} artwork`)}" loading="lazy" referrerpolicy="no-referrer" data-artwork-work="${escapeHtml(work.name)}" data-artwork-index="0" /><small>${escapeHtml(artwork.credit || "Artwork")}</small></span>` : `<span class="work-card-art work-card-art-placeholder" aria-label="作品画像を準備中"><span>ASD</span></span>`;
-    return `<button class="work-card" type="button" data-work="${escapeHtml(work.name)}" style="--delay:${Math.min(index, 12) * 25}ms">${artMarkup}<span class="work-card-number">${String(index + 1).padStart(3, "0")}</span><span class="work-card-meta">${escapeHtml(genres || "ANIMATION")}</span><strong>${escapeHtml(work.name)}</strong><span class="work-card-prefectures">${escapeHtml(prefectures)}</span><span class="work-card-stats"><b>${t("spots", work.spots.length)}</b></span><span class="work-card-action">${t("details")} →</span></button>`;
+    return `<button class="work-card" type="button" data-work="${escapeHtml(work.name)}" style="--delay:${Math.min(index, 12) * 25}ms">${artMarkup}<span class="work-card-number">${String(index + 1).padStart(3, "0")}</span><span class="work-card-meta">聖地レベル ${escapeHtml(work.level)} / ${work.highCount}地点</span><strong>${escapeHtml(work.name)}</strong><span class="work-card-prefectures">${escapeHtml(prefectures)}</span><span class="work-card-stats"><b>${t("spots", work.spots.length)}</b></span><span class="work-card-action">${t("details")} →</span></button>`;
   }).join("");
 }
 
@@ -113,8 +120,8 @@ function openWork(name, updateHash = true) {
   const info = work.info;
   const official = officialSources[work.name];
   const metadata = [[t("studio"), info["アニメーション制作会社"]], [t("author"), info["作者"]]].filter(([, value]) => value && value !== "該当なし");
-  const spots = [...work.spots].sort((a, b) => `${a.prefecture}${a.city}${a.name}`.localeCompare(`${b.prefecture}${b.city}${b.name}`, "ja"));
-  dialogContent.innerHTML = `<p class="eyebrow">ANIME LOCATION INDEX</p><div class="work-dialog-title"><h2>${escapeHtml(work.name)}</h2><div><b>${t("spots", spots.length)}</b></div></div>${info["ストーリー"] ? `<section class="work-summary"><h3>${t("story")}</h3><p>${escapeHtml(info["ストーリー"])}</p></section>` : ""}${metadata.length ? `<dl class="work-metadata">${metadata.map(([label, value]) => `<div><dt>${label}</dt><dd>${escapeHtml(value)}</dd></div>`).join("")}</dl>` : ""}<div class="work-links">${official?.siteUrl ? `<a class="map-link" href="${escapeHtml(official.siteUrl)}" target="_blank" rel="noreferrer">${t("officialSite")}</a>` : ""}<a class="map-link work-filter-link" href="index.html?work=${encodeURIComponent(work.name)}#places">${t("filter")} →</a></div><div class="work-spot-list">${spots.map((spot) => `<article class="work-spot-item" data-spot-id="${escapeHtml(spot.id)}">${spotPhotoMarkup(spot)}<div class="work-spot-body"><small>${escapeHtml([spot.prefecture, spot.city].filter(Boolean).join("・"))}</small><h3>${escapeHtml(spot.name)}</h3><p>${escapeHtml(spot.scene || spot.episode || "—")}</p><div class="work-spot-bottom"><span>${escapeHtml(spot.visit || "—")}</span>${spot.privacyProtected ? "" : `<a href="${escapeHtml(mapUrl(spot))}" target="_blank" rel="noreferrer">${t("map")}</a>`}</div></div></article>`).join("")}</div>`;
+  const spots = [...work.spots].sort(compareSpotsByLevel);
+  dialogContent.innerHTML = `<p class="eyebrow">ANIME LOCATION INDEX / 聖地レベル順</p><div class="work-dialog-title"><h2>${escapeHtml(work.name)}</h2><div><b>${t("spots", spots.length)}</b></div></div>${info["ストーリー"] ? `<section class="work-summary"><h3>${t("story")}</h3><p>${escapeHtml(info["ストーリー"])}</p></section>` : ""}${metadata.length ? `<dl class="work-metadata">${metadata.map(([label, value]) => `<div><dt>${label}</dt><dd>${escapeHtml(value)}</dd></div>`).join("")}</dl>` : ""}<div class="work-links">${official?.siteUrl ? `<a class="map-link" href="${escapeHtml(official.siteUrl)}" target="_blank" rel="noreferrer">${t("officialSite")}</a>` : ""}<a class="map-link work-filter-link" href="index.html?work=${encodeURIComponent(work.name)}#places">${t("filter")} →</a></div><div class="work-spot-list">${spots.map((spot) => `<article class="work-spot-item" data-spot-id="${escapeHtml(spot.id)}">${spotPhotoMarkup(spot)}<div class="work-spot-body"><small>聖地レベル ${escapeHtml(spot.seichiLevel || "C")}${Number.isFinite(spot.seichiScore) ? ` / ${spot.seichiScore}点` : ""}</small><small>${escapeHtml([spot.prefecture, spot.city].filter(Boolean).join("・"))}</small>${spot.work !== work.name ? `<small class="work-spot-series-title">${escapeHtml(spot.work)}</small>` : ""}<h3><a class="work-spot-detail-link" href="index.html?place=${encodeURIComponent(spot.id)}#places">${escapeHtml(spot.name)}</a></h3><p>${escapeHtml(spot.scene || spot.episode || "—")}</p><div class="work-spot-bottom"><span>${escapeHtml(spot.visit || "—")}</span><a href="index.html?place=${encodeURIComponent(spot.id)}#places">聖地詳細 →</a>${spot.privacyProtected ? "" : `<a href="${escapeHtml(mapUrl(spot))}" target="_blank" rel="noreferrer">${t("map")}</a>`}</div></div></article>`).join("")}</div>`;
   discoverSpotPhotos(spots);
   if (!dialog.open) dialog.showModal();
   if (updateHash) history.replaceState(null, "", `#work=${encodeURIComponent(work.name)}`);
