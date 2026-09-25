@@ -30,6 +30,7 @@ const safeUrl = (value = "") => {
   try { const url = new URL(value); return ["https:", "http:"].includes(url.protocol) ? url.href : "#"; }
   catch { return "#"; }
 };
+const reviewGuide = `<aside class="review-guide" aria-label="審査の判断基準"><strong>判断の目安</strong><ul><li><b>承認</b>：作品・場所・座標・根拠URLが一致し、公開して問題ない。</li><li><b>保留</b>：少しでも根拠や座標、訪問可否に不明点がある。</li><li><b>差し戻し</b>：作品や場所が明確に違う、根拠が無関係、または公開すると危険がある。</li></ul></aside>`;
 
 async function isAdmin() {
   const { data, error } = await client.rpc("is_admin");
@@ -47,21 +48,26 @@ async function refreshSubmissions() {
   }));
   submissionById = new Map(submissions.map((item) => [item.id, item]));
   adminStatus.textContent = `${submissions.length} 件の申請`;
-  submissionList.innerHTML = submissions.length ? submissions.map((item) => `
+  submissionList.innerHTML = submissions.length ? `${reviewGuide}${submissions.map((item) => {
+    const viewpointProposal = String(item.scene || "").startsWith("[撮影地点の提案]");
+    const submissionLabel = viewpointProposal ? "撮影地点の提案" : item.submission_type === "correction" ? "情報訂正" : item.submission_type === "image_addition" ? "写真追加" : "新規聖地";
+    return `
     <article class="submission-item">
-      <div class="submission-item-head"><span class="status-badge ${item.status}">${item.submission_type === "correction" ? "情報訂正" : item.submission_type === "image_addition" ? "写真追加" : "新規聖地"} / ${item.status}</span><span>${new Date(item.created_at).toLocaleString("ja-JP")}</span></div>
+      <div class="submission-item-head"><span class="status-badge ${item.status}">${submissionLabel} / ${item.status}</span><span>${new Date(item.created_at).toLocaleString("ja-JP")}</span></div>
       <h2>${escapeHtml(item.spot)}</h2><p class="submission-work">${escapeHtml(item.work)} / ${escapeHtml(item.prefecture)} ${escapeHtml(item.city || "")}</p>
       ${item.target_place_name ? `<p class="submission-target">対象：${escapeHtml(item.target_place_name)}（${escapeHtml(item.target_place_id || "")}）</p>` : ""}
       ${item.signed_image_url ? `<img class="admin-submission-image" src="${safeUrl(item.signed_image_url)}" alt="申請された写真" />` : ""}
       <dl><div><dt>座標</dt><dd>${escapeHtml(item.coordinates || "未登録")}</dd></div><div><dt>訪問可否</dt><dd>${escapeHtml(item.visit_status || "未登録")}</dd></div>${item.visit_conditions ? `<div><dt>訪問条件</dt><dd>${escapeHtml(item.visit_conditions)}</dd></div>` : ""}<div><dt>写真</dt><dd>${item.image_path ? "画像ファイルあり" : item.image_url ? `<a href="${safeUrl(item.image_url)}" target="_blank" rel="noopener">写真を開く ↗</a>` : "未登録"}</dd></div><div><dt>申請内容・補足</dt><dd>${escapeHtml(item.scene)}</dd></div><div><dt>根拠URL</dt><dd><a href="${safeUrl(item.source_url)}" target="_blank" rel="noopener">資料を開く ↗</a></dd></div>${item.contact_email ? `<div><dt>連絡先</dt><dd>${escapeHtml(item.contact_email)}</dd></div>` : ""}</dl>
-      <label>管理メモ<textarea data-note="${item.id}" rows="2" placeholder="確認内容や差し戻し理由を記録">${escapeHtml(item.admin_note || "")}</textarea></label>
-      <div class="review-actions"><button data-action="approved" data-id="${item.id}" type="button">承認</button><button data-action="returned" data-id="${item.id}" type="button">差し戻し</button></div>
-    </article>`).join("") : '<p class="empty-state">この状態の申請はありません。</p>';
+      <label>管理メモ<textarea data-note="${item.id}" rows="2" placeholder="確認した根拠、保留の理由、差し戻し内容を記録">${escapeHtml(item.admin_note || "")}</textarea></label>
+      <div class="review-actions"><button data-action="approved" data-id="${item.id}" type="button">承認して公開</button><button data-action="pending" data-id="${item.id}" type="button">保留にする</button><button data-action="returned" data-id="${item.id}" type="button">差し戻す</button></div>
+      <p class="review-note">少しでも判断に迷う場合は、保留にして根拠を追記してください。</p>
+    </article>`;
+  }).join("")}` : '<p class="empty-state">この状態の申請はありません。</p>';
 }
 
 function renderTabs() {
   statusTabs.innerHTML = "";
-  [["pending", "確認待ち"], ["approved", "承認済み"], ["returned", "差し戻し"]].forEach(([status, label]) => {
+  [["pending", "保留・確認待ち"], ["approved", "承認・公開済み"], ["returned", "差し戻し"]].forEach(([status, label]) => {
     const button = document.createElement("button"); button.type = "button"; button.textContent = label; button.className = status === selectedStatus ? "filter active" : "filter";
     button.addEventListener("click", () => { selectedStatus = status; renderTabs(); refreshSubmissions(); }); statusTabs.append(button);
   });
@@ -190,6 +196,11 @@ submissionList.addEventListener("click", async (event) => {
   const button = event.target.closest("button[data-action]"); if (!button) return;
   const id = button.dataset.id; const adminNote = document.querySelector(`[data-note="${id}"]`).value;
   const item = submissionById.get(id);
+  if (button.dataset.action === "returned" && !adminNote.trim()) {
+    adminStatus.textContent = "差し戻す理由を管理メモに入力してください。";
+    document.querySelector(`[data-note="${id}"]`).focus();
+    return;
+  }
   const update = { status: button.dataset.action, admin_note: adminNote, reviewed_at: new Date().toISOString() };
   button.disabled = true;
   if (button.dataset.action === "approved" && item?.image_path && !item.image_url) {

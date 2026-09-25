@@ -171,6 +171,7 @@ function regionsForCountry(country) {
 let prefectures = orderedPrefectures();
 let works = unique("work");
 const requestedWork = new URLSearchParams(window.location.search).get("work");
+const requestedPlace = new URLSearchParams(window.location.search).get("place");
 if (requestedWork && works.includes(requestedWork)) activeWork = requestedWork;
 
 function updateStats() {
@@ -262,7 +263,7 @@ function renderPlaces() {
     const matchesRegion = !activePrefecture || (activeCountry === "日本" ? place.prefecture === activePrefecture : place.city === activePrefecture);
     return (!activeCountry || countryForPlace(place) === activeCountry)
       && matchesRegion
-      && (!activeWork || place.work.toLocaleLowerCase("ja").includes(activeWork.toLocaleLowerCase("ja")))
+      && (!activeWork || [place.work, place.series].filter(Boolean).some((work) => work.toLocaleLowerCase("ja").includes(activeWork.toLocaleLowerCase("ja"))))
       && (!activeVisit || place.visit === activeVisit)
       && searchable.includes(query);
   });
@@ -317,10 +318,28 @@ function showDetail(place) {
   const imagePanel = imageUrl
     ? `<figure class="place-photo"><img src="${imageUrl}" alt="${place.name}" loading="lazy" /><figcaption>${photoSourceUrl ? `<a href="${photoSourceUrl}" target="_blank" rel="noreferrer">${escapeHtml(imageCredit)}</a>` : escapeHtml(imageCredit)}</figcaption></figure>`
     : `<div class="place-photo place-photo-empty" aria-label="${t("photoPending")}"><span>PHOTO</span><strong>${t("photoPending")}</strong><small>${t("photoAfterReview")}</small></div>`;
+  const sceneImage = place.sceneImage;
+  const sceneImageUrl = safeImageUrl(sceneImage?.imageUrl);
+  const sceneImageSourceUrl = safeImageUrl(sceneImage?.sourceUrl);
+  const sceneImagePanel = sceneImageUrl
+    ? `<figure class="scene-image"><p>作品内の場面</p><img src="${sceneImageUrl}" alt="${escapeHtml(sceneImage.alt || `${place.work}の場面画像`)}" loading="lazy" /><figcaption>${sceneImageSourceUrl ? `<a href="${sceneImageSourceUrl}" target="_blank" rel="noreferrer">${escapeHtml(sceneImage.credit || "公式掲載素材")}</a>` : escapeHtml(sceneImage.credit || "公式掲載素材")}</figcaption></figure>`
+    : "";
+  const sceneImageResearch = place.sceneImageResearch;
+  const sceneImageResearchPanel = sceneImageResearch ? `<div class="wide"><dt>作品内の場面画像</dt><dd><strong>${escapeHtml(sceneImageResearch.status)}</strong><br><small>${escapeHtml(sceneImageResearch.note)}</small></dd></div>` : "";
+  const viewpoint = place.shootingViewpoint;
+  const filmingResearch = place.filmingResearch;
+  const viewpointPanel = viewpoint ? `<div class="wide shooting-viewpoint"><dt>撮影地点</dt><dd><strong>${escapeHtml(viewpoint.label || "確認済みの撮影地点")}</strong><br>${escapeHtml(viewpoint.access || "現地の案内に従ってください。")}${viewpoint.coordinates ? `<br><span>座標：${escapeHtml(viewpoint.coordinates)}</span>` : ""}${viewpoint.evidence ? `<br><small>確認根拠：${escapeHtml(viewpoint.evidence)}</small>` : ""}${viewpoint.sourceUrl ? `<br><a href="${safeImageUrl(viewpoint.sourceUrl)}" target="_blank" rel="noopener">根拠を確認する</a>` : ""}</dd></div>` : "";
+  const level = place.seichiLevel && window.animeSeichiResearchCriteria?.levels?.[place.seichiLevel];
+  const assessment = place.seichiAssessment;
+  const photoAudit = place.photoAudit;
+  const visited = window.visitLog?.has(place.id);
+  const audit = place.locationAudit;
+  const auditPanel = audit ? `<div class="wide"><dt>位置情報の確認</dt><dd><strong>${escapeHtml(audit.batch)}</strong><br>現在の座標：${escapeHtml(audit.registeredCoordinate)}<br>判定：${escapeHtml(audit.reviewResult)}<br>撮影地点：${escapeHtml(audit.filmingViewpoint)}${audit.officialCheck ? `<br><small>公式確認：${escapeHtml(audit.officialCheck)}</small>` : ""}<br><small>次の確認：${escapeHtml(audit.nextStep)}</small></dd></div>` : "";
   dialogContent.innerHTML = `
     <p class="eyebrow">LOCATION DETAIL / ${place.id.toUpperCase()}</p>
     <div class="dialog-title-row"><div><p class="dialog-place">${place.prefecture}・${place.city}</p><h2>${place.name}</h2></div></div>
     ${imagePanel}
+    ${sceneImagePanel}
     <dl class="detail-grid">
       <div><dt>${t("work")}</dt><dd>${place.work}</dd></div>
       <div><dt>${t("episode")}</dt><dd>${place.episode}</dd></div>
@@ -328,12 +347,20 @@ function showDetail(place) {
       <div><dt>${t("coordinates")}</dt><dd>${place.coordinates}</dd></div>
       <div><dt>${t("visit")}</dt><dd>${place.visit}</dd></div>
       <div><dt>${t("address")}</dt><dd>${place.address}</dd></div>
+      ${level ? `<div><dt>聖地レベル</dt><dd><strong>${escapeHtml(level.label)}${Number.isFinite(place.seichiScore) ? `（${place.seichiScore}点）` : ""}</strong><br><small>${escapeHtml(place.seichiLevelReason || level.description)}</small></dd></div>` : ""}
+      ${assessment ? `<div><dt>聖地レベル判定</dt><dd><strong>${escapeHtml(assessment.status)}</strong><br><small>${escapeHtml(assessment.summary)}</small></dd></div>` : ""}
+      ${photoAudit ? `<div><dt>地点写真</dt><dd><strong>${escapeHtml(photoAudit.status)}</strong><br><small>${escapeHtml(photoAudit.summary)}</small></dd></div>` : ""}
       <div class="wide"><dt>${t("scene")}</dt><dd>${place.scene}</dd></div>
+      ${sceneImageResearchPanel}
+      ${auditPanel}
+      ${viewpointPanel}
+      ${filmingResearch ? `<div class="wide"><dt>撮影地点の調査</dt><dd><strong>${escapeHtml(filmingResearch.status)}${filmingResearch.priority ? `（優先度：${escapeHtml(filmingResearch.priority)}）` : ""}</strong><br>${escapeHtml(filmingResearch.note)}${filmingResearch.sourceUrl ? `<br><a href="${safeImageUrl(filmingResearch.sourceUrl)}" target="_blank" rel="noopener">調査の根拠を見る</a>` : ""}</dd></div>` : ""}
       ${place.visitConditions ? `<div class="wide"><dt>${t("visitConditions")}</dt><dd>${place.visitConditions}</dd></div>` : ""}
       ${sourceUrl ? `<div class="wide"><dt>${t("source")}</dt><dd><a href="${sourceUrl}" target="_blank" rel="noopener">${t("sourceLink")}</a></dd></div>` : ""}
     </dl>
     ${window.nearby.distanceMarkup(place)}
-    <p class="nearby-note">撮影地点未確認。登録されている場所の位置です。</p>
+    <p class="nearby-note">${viewpoint ? "撮影地点の利用条件を確認してから訪問してください。" : "撮影地点未確認。登録されている場所の位置です。"}</p>
+    <button class="secondary-button visit-log-button" id="visitLogButton" type="button">${visited ? "✓ 訪問を記録済み" : "◎ 訪問を記録する"}</button>
     ${mapLink}
     ${workInfoPanel}
     ${place.communityUpdate ? `<aside class="community-update"><strong>${t("approvedCorrection")}</strong><p>${escapeHtml(place.communityUpdate)}</p></aside>` : ""}
@@ -341,8 +368,9 @@ function showDetail(place) {
     <details class="correction-panel">
       <summary>${t("correctionSummary")}</summary>
       <form class="correction-form" id="correctionForm">
-        <label>申請内容<select name="requestType" required><option value="correction">情報の訂正</option><option value="image_addition">写真の追加</option></select></label>
-        <label>訂正・追加内容<textarea name="details" rows="4" required placeholder="どの情報を、どのように直すべきか入力してください"></textarea></label>
+        <label>申請内容<select name="requestType" required><option value="correction">情報の訂正</option><option value="image_addition">写真の追加</option><option value="viewpoint">撮影地点の提案</option></select></label>
+        <label>訂正・追加内容<textarea name="details" rows="4" required placeholder="撮影地点の場合は、見える景色・安全な立ち位置・現地の注意を入力してください"></textarea></label>
+        <label>撮影地点の座標（任意）<input name="viewpointCoordinates" inputmode="decimal" placeholder="例：35.30666, 139.50217" /></label>
         <label>確認できるURL<input name="source" type="url" required placeholder="公式サイトや地図など" /></label>
         <label>写真（任意）<input name="photoFile" type="file" accept="image/jpeg,image/png,image/webp" /><small>JPEG・PNG・WebP、5MBまで</small></label>
         <label>連絡先（任意）<input name="contact" type="email" /></label>
@@ -357,6 +385,10 @@ function showDetail(place) {
   requestTypeOptions[0].textContent = t("correctionOption");
   requestTypeOptions[1].textContent = t("imageOption");
   document.querySelector("#correctionForm .submit-button").childNodes[0].textContent = `${t("send")} `;
+  document.querySelector("#visitLogButton").addEventListener("click", (event) => {
+    const isVisited = window.visitLog?.toggle(place.id);
+    event.currentTarget.textContent = isVisited ? "✓ 訪問を記録済み" : "◎ 訪問を記録する";
+  });
   dialog.showModal();
 }
 
@@ -375,8 +407,9 @@ async function submitCorrection(event, place) {
   status.textContent = "申請を送信しています…";
   try {
     const imagePath = await uploadSubmissionImage(file);
+    const isViewpointProposal = values.requestType === "viewpoint";
     const { error } = await supabaseClient.from("spot_submissions").insert({
-      submission_type: values.requestType,
+      submission_type: isViewpointProposal ? "correction" : values.requestType,
       target_place_id: place.id,
       target_place_name: place.name,
       work: place.work,
@@ -387,7 +420,7 @@ async function submitCorrection(event, place) {
       visit_status: ["自由訪問可能", "条件付き", "外観のみ"].includes(place.visit) ? place.visit : null,
       visit_conditions: place.visitConditions || null,
       image_path: imagePath || null,
-      scene: values.details,
+      scene: isViewpointProposal ? `[撮影地点の提案] 座標：${values.viewpointCoordinates || "未入力"}\n${values.details}` : values.details,
       source_url: values.source,
       contact_email: values.contact || null
     });
@@ -523,6 +556,13 @@ async function loadApprovedCorrections() {
 updateStats();
 renderFilters();
 renderPlaces();
+if (requestedPlace) {
+  const place = places.find((candidate) => candidate.id === requestedPlace);
+  if (place) {
+    document.querySelector("#places")?.scrollIntoView({ block: "start" });
+    showDetail(place);
+  }
+}
 loadApprovedSubmissions().then(loadApprovedCorrections);
 
 function setTheme(theme) {
