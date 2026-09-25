@@ -40,7 +40,7 @@ function rebuildGroups() {
     map.get(groupName).push(place);
     return map;
   }, new Map())].map(([name, spots]) => ({ name, spots, ...groupLevelSummary(spots), info:workInfo[name] || workInfo[spots[0]?.work] || {}, titles:[...new Set(spots.map((spot) => spot.work))], prefectures:[...new Set(spots.map((spot) => spot.prefecture).filter(Boolean))] }))
-    .sort((a, b) => levelRank(b.level) - levelRank(a.level) || b.highCount - a.highCount || b.score - a.score || (a.info["作品名カナ"] || a.name).localeCompare(b.info["作品名カナ"] || b.name, "ja"));
+    .sort((a, b) => (a.info["作品名カナ"] || a.name).localeCompare(b.info["作品名カナ"] || b.name, "ja"));
 }
 
 rebuildGroups();
