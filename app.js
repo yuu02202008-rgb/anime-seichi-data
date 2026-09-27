@@ -85,9 +85,14 @@ let gameChallenges = new Map();
 
 function participationMarkup(message = "") {
   if (gameUser) {
+    const favoriteItems = [...gameFavorites].map((placeId) => places.find((place) => place.id === placeId)).filter(Boolean);
+    const favoritesPanel = favoriteItems.length
+      ? `<section class="collection-list"><h3>お気に入りした聖地</h3><div>${favoriteItems.map((place) => `<button class="collection-place" type="button" data-favorite-place="${escapeHtml(place.id)}"><span>${escapeHtml(place.name)}</span><small>${escapeHtml(place.prefecture)}・${escapeHtml(place.work)}</small></button>`).join("")}</div></section>`
+      : "";
     return `<p class="eyebrow">YOUR COLLECTION</p><h2>ゲームに参加中</h2>
       <p>${escapeHtml(gameUser.email || "ログイン中")}</p>
       <div class="collection-summary"><div><strong>${gameFavorites.size}</strong><span>お気に入り</span></div><div><strong>${gameStamps.size}</strong><span>獲得スタンプ</span></div></div>
+      ${favoritesPanel}
       <p class="participation-note">写真・地図・聖地情報の閲覧は、ログアウト後もそのまま利用できます。</p>
       <button class="secondary-button" id="signOutButton" type="button">ログアウト</button>${message ? `<p class="form-status">${escapeHtml(message)}</p>` : ""}`;
   }
@@ -104,6 +109,12 @@ function renderParticipation(message = "") {
   participationContent.innerHTML = participationMarkup(message);
   const form = document.querySelector("#participationForm");
   if (form) form.addEventListener("submit", submitParticipation);
+  document.querySelectorAll("[data-favorite-place]").forEach((button) => button.addEventListener("click", () => {
+    const place = places.find((item) => item.id === button.dataset.favoritePlace);
+    if (!place) return;
+    participationDialog.close();
+    showDetail(place);
+  }));
   document.querySelector("#passwordVisibilityButton")?.addEventListener("click", (event) => {
     const input = document.querySelector("#participationForm input[name=password]");
     const showing = input.type === "text";
