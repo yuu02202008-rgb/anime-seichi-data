@@ -1,6 +1,6 @@
 // Supabase の Publishable key はブラウザで使用する公開用のキーです。
 window.supabaseConfig = {
-  url: "https://vdroheixhpzeafemsjuc.supabase.co",
+  url: "https://ydroheixhpzeafemsjuc.supabase.co",
   publishableKey: "sb_publishable_yVimwRqq_DsL4ZAv5yhmtA_T3Ad1ZLg"
 };
 
