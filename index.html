@@ -16,6 +16,7 @@
       <div class="header-top">
         <a class="brand" href="#top" aria-label="ホームへ" data-i18n-aria-label="homeAria"><span class="brand-mark">ASD</span><span>ANIME SEICHI<br />DATA</span></a>
         <nav aria-label="メインナビゲーション" data-i18n-aria-label="mainNavAria"><a href="#places" data-i18n="exploreNav">聖地を探す</a><a href="works.html" data-i18n="worksNav">作品から探す</a><a href="#nearby" data-nearby-link>現在地から探す</a><a href="#submission" data-i18n="submitNav">聖地申請</a></nav>
+        <button class="participation-button" id="participationButton" type="button">参加する</button>
         <label class="language-control"><span>LANG</span><select id="languageSelect" aria-label="言語を選択"><option value="ja">日本語</option><option value="en">English</option></select></label>
         <button class="theme-toggle" id="themeToggle" type="button" aria-label="ダークモードに切り替える"><span aria-hidden="true">◐</span><span id="themeToggleText">DARK</span></button>
         <button class="mobile-menu-toggle" id="mobileMenuToggle" type="button" aria-expanded="false" aria-controls="mobileHeaderPanel"><span id="mobileMenuText">MENU</span><span aria-hidden="true">＋</span></button>
@@ -97,6 +98,10 @@
       <button class="dialog-close" id="dialogClose" type="button" aria-label="閉じる">×</button>
       <div id="dialogContent"></div>
     </dialog>
+    <dialog id="participationDialog" class="participation-dialog">
+      <button class="dialog-close" id="participationClose" type="button" aria-label="閉じる">×</button>
+      <div id="participationContent"></div>
+    </dialog>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="config.js"></script>
     <script src="street-view.js"></script>
@@ -117,6 +122,6 @@
     <script src="visit-log.js"></script>
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="nearby.js?v=20260915-gsi-map"></script>
-    <script src="app.js?v=20260915-gsi-map"></script>
+    <script src="app.js?v=20260927-game-participation"></script>
   </body>
 </html>

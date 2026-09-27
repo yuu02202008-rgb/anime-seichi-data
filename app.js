@@ -75,6 +75,121 @@ const supabaseClient = window.supabase.createClient(
   window.supabaseConfig.url,
   window.supabaseConfig.publishableKey
 );
+const participationDialog = document.querySelector("#participationDialog");
+const participationContent = document.querySelector("#participationContent");
+const participationButton = document.querySelector("#participationButton");
+let gameUser = null;
+let gameFavorites = new Set();
+let gameStamps = new Set();
+let gameChallenges = new Map();
+
+function participationMarkup(message = "") {
+  if (gameUser) {
+    return `<p class="eyebrow">YOUR COLLECTION</p><h2>ゲームに参加中</h2>
+      <p>${escapeHtml(gameUser.email || "ログイン中")}</p>
+      <div class="collection-summary"><div><strong>${gameFavorites.size}</strong><span>お気に入り</span></div><div><strong>${gameStamps.size}</strong><span>獲得スタンプ</span></div></div>
+      <p class="participation-note">写真・地図・聖地情報の閲覧は、ログアウト後もそのまま利用できます。</p>
+      <button class="secondary-button" id="signOutButton" type="button">ログアウト</button>${message ? `<p class="form-status">${escapeHtml(message)}</p>` : ""}`;
+  }
+  return `<p class="eyebrow">JOIN THE GAME</p><h2>撮影地点を探そう</h2>
+    <p>閲覧はログイン不要です。お気に入り、訪問スタンプ、ゲームへの参加だけアカウントを使います。</p>
+    <form class="participation-form" id="participationForm">
+      <label>メールアドレス<input name="email" type="email" autocomplete="email" required /></label>
+      <label>パスワード<input name="password" type="password" autocomplete="current-password" minlength="8" required /><small>8文字以上</small></label>
+      <div class="participation-actions"><button class="submit-button" name="intent" value="signin" type="submit">ログイン</button><button class="secondary-button" name="intent" value="signup" type="submit">新規登録</button></div>
+      <p class="form-status" id="participationStatus" aria-live="polite">${escapeHtml(message)}</p>
+    </form>`;
+}
+function renderParticipation(message = "") {
+  participationContent.innerHTML = participationMarkup(message);
+  const form = document.querySelector("#participationForm");
+  if (form) form.addEventListener("submit", submitParticipation);
+  document.querySelector("#signOutButton")?.addEventListener("click", async () => {
+    const { error } = await supabaseClient.auth.signOut();
+    if (error) return renderParticipation("ログアウトできませんでした。もう一度お試しください。");
+    gameUser = null; gameFavorites = new Set(); gameStamps = new Set();
+    participationButton.textContent = "参加する";
+    renderParticipation("ログアウトしました。");
+    renderPlaces();
+  });
+}
+async function loadGameData() {
+  if (!gameUser) return;
+  const [favorites, stamps] = await Promise.all([
+    supabaseClient.from("user_favorites").select("place_id"),
+    supabaseClient.from("visit_stamps").select("place_id")
+  ]);
+  gameFavorites = new Set((favorites.data || []).map((row) => row.place_id));
+  gameStamps = new Set((stamps.data || []).map((row) => row.place_id));
+}
+async function refreshGameSession() {
+  const { data } = await supabaseClient.auth.getSession();
+  gameUser = data.session?.user || null;
+  if (gameUser) await loadGameData();
+  participationButton.textContent = gameUser ? "マイページ" : "参加する";
+}
+async function submitParticipation(event) {
+  event.preventDefault();
+  const button = event.submitter;
+  const data = new FormData(event.currentTarget);
+  const email = String(data.get("email") || "").trim();
+  const password = String(data.get("password") || "");
+  const status = document.querySelector("#participationStatus");
+  status.textContent = "確認しています…";
+  const signedUp = button?.value === "signup";
+  const result = signedUp
+    ? await supabaseClient.auth.signUp({ email, password })
+    : await supabaseClient.auth.signInWithPassword({ email, password });
+  if (result.error) {
+    status.textContent = result.error.message.includes("Invalid login") ? "メールアドレスまたはパスワードを確認してください。" : `手続きを完了できませんでした。${result.error.message}`;
+    return;
+  }
+  if (signedUp && !result.data.session) {
+    status.textContent = "確認メールを送信しました。メール内のリンクを開いてからログインしてください。";
+    return;
+  }
+  await refreshGameSession();
+  if (gameUser) await supabaseClient.from("user_profiles").upsert({ user_id: gameUser.id }, { onConflict: "user_id", ignoreDuplicates: true });
+  renderParticipation(signedUp ? "登録して参加を開始しました。" : "ログインしました。");
+  renderPlaces();
+}
+async function loadGameChallenges() {
+  const { data } = await supabaseClient.from("viewpoint_challenges").select("id, place_id, title, hint, checkin_radius_m").eq("status", "published");
+  gameChallenges = new Map((data || []).map((challenge) => [challenge.place_id, challenge]));
+}
+async function toggleFavorite(placeId) {
+  if (!gameUser) { participationDialog.showModal(); renderParticipation("お気に入りにはゲーム参加が必要です。"); return; }
+  const exists = gameFavorites.has(placeId);
+  const result = exists
+    ? await supabaseClient.from("user_favorites").delete().eq("place_id", placeId)
+    : await supabaseClient.from("user_favorites").insert({ user_id: gameUser.id, place_id: placeId });
+  if (result.error) return alert("お気に入りを保存できませんでした。もう一度お試しください。");
+  exists ? gameFavorites.delete(placeId) : gameFavorites.add(placeId);
+  showDetail(places.find((place) => place.id === placeId));
+}
+function currentPosition() {
+  return new Promise((resolve, reject) => {
+    if (!navigator.geolocation || !window.isSecureContext) return reject(new Error("現在地はHTTPSの公開サイトで利用できます。"));
+    navigator.geolocation.getCurrentPosition((position) => resolve(position.coords), reject, { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 });
+  });
+}
+async function claimStamp(place) {
+  if (!gameUser) { participationDialog.showModal(); renderParticipation("スタンプを獲得するにはゲーム参加が必要です。"); return; }
+  const button = document.querySelector("#claimStampButton");
+  button.disabled = true; button.textContent = "現在地を確認しています…";
+  try {
+    const position = await currentPosition();
+    const { data, error } = await supabaseClient.rpc("award_visit_stamp", { requested_place_id: place.id, current_latitude: position.latitude, current_longitude: position.longitude });
+    if (error) throw error;
+    const result = Array.isArray(data) ? data[0] : data;
+    if (result?.awarded) gameStamps.add(place.id);
+    showDetail(place);
+    alert(result?.message || "スタンプを確認しました。");
+  } catch (error) {
+    button.disabled = false; button.textContent = "現在地でスタンプを確認";
+    alert(error.message || "スタンプを確認できませんでした。");
+  }
+}
 const safeImageUrl = (value = "") => {
   try { const url = new URL(value); return ["https:", "http:"].includes(url.protocol) ? url.href : ""; }
   catch { return ""; }
@@ -345,6 +460,9 @@ function showDetail(place) {
   const photoAudit = place.photoAudit;
   const visited = window.visitLog?.has(place.id);
   const audit = place.locationAudit;
+  const challenge = gameChallenges.get(place.id);
+  const favoriteButton = `<button class="secondary-button favorite-button" id="favoriteButton" type="button">${gameFavorites.has(place.id) ? "★ お気に入り済み" : "☆ お気に入りに追加"}</button>`;
+  const gamePanel = challenge ? `<aside class="game-challenge"><p class="eyebrow">VIEWPOINT CHALLENGE</p><h3>${escapeHtml(challenge.title)}</h3><p>${escapeHtml(challenge.hint)}</p>${gameStamps.has(place.id) ? `<strong>✓ スタンプを獲得済み</strong>` : `<button class="secondary-button" id="claimStampButton" type="button">現在地でスタンプを確認</button>`}<small>この操作の時だけ現在地を照合します。位置情報は保存しません。</small></aside>` : "";
   const auditPanel = audit ? `<div class="wide"><dt>位置情報の確認</dt><dd><strong>${escapeHtml(audit.batch)}</strong><br>現在の座標：${escapeHtml(audit.registeredCoordinate)}<br>判定：${escapeHtml(audit.reviewResult)}<br>撮影地点：${escapeHtml(audit.filmingViewpoint)}${audit.officialCheck ? `<br><small>公式確認：${escapeHtml(audit.officialCheck)}</small>` : ""}<br><small>次の確認：${escapeHtml(audit.nextStep)}</small></dd></div>` : "";
   dialogContent.innerHTML = `
     <p class="eyebrow">LOCATION DETAIL / ${place.id.toUpperCase()}</p>
@@ -371,7 +489,8 @@ function showDetail(place) {
     </dl>
     ${window.nearby.distanceMarkup(place)}
     <p class="nearby-note">${viewpoint ? "撮影地点の利用条件を確認してから訪問してください。" : "撮影地点未確認。登録されている場所の位置です。"}</p>
-    <button class="secondary-button visit-log-button" id="visitLogButton" type="button">${visited ? "✓ 訪問を記録済み" : "◎ 訪問を記録する"}</button>
+    <div class="detail-actions">${favoriteButton}<button class="secondary-button visit-log-button" id="visitLogButton" type="button">${visited ? "✓ 訪問を記録済み" : "◎ 訪問を記録する"}</button></div>
+    ${gamePanel}
     ${mapLink}
     ${workInfoPanel}
     ${place.communityUpdate ? `<aside class="community-update"><strong>${t("approvedCorrection")}</strong><p>${escapeHtml(place.communityUpdate)}</p></aside>` : ""}
@@ -390,6 +509,8 @@ function showDetail(place) {
       </form>
     </details>`;
   document.querySelector("#correctionForm").addEventListener("submit", (event) => submitCorrection(event, place));
+  document.querySelector("#favoriteButton")?.addEventListener("click", () => toggleFavorite(place.id));
+  document.querySelector("#claimStampButton")?.addEventListener("click", () => claimStamp(place));
   const correctionLabels = document.querySelectorAll("#correctionForm label");
   translations[currentLanguage].correctionLabels.forEach((label, index) => { if (correctionLabels[index]) replaceLeadingText(correctionLabels[index], label); });
   const requestTypeOptions = document.querySelector("#correctionForm select[name=requestType]").options;
@@ -477,6 +598,10 @@ filterReset.addEventListener("click", () => {
 });
 document.querySelector("#dialogClose").addEventListener("click", () => dialog.close());
 dialog.addEventListener("click", (event) => { if (event.target === dialog) dialog.close(); });
+participationButton.addEventListener("click", async () => { await refreshGameSession(); renderParticipation(); participationDialog.showModal(); });
+document.querySelector("#participationClose").addEventListener("click", () => participationDialog.close());
+participationDialog.addEventListener("click", (event) => { if (event.target === participationDialog) participationDialog.close(); });
+supabaseClient.auth.onAuthStateChange(() => { setTimeout(() => refreshGameSession().then(renderPlaces), 0); });
 
 function syncVisitConditions() {
   const required = visitStatus.value === "条件付き";
@@ -609,3 +734,5 @@ document.querySelectorAll('a[href^="#"]').forEach((link) => {
 });
 
 window.addEventListener("nearbychange", renderPlaces);
+
+Promise.all([refreshGameSession(), loadGameChallenges()]).then(() => renderPlaces());
