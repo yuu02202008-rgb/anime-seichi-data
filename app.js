@@ -145,7 +145,11 @@ async function submitParticipation(event) {
   status.textContent = "確認しています…";
   const signedUp = button?.value === "signup";
   const result = signedUp
-    ? await supabaseClient.auth.signUp({ email, password })
+    ? await supabaseClient.auth.signUp({
+        email,
+        password,
+        options: { emailRedirectTo: `${window.location.origin}${window.location.pathname}` }
+      })
     : await supabaseClient.auth.signInWithPassword({ email, password });
   if (result.error) {
     status.textContent = result.error.message.includes("Invalid login") ? "メールアドレスまたはパスワードを確認してください。" : `手続きを完了できませんでした。${result.error.message}`;
