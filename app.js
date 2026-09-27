@@ -95,7 +95,7 @@ function participationMarkup(message = "") {
     <p>閲覧はログイン不要です。お気に入り、訪問スタンプ、ゲームへの参加だけアカウントを使います。</p>
     <form class="participation-form" id="participationForm">
       <label>メールアドレス<input name="email" type="email" autocomplete="email" required /></label>
-      <label>パスワード<input name="password" type="password" autocomplete="current-password" minlength="8" required /><small>8文字以上</small></label>
+      <label>パスワード<span class="password-input"><input name="password" type="password" autocomplete="current-password" minlength="8" required /><button id="passwordVisibilityButton" type="button" aria-label="パスワードを表示">表示</button></span><small>8文字以上</small></label>
       <div class="participation-actions"><button class="submit-button" name="intent" value="signin" type="submit">ログイン</button><button class="secondary-button" name="intent" value="signup" type="submit">新規登録</button></div>
       <p class="form-status" id="participationStatus" aria-live="polite">${escapeHtml(message)}</p>
     </form>`;
@@ -104,6 +104,13 @@ function renderParticipation(message = "") {
   participationContent.innerHTML = participationMarkup(message);
   const form = document.querySelector("#participationForm");
   if (form) form.addEventListener("submit", submitParticipation);
+  document.querySelector("#passwordVisibilityButton")?.addEventListener("click", (event) => {
+    const input = document.querySelector("#participationForm input[name=password]");
+    const showing = input.type === "text";
+    input.type = showing ? "password" : "text";
+    event.currentTarget.textContent = showing ? "表示" : "隠す";
+    event.currentTarget.setAttribute("aria-label", showing ? "パスワードを表示" : "パスワードを隠す");
+  });
   document.querySelector("#signOutButton")?.addEventListener("click", async () => {
     const { error } = await supabaseClient.auth.signOut();
     if (error) return renderParticipation("ログアウトできませんでした。もう一度お試しください。");
