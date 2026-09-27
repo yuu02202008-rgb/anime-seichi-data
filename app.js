@@ -609,6 +609,12 @@ filterReset.addEventListener("click", () => {
 });
 document.querySelector("#dialogClose").addEventListener("click", () => dialog.close());
 dialog.addEventListener("click", (event) => { if (event.target === dialog) dialog.close(); });
+dialog.addEventListener("close", () => {
+  const url = new URL(window.location.href);
+  if (!url.searchParams.has("place")) return;
+  url.searchParams.delete("place");
+  history.replaceState(null, "", `${url.pathname}${url.search}${url.hash}`);
+});
 participationButton.addEventListener("click", async () => { await refreshGameSession(); renderParticipation(); participationDialog.showModal(); });
 document.querySelector("#participationClose").addEventListener("click", () => participationDialog.close());
 participationDialog.addEventListener("click", (event) => { if (event.target === participationDialog) participationDialog.close(); });
