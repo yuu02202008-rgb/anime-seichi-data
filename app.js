@@ -75,143 +75,6 @@ const supabaseClient = window.supabase.createClient(
   window.supabaseConfig.url,
   window.supabaseConfig.publishableKey
 );
-const participationDialog = document.querySelector("#participationDialog");
-const participationContent = document.querySelector("#participationContent");
-const participationButton = document.querySelector("#participationButton");
-let gameUser = null;
-let gameFavorites = new Set();
-let gameStamps = new Set();
-let gameChallenges = new Map();
-
-function participationMarkup(message = "") {
-  if (gameUser) {
-    const favoriteItems = [...gameFavorites].map((placeId) => places.find((place) => place.id === placeId)).filter(Boolean);
-    const favoritesPanel = favoriteItems.length
-      ? `<section class="collection-list"><h3>お気に入りした聖地</h3><div>${favoriteItems.map((place) => `<button class="collection-place" type="button" data-favorite-place="${escapeHtml(place.id)}"><span>${escapeHtml(place.name)}</span><small>${escapeHtml(place.prefecture)}・${escapeHtml(place.work)}</small></button>`).join("")}</div></section>`
-      : "";
-    return `<p class="eyebrow">YOUR COLLECTION</p><h2>ゲームに参加中</h2>
-      <p>${escapeHtml(gameUser.email || "ログイン中")}</p>
-      <div class="collection-summary"><div><strong>${gameFavorites.size}</strong><span>お気に入り</span></div><div><strong>${gameStamps.size}</strong><span>獲得スタンプ</span></div></div>
-      ${favoritesPanel}
-      <p class="participation-note">写真・地図・聖地情報の閲覧は、ログアウト後もそのまま利用できます。</p>
-      <button class="secondary-button" id="signOutButton" type="button">ログアウト</button>${message ? `<p class="form-status">${escapeHtml(message)}</p>` : ""}`;
-  }
-  return `<p class="eyebrow">JOIN THE GAME</p><h2>撮影地点を探そう</h2>
-    <p>閲覧はログイン不要です。お気に入り、訪問スタンプ、ゲームへの参加だけアカウントを使います。</p>
-    <form class="participation-form" id="participationForm">
-      <label>メールアドレス<input name="email" type="email" autocomplete="email" required /></label>
-      <label>パスワード<span class="password-input"><input name="password" type="password" autocomplete="current-password" minlength="8" required /><button id="passwordVisibilityButton" type="button" aria-label="パスワードを表示">表示</button></span><small>8文字以上</small></label>
-      <div class="participation-actions"><button class="submit-button" name="intent" value="signin" type="submit">ログイン</button><button class="secondary-button" name="intent" value="signup" type="submit">新規登録</button></div>
-      <p class="form-status" id="participationStatus" aria-live="polite">${escapeHtml(message)}</p>
-    </form>`;
-}
-function renderParticipation(message = "") {
-  participationContent.innerHTML = participationMarkup(message);
-  const form = document.querySelector("#participationForm");
-  if (form) form.addEventListener("submit", submitParticipation);
-  document.querySelectorAll("[data-favorite-place]").forEach((button) => button.addEventListener("click", () => {
-    const place = places.find((item) => item.id === button.dataset.favoritePlace);
-    if (!place) return;
-    participationDialog.close();
-    showDetail(place);
-  }));
-  document.querySelector("#passwordVisibilityButton")?.addEventListener("click", (event) => {
-    const input = document.querySelector("#participationForm input[name=password]");
-    const showing = input.type === "text";
-    input.type = showing ? "password" : "text";
-    event.currentTarget.textContent = showing ? "表示" : "隠す";
-    event.currentTarget.setAttribute("aria-label", showing ? "パスワードを表示" : "パスワードを隠す");
-  });
-  document.querySelector("#signOutButton")?.addEventListener("click", async () => {
-    const { error } = await supabaseClient.auth.signOut();
-    if (error) return renderParticipation("ログアウトできませんでした。もう一度お試しください。");
-    gameUser = null; gameFavorites = new Set(); gameStamps = new Set();
-    participationButton.textContent = "参加する";
-    renderParticipation("ログアウトしました。");
-    renderPlaces();
-  });
-}
-async function loadGameData() {
-  if (!gameUser) return;
-  const [favorites, stamps] = await Promise.all([
-    supabaseClient.from("user_favorites").select("place_id"),
-    supabaseClient.from("visit_stamps").select("place_id")
-  ]);
-  gameFavorites = new Set((favorites.data || []).map((row) => row.place_id));
-  gameStamps = new Set((stamps.data || []).map((row) => row.place_id));
-}
-async function refreshGameSession() {
-  const { data } = await supabaseClient.auth.getSession();
-  gameUser = data.session?.user || null;
-  if (gameUser) await loadGameData();
-  participationButton.textContent = gameUser ? "マイページ" : "参加する";
-}
-async function submitParticipation(event) {
-  event.preventDefault();
-  const button = event.submitter;
-  const data = new FormData(event.currentTarget);
-  const email = String(data.get("email") || "").trim();
-  const password = String(data.get("password") || "");
-  const status = document.querySelector("#participationStatus");
-  status.textContent = "確認しています…";
-  const signedUp = button?.value === "signup";
-  const result = signedUp
-    ? await supabaseClient.auth.signUp({
-        email,
-        password,
-        options: { emailRedirectTo: `${window.location.origin}${window.location.pathname}` }
-      })
-    : await supabaseClient.auth.signInWithPassword({ email, password });
-  if (result.error) {
-    status.textContent = result.error.message.includes("Invalid login") ? "メールアドレスまたはパスワードを確認してください。" : `手続きを完了できませんでした。${result.error.message}`;
-    return;
-  }
-  if (signedUp && !result.data.session) {
-    status.textContent = "確認メールを送信しました。メール内のリンクを開いてからログインしてください。";
-    return;
-  }
-  await refreshGameSession();
-  if (gameUser) await supabaseClient.from("user_profiles").upsert({ user_id: gameUser.id }, { onConflict: "user_id", ignoreDuplicates: true });
-  renderParticipation(signedUp ? "登録して参加を開始しました。" : "ログインしました。");
-  renderPlaces();
-}
-async function loadGameChallenges() {
-  const { data } = await supabaseClient.from("viewpoint_challenges").select("id, place_id, title, hint, checkin_radius_m").eq("status", "published");
-  gameChallenges = new Map((data || []).map((challenge) => [challenge.place_id, challenge]));
-}
-async function toggleFavorite(placeId) {
-  if (!gameUser) { participationDialog.showModal(); renderParticipation("お気に入りにはゲーム参加が必要です。"); return; }
-  const exists = gameFavorites.has(placeId);
-  const result = exists
-    ? await supabaseClient.from("user_favorites").delete().eq("place_id", placeId)
-    : await supabaseClient.from("user_favorites").insert({ user_id: gameUser.id, place_id: placeId });
-  if (result.error) return alert("お気に入りを保存できませんでした。もう一度お試しください。");
-  exists ? gameFavorites.delete(placeId) : gameFavorites.add(placeId);
-  showDetail(places.find((place) => place.id === placeId));
-}
-function currentPosition() {
-  return new Promise((resolve, reject) => {
-    if (!navigator.geolocation || !window.isSecureContext) return reject(new Error("現在地はHTTPSの公開サイトで利用できます。"));
-    navigator.geolocation.getCurrentPosition((position) => resolve(position.coords), reject, { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 });
-  });
-}
-async function claimStamp(place) {
-  if (!gameUser) { participationDialog.showModal(); renderParticipation("スタンプを獲得するにはゲーム参加が必要です。"); return; }
-  const button = document.querySelector("#claimStampButton");
-  button.disabled = true; button.textContent = "現在地を確認しています…";
-  try {
-    const position = await currentPosition();
-    const { data, error } = await supabaseClient.rpc("award_visit_stamp", { requested_place_id: place.id, current_latitude: position.latitude, current_longitude: position.longitude });
-    if (error) throw error;
-    const result = Array.isArray(data) ? data[0] : data;
-    if (result?.awarded) gameStamps.add(place.id);
-    showDetail(place);
-    alert(result?.message || "スタンプを確認しました。");
-  } catch (error) {
-    button.disabled = false; button.textContent = "現在地でスタンプを確認";
-    alert(error.message || "スタンプを確認できませんでした。");
-  }
-}
 const safeImageUrl = (value = "") => {
   try { const url = new URL(value); return ["https:", "http:"].includes(url.protocol) ? url.href : ""; }
   catch { return ""; }
@@ -308,19 +171,7 @@ function regionsForCountry(country) {
 let prefectures = orderedPrefectures();
 let works = unique("work");
 const requestedWork = new URLSearchParams(window.location.search).get("work");
-const requestedPlace = new URLSearchParams(window.location.search).get("place");
-const knownWorkOrSeries = (value) => (places || []).some((place) => place.work === value || place.series === value);
-if (requestedWork && knownWorkOrSeries(requestedWork)) activeWork = requestedWork;
-
-function matchesActiveWork(place) {
-  if (!activeWork) return true;
-  const names = [place.work, place.series].filter(Boolean);
-  // 作品カードや候補から選んだタイトルは、別作品を混ぜない完全一致で絞る。
-  if (knownWorkOrSeries(activeWork)) return names.includes(activeWork);
-  // 手入力時だけ、候補を探しやすい部分一致を使う。
-  const query = activeWork.toLocaleLowerCase("ja");
-  return names.some((name) => name.toLocaleLowerCase("ja").includes(query));
-}
+if (requestedWork && works.includes(requestedWork)) activeWork = requestedWork;
 
 function updateStats() {
   works = unique("work");
@@ -411,7 +262,7 @@ function renderPlaces() {
     const matchesRegion = !activePrefecture || (activeCountry === "日本" ? place.prefecture === activePrefecture : place.city === activePrefecture);
     return (!activeCountry || countryForPlace(place) === activeCountry)
       && matchesRegion
-      && matchesActiveWork(place)
+      && (!activeWork || place.work.toLocaleLowerCase("ja").includes(activeWork.toLocaleLowerCase("ja")))
       && (!activeVisit || place.visit === activeVisit)
       && searchable.includes(query);
   });
@@ -466,31 +317,10 @@ function showDetail(place) {
   const imagePanel = imageUrl
     ? `<figure class="place-photo"><img src="${imageUrl}" alt="${place.name}" loading="lazy" /><figcaption>${photoSourceUrl ? `<a href="${photoSourceUrl}" target="_blank" rel="noreferrer">${escapeHtml(imageCredit)}</a>` : escapeHtml(imageCredit)}</figcaption></figure>`
     : `<div class="place-photo place-photo-empty" aria-label="${t("photoPending")}"><span>PHOTO</span><strong>${t("photoPending")}</strong><small>${t("photoAfterReview")}</small></div>`;
-  const sceneImage = place.sceneImage;
-  const sceneImageUrl = safeImageUrl(sceneImage?.imageUrl);
-  const sceneImageSourceUrl = safeImageUrl(sceneImage?.sourceUrl);
-  const sceneImagePanel = sceneImageUrl
-    ? `<figure class="scene-image"><p>作品内の場面</p><img src="${sceneImageUrl}" alt="${escapeHtml(sceneImage.alt || `${place.work}の場面画像`)}" loading="lazy" /><figcaption>${sceneImageSourceUrl ? `<a href="${sceneImageSourceUrl}" target="_blank" rel="noreferrer">${escapeHtml(sceneImage.credit || "公式掲載素材")}</a>` : escapeHtml(sceneImage.credit || "公式掲載素材")}</figcaption></figure>`
-    : "";
-  const sceneImageResearch = place.sceneImageResearch;
-  const sceneImageResearchPanel = sceneImageResearch ? `<div class="wide"><dt>作品内の場面画像</dt><dd><strong>${escapeHtml(sceneImageResearch.status)}</strong><br><small>${escapeHtml(sceneImageResearch.note)}</small></dd></div>` : "";
-  const viewpoint = place.shootingViewpoint;
-  const filmingResearch = place.filmingResearch;
-  const viewpointPanel = viewpoint ? `<div class="wide shooting-viewpoint"><dt>撮影地点</dt><dd><strong>${escapeHtml(viewpoint.label || "確認済みの撮影地点")}</strong><br>${escapeHtml(viewpoint.access || "現地の案内に従ってください。")}${viewpoint.coordinates ? `<br><span>座標：${escapeHtml(viewpoint.coordinates)}</span>` : ""}${viewpoint.evidence ? `<br><small>確認根拠：${escapeHtml(viewpoint.evidence)}</small>` : ""}${viewpoint.sourceUrl ? `<br><a href="${safeImageUrl(viewpoint.sourceUrl)}" target="_blank" rel="noopener">根拠を確認する</a>` : ""}</dd></div>` : "";
-  const level = place.seichiLevel && window.animeSeichiResearchCriteria?.levels?.[place.seichiLevel];
-  const assessment = place.seichiAssessment;
-  const photoAudit = place.photoAudit;
-  const visited = window.visitLog?.has(place.id);
-  const audit = place.locationAudit;
-  const challenge = gameChallenges.get(place.id);
-  const favoriteButton = `<button class="secondary-button favorite-button" id="favoriteButton" type="button">${gameFavorites.has(place.id) ? "★ お気に入り済み" : "☆ お気に入りに追加"}</button>`;
-  const gamePanel = challenge ? `<aside class="game-challenge"><p class="eyebrow">VIEWPOINT CHALLENGE</p><h3>${escapeHtml(challenge.title)}</h3><p>${escapeHtml(challenge.hint)}</p>${gameStamps.has(place.id) ? `<strong>✓ スタンプを獲得済み</strong>` : `<button class="secondary-button" id="claimStampButton" type="button">現在地でスタンプを確認</button>`}<small>この操作の時だけ現在地を照合します。位置情報は保存しません。</small></aside>` : "";
-  const auditPanel = audit ? `<div class="wide"><dt>位置情報の確認</dt><dd><strong>${escapeHtml(audit.batch)}</strong><br>現在の座標：${escapeHtml(audit.registeredCoordinate)}<br>判定：${escapeHtml(audit.reviewResult)}<br>撮影地点：${escapeHtml(audit.filmingViewpoint)}${audit.officialCheck ? `<br><small>公式確認：${escapeHtml(audit.officialCheck)}</small>` : ""}<br><small>次の確認：${escapeHtml(audit.nextStep)}</small></dd></div>` : "";
   dialogContent.innerHTML = `
     <p class="eyebrow">LOCATION DETAIL / ${place.id.toUpperCase()}</p>
     <div class="dialog-title-row"><div><p class="dialog-place">${place.prefecture}・${place.city}</p><h2>${place.name}</h2></div></div>
     ${imagePanel}
-    ${sceneImagePanel}
     <dl class="detail-grid">
       <div><dt>${t("work")}</dt><dd>${place.work}</dd></div>
       <div><dt>${t("episode")}</dt><dd>${place.episode}</dd></div>
@@ -498,21 +328,12 @@ function showDetail(place) {
       <div><dt>${t("coordinates")}</dt><dd>${place.coordinates}</dd></div>
       <div><dt>${t("visit")}</dt><dd>${place.visit}</dd></div>
       <div><dt>${t("address")}</dt><dd>${place.address}</dd></div>
-      ${level ? `<div><dt>聖地レベル</dt><dd><strong>${escapeHtml(level.label)}${Number.isFinite(place.seichiScore) ? `（${place.seichiScore}点）` : ""}</strong><br><small>${escapeHtml(place.seichiLevelReason || level.description)}</small></dd></div>` : ""}
-      ${assessment ? `<div><dt>聖地レベル判定</dt><dd><strong>${escapeHtml(assessment.status)}</strong><br><small>${escapeHtml(assessment.summary)}</small></dd></div>` : ""}
-      ${photoAudit ? `<div><dt>地点写真</dt><dd><strong>${escapeHtml(photoAudit.status)}</strong><br><small>${escapeHtml(photoAudit.summary)}</small></dd></div>` : ""}
       <div class="wide"><dt>${t("scene")}</dt><dd>${place.scene}</dd></div>
-      ${sceneImageResearchPanel}
-      ${auditPanel}
-      ${viewpointPanel}
-      ${filmingResearch ? `<div class="wide"><dt>撮影地点の調査</dt><dd><strong>${escapeHtml(filmingResearch.status)}${filmingResearch.priority ? `（優先度：${escapeHtml(filmingResearch.priority)}）` : ""}</strong><br>${escapeHtml(filmingResearch.note)}${filmingResearch.sourceUrl ? `<br><a href="${safeImageUrl(filmingResearch.sourceUrl)}" target="_blank" rel="noopener">調査の根拠を見る</a>` : ""}</dd></div>` : ""}
       ${place.visitConditions ? `<div class="wide"><dt>${t("visitConditions")}</dt><dd>${place.visitConditions}</dd></div>` : ""}
       ${sourceUrl ? `<div class="wide"><dt>${t("source")}</dt><dd><a href="${sourceUrl}" target="_blank" rel="noopener">${t("sourceLink")}</a></dd></div>` : ""}
     </dl>
     ${window.nearby.distanceMarkup(place)}
-    <p class="nearby-note">${viewpoint ? "撮影地点の利用条件を確認してから訪問してください。" : "撮影地点未確認。登録されている場所の位置です。"}</p>
-    <div class="detail-actions">${favoriteButton}<button class="secondary-button visit-log-button" id="visitLogButton" type="button">${visited ? "✓ 訪問を記録済み" : "◎ 訪問を記録する"}</button></div>
-    ${gamePanel}
+    <p class="nearby-note">撮影地点未確認。登録されている場所の位置です。</p>
     ${mapLink}
     ${workInfoPanel}
     ${place.communityUpdate ? `<aside class="community-update"><strong>${t("approvedCorrection")}</strong><p>${escapeHtml(place.communityUpdate)}</p></aside>` : ""}
@@ -520,9 +341,8 @@ function showDetail(place) {
     <details class="correction-panel">
       <summary>${t("correctionSummary")}</summary>
       <form class="correction-form" id="correctionForm">
-        <label>申請内容<select name="requestType" required><option value="correction">情報の訂正</option><option value="image_addition">写真の追加</option><option value="viewpoint">撮影地点の提案</option></select></label>
-        <label>訂正・追加内容<textarea name="details" rows="4" required placeholder="撮影地点の場合は、見える景色・安全な立ち位置・現地の注意を入力してください"></textarea></label>
-        <label>撮影地点の座標（任意）<input name="viewpointCoordinates" inputmode="decimal" placeholder="例：35.30666, 139.50217" /></label>
+        <label>申請内容<select name="requestType" required><option value="correction">情報の訂正</option><option value="image_addition">写真の追加</option></select></label>
+        <label>訂正・追加内容<textarea name="details" rows="4" required placeholder="どの情報を、どのように直すべきか入力してください"></textarea></label>
         <label>確認できるURL<input name="source" type="url" required placeholder="公式サイトや地図など" /></label>
         <label>写真（任意）<input name="photoFile" type="file" accept="image/jpeg,image/png,image/webp" /><small>JPEG・PNG・WebP、5MBまで</small></label>
         <label>連絡先（任意）<input name="contact" type="email" /></label>
@@ -531,18 +351,12 @@ function showDetail(place) {
       </form>
     </details>`;
   document.querySelector("#correctionForm").addEventListener("submit", (event) => submitCorrection(event, place));
-  document.querySelector("#favoriteButton")?.addEventListener("click", () => toggleFavorite(place.id));
-  document.querySelector("#claimStampButton")?.addEventListener("click", () => claimStamp(place));
   const correctionLabels = document.querySelectorAll("#correctionForm label");
   translations[currentLanguage].correctionLabels.forEach((label, index) => { if (correctionLabels[index]) replaceLeadingText(correctionLabels[index], label); });
   const requestTypeOptions = document.querySelector("#correctionForm select[name=requestType]").options;
   requestTypeOptions[0].textContent = t("correctionOption");
   requestTypeOptions[1].textContent = t("imageOption");
   document.querySelector("#correctionForm .submit-button").childNodes[0].textContent = `${t("send")} `;
-  document.querySelector("#visitLogButton").addEventListener("click", (event) => {
-    const isVisited = window.visitLog?.toggle(place.id);
-    event.currentTarget.textContent = isVisited ? "✓ 訪問を記録済み" : "◎ 訪問を記録する";
-  });
   dialog.showModal();
 }
 
@@ -561,9 +375,8 @@ async function submitCorrection(event, place) {
   status.textContent = "申請を送信しています…";
   try {
     const imagePath = await uploadSubmissionImage(file);
-    const isViewpointProposal = values.requestType === "viewpoint";
     const { error } = await supabaseClient.from("spot_submissions").insert({
-      submission_type: isViewpointProposal ? "correction" : values.requestType,
+      submission_type: values.requestType,
       target_place_id: place.id,
       target_place_name: place.name,
       work: place.work,
@@ -574,7 +387,7 @@ async function submitCorrection(event, place) {
       visit_status: ["自由訪問可能", "条件付き", "外観のみ"].includes(place.visit) ? place.visit : null,
       visit_conditions: place.visitConditions || null,
       image_path: imagePath || null,
-      scene: isViewpointProposal ? `[撮影地点の提案] 座標：${values.viewpointCoordinates || "未入力"}\n${values.details}` : values.details,
+      scene: values.details,
       source_url: values.source,
       contact_email: values.contact || null
     });
@@ -620,16 +433,6 @@ filterReset.addEventListener("click", () => {
 });
 document.querySelector("#dialogClose").addEventListener("click", () => dialog.close());
 dialog.addEventListener("click", (event) => { if (event.target === dialog) dialog.close(); });
-dialog.addEventListener("close", () => {
-  const url = new URL(window.location.href);
-  if (!url.searchParams.has("place")) return;
-  url.searchParams.delete("place");
-  history.replaceState(null, "", `${url.pathname}${url.search}${url.hash}`);
-});
-participationButton.addEventListener("click", async () => { await refreshGameSession(); renderParticipation(); participationDialog.showModal(); });
-document.querySelector("#participationClose").addEventListener("click", () => participationDialog.close());
-participationDialog.addEventListener("click", (event) => { if (event.target === participationDialog) participationDialog.close(); });
-supabaseClient.auth.onAuthStateChange(() => { setTimeout(() => refreshGameSession().then(renderPlaces), 0); });
 
 function syncVisitConditions() {
   const required = visitStatus.value === "条件付き";
@@ -720,13 +523,6 @@ async function loadApprovedCorrections() {
 updateStats();
 renderFilters();
 renderPlaces();
-if (requestedPlace) {
-  const place = places.find((candidate) => candidate.id === requestedPlace);
-  if (place) {
-    document.querySelector("#places")?.scrollIntoView({ block: "start" });
-    showDetail(place);
-  }
-}
 loadApprovedSubmissions().then(loadApprovedCorrections);
 
 function setTheme(theme) {
@@ -762,5 +558,3 @@ document.querySelectorAll('a[href^="#"]').forEach((link) => {
 });
 
 window.addEventListener("nearbychange", renderPlaces);
-
-Promise.all([refreshGameSession(), loadGameChallenges()]).then(() => renderPlaces());
