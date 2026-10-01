@@ -8,6 +8,7 @@ const workSuggestions = document.querySelector("#workSuggestions");
 const workSuggestionsToggle = document.querySelector("#workSuggestionsToggle");
 const visitFilter = document.querySelector("#visitFilter");
 const filterReset = document.querySelector("#filterReset");
+const filterSearch = document.querySelector("#filterSearch");
 const resultStatus = document.querySelector("#resultStatus");
 const dialog = document.querySelector("#placeDialog");
 const dialogContent = document.querySelector("#dialogContent");
@@ -24,8 +25,8 @@ const mobileMenuText = document.querySelector("#mobileMenuText");
 const languageSelect = document.querySelector("#languageSelect");
 const translations = {
   ja: {
-    homeAria:"ホームへ", mainNavAria:"メインナビゲーション", exploreNav:"聖地を探す", worksNav:"作品から探す", submitNav:"聖地申請",
-    searchPlaceholder:"場所・シーンから検索", countryLabel:"国", prefectureLabel:"都道府県・地域", workLabel:"作品名", visitLabel:"訪問可否", workPlaceholder:"作品名を入力", reset:"リセット",
+    homeAria:"ホームへ", mainNavAria:"メインナビゲーション", exploreNav:"聖地を探す", worksNav:"作品から探す", mapNav:"地図・現在地から探す", submitNav:"聖地申請",
+    searchPlaceholder:"場所・シーンから検索", countryLabel:"国", prefectureLabel:"都道府県・地域", workLabel:"作品名", visitLabel:"訪問可否", workPlaceholder:"作品名を入力", filterSearch:"検索する", reset:"リセット",
     heroHeading:"アニメの記憶を、<br /><em>地図の上へ。</em>", heroCopy:"提供データをもとに、作品・場面・実在の場所を記録する<br />聖地データベース。", worksStat:"作品", placesStat:"登録地点", prefecturesStat:"都道府県", scenesStat:"シーン", footerText:"データ探索プロトタイプ",
     exploreHeading:"聖地を探す", exploreDescription:"キーワードと条件を組み合わせて、行きたい聖地を探せます。", submissionHeading:"知っている聖地を<br /><em>申請する。</em>",
     submissionDescription:"未登録の場所や、より正確な情報があれば教えてください。根拠が分かるリンクや資料があると確認しやすくなります。", submissionDisclaimer:"申請内容は運営の確認待ちとして保存されます。個人情報は掲載せず、確認作業にのみ使用します。",
@@ -33,11 +34,11 @@ const translations = {
     openWorks:"作品候補を開く", closeWorks:"作品候補を閉じる", photoPending:"写真は準備中です", photoAfterReview:"確認後に追加されます", photoCredit:"写真提供：掲載情報",
     work:"登場作品", episode:"収録", category:"カテゴリ", coordinates:"座標", visit:"訪問可否", address:"住所", scene:"シーン", visitConditions:"訪問条件", source:"確認根拠", sourceLink:"公式情報を確認 ↗", map:"Google マップで確認 ↗", workData:w=>`「${w}」の作品データを表示`, checked:"最終確認日：", approvedCorrection:"承認済みの訂正情報", correctionSummary:"この情報の訂正・写真追加を申請する",
     correctionLabels:["申請内容","訂正・追加内容","確認できるURL","写真（任意）","連絡先（任意）"], submissionLabels:["作品名","聖地スポット名","都道府県","市区町村","座標","訪問可否","訪問条件","写真（任意）","登場シーン・補足","根拠となるURL・資料","連絡先（任意）"], correctionOption:"情報の訂正", imageOption:"写真の追加", send:"申請を送信する",
-    lightAria:"ライトモードに切り替える", darkAria:"ダークモードに切り替える"
+    nearbyHeading:"現在地から探す", locate:"◎ 現在地から探す", clearLocation:"現在地をクリア", order:"表示順", defaultOrder:"登録順", nearOrder:"現在地から近い順", mapResults:"検索結果を地図に表示", mapNote:"距離は登録地点までの直線距離です。徒歩距離ではありません。橙は登録地点、青は確認済みの撮影地点です。訪問条件は各地点の詳細をご確認ください。現在地はこのページ内でのみ使用し、保存・投稿しません。地図表示には外部の地図サービスを使用します。", lightAria:"ライトモードに切り替える", darkAria:"ダークモードに切り替える"
   },
   en: {
-    homeAria:"Go to home", mainNavAria:"Main navigation", exploreNav:"Explore locations", worksNav:"Browse anime", submitNav:"Submit a location",
-    searchPlaceholder:"Search by location or scene", countryLabel:"Country", prefectureLabel:"Prefecture / region", workLabel:"Anime title", visitLabel:"Visitor access", workPlaceholder:"Enter an anime title", reset:"Reset",
+    homeAria:"Go to home", mainNavAria:"Main navigation", exploreNav:"Explore locations", worksNav:"Browse anime", mapNav:"Map & nearby", submitNav:"Submit a location",
+    searchPlaceholder:"Search by location or scene", countryLabel:"Country", prefectureLabel:"Prefecture / region", workLabel:"Anime title", visitLabel:"Visitor access", workPlaceholder:"Enter an anime title", filterSearch:"Search locations", reset:"Reset",
     heroHeading:"Anime memories,<br /><em>mapped to the real world.</em>", heroCopy:"A database connecting anime titles and scenes<br />with their real-world locations.", worksStat:"Titles", placesStat:"Locations", prefecturesStat:"Prefectures", scenesStat:"Scenes", footerText:"Prototype for data exploration",
     exploreHeading:"Explore locations", exploreDescription:"Combine keywords and filters to find locations you want to visit.", submissionHeading:"Share a location<br /><em>you know.</em>",
     submissionDescription:"Tell us about an unlisted location or a correction. A supporting official link or document helps us verify it.", submissionDisclaimer:"Submissions are stored for editorial review. Contact details are used only for verification and are never published.",
@@ -45,7 +46,7 @@ const translations = {
     openWorks:"Open title suggestions", closeWorks:"Close title suggestions", photoPending:"Photo coming soon", photoAfterReview:"Added after verification", photoCredit:"Photo supplied with listing",
     work:"Anime title", episode:"Episode", category:"Category", coordinates:"Coordinates", visit:"Visitor access", address:"Address", scene:"Scene", visitConditions:"Access conditions", source:"Evidence", sourceLink:"View official source ↗", map:"View on Google Maps ↗", workData:w=>`View data for “${w}”`, checked:"Last reviewed: ", approvedCorrection:"Approved community correction", correctionSummary:"Submit a correction or photo",
     correctionLabels:["Request type","Correction or addition","Supporting URL","Photo (optional)","Contact (optional)"], submissionLabels:["Anime title","Location name","Prefecture","City / ward","Coordinates","Visitor access","Access conditions","Photo (optional)","Scene and notes","Supporting URL or document","Contact (optional)"], correctionOption:"Information correction", imageOption:"Add a photo", send:"Send submission",
-    lightAria:"Switch to light mode", darkAria:"Switch to dark mode"
+    nearbyHeading:"Explore nearby", locate:"◎ Use my location", clearLocation:"Clear location", order:"Sort", defaultOrder:"Registration order", nearOrder:"Nearest first", mapResults:"Show results on map", mapNote:"Distances are straight-line distances to the registered location, not walking distances. Orange marks registered locations and blue marks verified viewpoints. Check each location for visitor conditions. Your location is used only on this page and is not saved or submitted. The map uses an external map service.", lightAria:"Switch to light mode", darkAria:"Switch to dark mode"
   }
 };
 let currentLanguage = localStorage.getItem("anime-seichi-language") === "en" ? "en" : "ja";
@@ -57,6 +58,14 @@ let activeVisit = "";
 let workSuggestionsExpanded = false;
 const places = window.places;
 const workInfo = window.workInfo || {};
+const locale = window.animeSeichiI18n || {};
+const displayWork = (name) => locale.work?.(name, currentLanguage) || name;
+const displayPlace = (place) => locale.place?.(place, currentLanguage) || place.name;
+const displayPrefecture = (name) => locale.prefecture?.(name, currentLanguage) || name;
+const displayCity = (place) => locale.city?.(place, currentLanguage) || place.city;
+const displayAddress = (place) => locale.address?.(place, currentLanguage) || place.address;
+const displayVisit = (name) => locale.visit?.(name, currentLanguage) || name;
+const displayCategory = (name) => locale.category?.(name, currentLanguage) || name;
 const photoObserver = typeof IntersectionObserver === "undefined" ? null : new IntersectionObserver((entries) => {
   entries.filter((entry) => entry.isIntersecting).forEach((entry) => {
     const card = entry.target;
@@ -75,6 +84,143 @@ const supabaseClient = window.supabase.createClient(
   window.supabaseConfig.url,
   window.supabaseConfig.publishableKey
 );
+const participationDialog = document.querySelector("#participationDialog");
+const participationContent = document.querySelector("#participationContent");
+const participationButton = document.querySelector("#participationButton");
+let gameUser = null;
+let gameFavorites = new Set();
+let gameStamps = new Set();
+let gameChallenges = new Map();
+
+function participationMarkup(message = "") {
+  if (gameUser) {
+    const favoriteItems = [...gameFavorites].map((placeId) => places.find((place) => place.id === placeId)).filter(Boolean);
+    const favoritesPanel = favoriteItems.length
+      ? `<section class="collection-list"><h3>お気に入りした聖地</h3><div>${favoriteItems.map((place) => `<button class="collection-place" type="button" data-favorite-place="${escapeHtml(place.id)}"><span>${escapeHtml(place.name)}</span><small>${escapeHtml(place.prefecture)}・${escapeHtml(place.work)}</small></button>`).join("")}</div></section>`
+      : "";
+    return `<p class="eyebrow">YOUR COLLECTION</p><h2>ゲームに参加中</h2>
+      <p>${escapeHtml(gameUser.email || "ログイン中")}</p>
+      <div class="collection-summary"><div><strong>${gameFavorites.size}</strong><span>お気に入り</span></div><div><strong>${gameStamps.size}</strong><span>獲得スタンプ</span></div></div>
+      ${favoritesPanel}
+      <p class="participation-note">写真・地図・聖地情報の閲覧は、ログアウト後もそのまま利用できます。</p>
+      <button class="secondary-button" id="signOutButton" type="button">ログアウト</button>${message ? `<p class="form-status">${escapeHtml(message)}</p>` : ""}`;
+  }
+  return `<p class="eyebrow">JOIN THE GAME</p><h2>撮影地点を探そう</h2>
+    <p>閲覧はログイン不要です。お気に入り、訪問スタンプ、ゲームへの参加だけアカウントを使います。</p>
+    <form class="participation-form" id="participationForm">
+      <label>メールアドレス<input name="email" type="email" autocomplete="email" required /></label>
+      <label>パスワード<span class="password-input"><input name="password" type="password" autocomplete="current-password" minlength="8" required /><button id="passwordVisibilityButton" type="button" aria-label="パスワードを表示">表示</button></span><small>8文字以上</small></label>
+      <div class="participation-actions"><button class="submit-button" name="intent" value="signin" type="submit">ログイン</button><button class="secondary-button" name="intent" value="signup" type="submit">新規登録</button></div>
+      <p class="form-status" id="participationStatus" aria-live="polite">${escapeHtml(message)}</p>
+    </form>`;
+}
+function renderParticipation(message = "") {
+  participationContent.innerHTML = participationMarkup(message);
+  const form = document.querySelector("#participationForm");
+  if (form) form.addEventListener("submit", submitParticipation);
+  document.querySelectorAll("[data-favorite-place]").forEach((button) => button.addEventListener("click", () => {
+    const place = places.find((item) => item.id === button.dataset.favoritePlace);
+    if (!place) return;
+    participationDialog.close();
+    showDetail(place);
+  }));
+  document.querySelector("#passwordVisibilityButton")?.addEventListener("click", (event) => {
+    const input = document.querySelector("#participationForm input[name=password]");
+    const showing = input.type === "text";
+    input.type = showing ? "password" : "text";
+    event.currentTarget.textContent = showing ? "表示" : "隠す";
+    event.currentTarget.setAttribute("aria-label", showing ? "パスワードを表示" : "パスワードを隠す");
+  });
+  document.querySelector("#signOutButton")?.addEventListener("click", async () => {
+    const { error } = await supabaseClient.auth.signOut();
+    if (error) return renderParticipation("ログアウトできませんでした。もう一度お試しください。");
+    gameUser = null; gameFavorites = new Set(); gameStamps = new Set();
+    participationButton.textContent = "参加する";
+    renderParticipation("ログアウトしました。");
+    renderPlaces();
+  });
+}
+async function loadGameData() {
+  if (!gameUser) return;
+  const [favorites, stamps] = await Promise.all([
+    supabaseClient.from("user_favorites").select("place_id"),
+    supabaseClient.from("visit_stamps").select("place_id")
+  ]);
+  gameFavorites = new Set((favorites.data || []).map((row) => row.place_id));
+  gameStamps = new Set((stamps.data || []).map((row) => row.place_id));
+}
+async function refreshGameSession() {
+  const { data } = await supabaseClient.auth.getSession();
+  gameUser = data.session?.user || null;
+  if (gameUser) await loadGameData();
+  participationButton.textContent = gameUser ? "マイページ" : "参加する";
+}
+async function submitParticipation(event) {
+  event.preventDefault();
+  const button = event.submitter;
+  const data = new FormData(event.currentTarget);
+  const email = String(data.get("email") || "").trim();
+  const password = String(data.get("password") || "");
+  const status = document.querySelector("#participationStatus");
+  status.textContent = "確認しています…";
+  const signedUp = button?.value === "signup";
+  const result = signedUp
+    ? await supabaseClient.auth.signUp({
+        email,
+        password,
+        options: { emailRedirectTo: `${window.location.origin}${window.location.pathname}` }
+      })
+    : await supabaseClient.auth.signInWithPassword({ email, password });
+  if (result.error) {
+    status.textContent = result.error.message.includes("Invalid login") ? "メールアドレスまたはパスワードを確認してください。" : `手続きを完了できませんでした。${result.error.message}`;
+    return;
+  }
+  if (signedUp && !result.data.session) {
+    status.textContent = "確認メールを送信しました。メール内のリンクを開いてからログインしてください。";
+    return;
+  }
+  await refreshGameSession();
+  if (gameUser) await supabaseClient.from("user_profiles").upsert({ user_id: gameUser.id }, { onConflict: "user_id", ignoreDuplicates: true });
+  renderParticipation(signedUp ? "登録して参加を開始しました。" : "ログインしました。");
+  renderPlaces();
+}
+async function loadGameChallenges() {
+  const { data } = await supabaseClient.from("viewpoint_challenges").select("id, place_id, title, hint, checkin_radius_m").eq("status", "published");
+  gameChallenges = new Map((data || []).map((challenge) => [challenge.place_id, challenge]));
+}
+async function toggleFavorite(placeId) {
+  if (!gameUser) { participationDialog.showModal(); renderParticipation("お気に入りにはゲーム参加が必要です。"); return; }
+  const exists = gameFavorites.has(placeId);
+  const result = exists
+    ? await supabaseClient.from("user_favorites").delete().eq("place_id", placeId)
+    : await supabaseClient.from("user_favorites").insert({ user_id: gameUser.id, place_id: placeId });
+  if (result.error) return alert("お気に入りを保存できませんでした。もう一度お試しください。");
+  exists ? gameFavorites.delete(placeId) : gameFavorites.add(placeId);
+  showDetail(places.find((place) => place.id === placeId));
+}
+function currentPosition() {
+  return new Promise((resolve, reject) => {
+    if (!navigator.geolocation || !window.isSecureContext) return reject(new Error("現在地はHTTPSの公開サイトで利用できます。"));
+    navigator.geolocation.getCurrentPosition((position) => resolve(position.coords), reject, { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 });
+  });
+}
+async function claimStamp(place) {
+  if (!gameUser) { participationDialog.showModal(); renderParticipation("スタンプを獲得するにはゲーム参加が必要です。"); return; }
+  const button = document.querySelector("#claimStampButton");
+  button.disabled = true; button.textContent = "現在地を確認しています…";
+  try {
+    const position = await currentPosition();
+    const { data, error } = await supabaseClient.rpc("award_visit_stamp", { requested_place_id: place.id, current_latitude: position.latitude, current_longitude: position.longitude });
+    if (error) throw error;
+    const result = Array.isArray(data) ? data[0] : data;
+    if (result?.awarded) gameStamps.add(place.id);
+    showDetail(place);
+    alert(result?.message || "スタンプを確認しました。");
+  } catch (error) {
+    button.disabled = false; button.textContent = "現在地でスタンプを確認";
+    alert(error.message || "スタンプを確認できませんでした。");
+  }
+}
 const safeImageUrl = (value = "") => {
   try { const url = new URL(value); return ["https:", "http:"].includes(url.protocol) ? url.href : ""; }
   catch { return ""; }
@@ -96,6 +242,8 @@ function applyLanguage(language, save = true) {
   document.querySelectorAll("[data-i18n-html]").forEach((element) => { element.innerHTML = t(element.dataset.i18nHtml); });
   document.querySelectorAll("[data-i18n-placeholder]").forEach((element) => { element.placeholder = t(element.dataset.i18nPlaceholder); });
   document.querySelectorAll("[data-i18n-aria-label]").forEach((element) => { element.setAttribute("aria-label", t(element.dataset.i18nAriaLabel)); });
+  const nearbyText = { "#nearby h3":"nearbyHeading", "#locateButton":"locate", "#clearLocation":"clearLocation", "#fitPlaces":"mapResults", ".nearby-toolbar label":"order", ".nearby-note":"mapNote" };
+  Object.entries(nearbyText).forEach(([selector, key]) => { const element = document.querySelector(selector); if (element) { if (selector === ".nearby-toolbar label") { const select = element.querySelector("select"); element.firstChild.textContent = `${t(key)} `; if (select) { select.options[0].textContent = t("defaultOrder"); select.options[1].textContent = t("nearOrder"); } } else element.textContent = t(key); } });
   const submissionLabels = submissionForm.querySelectorAll("label");
   translations[currentLanguage].submissionLabels.forEach((label, index) => { if (submissionLabels[index]) replaceLeadingText(submissionLabels[index], label); });
   const visitOptions = visitStatus.options;
@@ -108,6 +256,7 @@ function applyLanguage(language, save = true) {
   setWorkSuggestions(false);
   renderPlaces();
   setTheme(document.body.dataset.theme || "light");
+  window.dispatchEvent(new CustomEvent("anime-language-change", { detail: { language: currentLanguage } }));
 }
 
 async function uploadSubmissionImage(file) {
@@ -171,7 +320,23 @@ function regionsForCountry(country) {
 let prefectures = orderedPrefectures();
 let works = unique("work");
 const requestedWork = new URLSearchParams(window.location.search).get("work");
-if (requestedWork && works.includes(requestedWork)) activeWork = requestedWork;
+const requestedPlace = new URLSearchParams(window.location.search).get("place");
+const knownWorkOrSeries = (value) => (places || []).some((place) => place.work === value || place.series === value);
+const resolveWorkInput = (value) => {
+  const input = String(value || "").trim().toLocaleLowerCase("en");
+  return works.find((work) => work.toLocaleLowerCase("en") === input || displayWork(work).toLocaleLowerCase("en") === input) || String(value || "").trim();
+};
+if (requestedWork && knownWorkOrSeries(requestedWork)) activeWork = requestedWork;
+
+function matchesActiveWork(place) {
+  if (!activeWork) return true;
+  const names = [place.work, place.series].filter(Boolean);
+  // 作品カードや候補から選んだタイトルは、別作品を混ぜない完全一致で絞る。
+  if (knownWorkOrSeries(activeWork)) return names.includes(activeWork);
+  // 手入力時だけ、候補を探しやすい部分一致を使う。
+  const query = activeWork.toLocaleLowerCase("ja");
+  return names.some((name) => `${name} ${displayWork(name)}`.toLocaleLowerCase("ja").includes(query));
+}
 
 function updateStats() {
   works = unique("work");
@@ -184,7 +349,7 @@ function updateStats() {
 
 function renderFilters() {
   const countries = availableCountries();
-  countryFilter.innerHTML = `<option value="">${t("allCountries")}</option>${countries.map((country) => `<option value="${country}">${country}</option>`).join("")}`;
+  countryFilter.innerHTML = `<option value="">${t("allCountries")}</option>${countries.map((country) => `<option value="${country}">${country === "日本" && currentLanguage === "en" ? "Japan" : country}</option>`).join("")}`;
   countryFilter.value = activeCountry;
   const regions = regionsForCountry(activeCountry);
   if (!activeCountry) {
@@ -194,11 +359,11 @@ function renderFilters() {
     prefectureFilter.innerHTML = `<option value="">${t("regionUnavailable")}</option>`;
     prefectureFilter.disabled = true;
   } else {
-    prefectureFilter.innerHTML = `<option value="">${t("allPrefectures")}</option>${regions.map((prefecture) => `<option value="${prefecture}">${prefecture}</option>`).join("")}`;
+    prefectureFilter.innerHTML = `<option value="">${t("allPrefectures")}</option>${regions.map((prefecture) => `<option value="${prefecture}">${activeCountry === "日本" ? displayPrefecture(prefecture) : prefecture}</option>`).join("")}`;
     prefectureFilter.disabled = false;
   }
   prefectureFilter.value = activePrefecture;
-  workFilter.value = activeWork;
+  workFilter.value = activeWork ? displayWork(activeWork) : "";
   visitFilter.options[0].textContent = t("allVisits");
   visitFilter.options[1].textContent = t("visitFree");
   visitFilter.options[2].textContent = t("visitConditional");
@@ -210,7 +375,7 @@ function renderWorkSuggestions() {
   const query = workFilter.value.trim().toLocaleLowerCase("ja");
   const matchedWorks = [...works]
     .sort((a, b) => a.localeCompare(b, "ja"))
-    .filter((work) => work.toLocaleLowerCase("ja").includes(query));
+    .filter((work) => `${work} ${displayWork(work)}`.toLocaleLowerCase("ja").includes(query));
   workSuggestions.innerHTML = "";
   if (!matchedWorks.length) {
     workSuggestions.hidden = true;
@@ -220,13 +385,13 @@ function renderWorkSuggestions() {
   matchedWorks.forEach((work) => {
     const button = document.createElement("button");
     button.type = "button";
-    button.textContent = work;
+    button.textContent = displayWork(work);
     button.addEventListener("mousedown", (event) => {
       event.preventDefault();
       activeWork = work;
       workFilter.value = work;
       setWorkSuggestions(false);
-      renderPlaces();
+      workFilter.value = displayWork(work);
     });
     workSuggestions.append(button);
   });
@@ -258,11 +423,11 @@ function cardPhotoMarkup(place) {
 function renderPlaces() {
   const query = searchInput.value.trim().toLowerCase();
   let results = places.filter((place) => {
-    const searchable = [place.name, place.prefecture, place.city, place.category, place.work, place.scene, place.visit].join(" ").toLowerCase();
+    const searchable = [place.name, displayPlace(place), place.prefecture, displayPrefecture(place.prefecture), place.city, displayCity(place), place.category, displayCategory(place.category), place.work, displayWork(place.work), place.scene, place.visit, displayVisit(place.visit)].join(" ").toLowerCase();
     const matchesRegion = !activePrefecture || (activeCountry === "日本" ? place.prefecture === activePrefecture : place.city === activePrefecture);
     return (!activeCountry || countryForPlace(place) === activeCountry)
       && matchesRegion
-      && (!activeWork || place.work.toLocaleLowerCase("ja").includes(activeWork.toLocaleLowerCase("ja")))
+      && matchesActiveWork(place)
       && (!activeVisit || place.visit === activeVisit)
       && searchable.includes(query);
   });
@@ -279,15 +444,15 @@ function renderPlaces() {
     card.type = "button";
     card.className = `place-card ${place.color}`;
     card.style.setProperty("--delay", `${index * 55}ms`);
-    const location = place.address || [place.prefecture, place.city].filter(Boolean).join("");
+    const location = displayAddress(place);
     card.innerHTML = `
       ${cardPhotoMarkup(place)}
       <span class="place-card-body">
-        <strong>${escapeHtml(place.name)}</strong>
+        <strong>${escapeHtml(displayPlace(place))}</strong>
         <span class="card-location"><span aria-hidden="true">●</span>${escapeHtml(location)}</span>
         ${window.nearby.distanceMarkup(place)}
-        <span class="card-scene">${escapeHtml(place.scene || "登場シーンの情報は準備中です")}</span>
-        <span class="card-work">${escapeHtml(place.work)}</span>
+        <span class="card-scene">${escapeHtml(place.scene || (currentLanguage === "en" ? "Scene information is being prepared." : "登場シーンの情報は準備中です"))}</span>
+        <span class="card-work">${escapeHtml(displayWork(place.work))}</span>
       </span>`;
     card.addEventListener("error", (event) => {
       const image = event.target;
@@ -305,10 +470,10 @@ function renderPlaces() {
 
 function showDetail(place) {
   const point = window.nearby.coordinates(place);
-  const mapQuery = encodeURIComponent(point ? point.join(",") : `${place.name} ${place.address}`);
+  const mapQuery = encodeURIComponent(point ? point.join(",") : `${displayPlace(place)} ${displayAddress(place)}`);
   const workFields = Object.entries(workInfo[place.work] || {}).filter(([, value]) => value !== "");
   const workDetail = workFields.map(([label, value]) => `<div><dt>${label}</dt><dd>${value}</dd></div>`).join("");
-  const workInfoPanel = workFields.length ? `<details class="work-details"><summary>${t("workData", place.work)}</summary><dl>${workDetail}</dl></details>` : "";
+  const workInfoPanel = workFields.length ? `<details class="work-details"><summary>${t("workData", displayWork(place.work))}</summary><dl>${workDetail}</dl></details>` : "";
   const mapLink = place.privacyProtected ? "" : `<a class="map-link" href="${place.mapUrl || `https://www.google.com/maps/search/?api=1&query=${mapQuery}`}" target="_blank" rel="noopener">${t("map")}</a>`;
   const imageUrl = placeCardImage(place);
   const sourceUrl = safeImageUrl(place.sourceUrl);
@@ -317,23 +482,53 @@ function showDetail(place) {
   const imagePanel = imageUrl
     ? `<figure class="place-photo"><img src="${imageUrl}" alt="${place.name}" loading="lazy" /><figcaption>${photoSourceUrl ? `<a href="${photoSourceUrl}" target="_blank" rel="noreferrer">${escapeHtml(imageCredit)}</a>` : escapeHtml(imageCredit)}</figcaption></figure>`
     : `<div class="place-photo place-photo-empty" aria-label="${t("photoPending")}"><span>PHOTO</span><strong>${t("photoPending")}</strong><small>${t("photoAfterReview")}</small></div>`;
+  const sceneImage = place.sceneImage;
+  const sceneImageUrl = safeImageUrl(sceneImage?.imageUrl);
+  const sceneImageSourceUrl = safeImageUrl(sceneImage?.sourceUrl);
+  const sceneImagePanel = sceneImageUrl
+    ? `<figure class="scene-image"><p>作品内の場面</p><img src="${sceneImageUrl}" alt="${escapeHtml(sceneImage.alt || `${place.work}の場面画像`)}" loading="lazy" /><figcaption>${sceneImageSourceUrl ? `<a href="${sceneImageSourceUrl}" target="_blank" rel="noreferrer">${escapeHtml(sceneImage.credit || "公式掲載素材")}</a>` : escapeHtml(sceneImage.credit || "公式掲載素材")}</figcaption></figure>`
+    : "";
+  const sceneImageResearch = place.sceneImageResearch;
+  const sceneImageResearchPanel = sceneImageResearch ? `<div class="wide"><dt>作品内の場面画像</dt><dd><strong>${escapeHtml(sceneImageResearch.status)}</strong><br><small>${escapeHtml(sceneImageResearch.note)}</small></dd></div>` : "";
+  const viewpoint = place.shootingViewpoint;
+  const filmingResearch = place.filmingResearch;
+  const viewpointPanel = viewpoint ? `<div class="wide shooting-viewpoint"><dt>撮影地点</dt><dd><strong>${escapeHtml(viewpoint.label || "確認済みの撮影地点")}</strong><br>${escapeHtml(viewpoint.access || "現地の案内に従ってください。")}${viewpoint.coordinates ? `<br><span>座標：${escapeHtml(viewpoint.coordinates)}</span>` : ""}${viewpoint.evidence ? `<br><small>確認根拠：${escapeHtml(viewpoint.evidence)}</small>` : ""}${viewpoint.sourceUrl ? `<br><a href="${safeImageUrl(viewpoint.sourceUrl)}" target="_blank" rel="noopener">根拠を確認する</a>` : ""}</dd></div>` : "";
+  const level = place.seichiLevel && window.animeSeichiResearchCriteria?.levels?.[place.seichiLevel];
+  const assessment = place.seichiAssessment;
+  const photoAudit = place.photoAudit;
+  const visited = window.visitLog?.has(place.id);
+  const audit = place.locationAudit;
+  const challenge = gameChallenges.get(place.id);
+  const favoriteButton = `<button class="secondary-button favorite-button" id="favoriteButton" type="button">${gameFavorites.has(place.id) ? "★ お気に入り済み" : "☆ お気に入りに追加"}</button>`;
+  const gamePanel = challenge ? `<aside class="game-challenge"><p class="eyebrow">VIEWPOINT CHALLENGE</p><h3>${escapeHtml(challenge.title)}</h3><p>${escapeHtml(challenge.hint)}</p>${gameStamps.has(place.id) ? `<strong>✓ スタンプを獲得済み</strong>` : `<button class="secondary-button" id="claimStampButton" type="button">現在地でスタンプを確認</button>`}<small>この操作の時だけ現在地を照合します。位置情報は保存しません。</small></aside>` : "";
+  const auditPanel = audit ? `<div class="wide"><dt>位置情報の確認</dt><dd><strong>${escapeHtml(audit.batch)}</strong><br>現在の座標：${escapeHtml(audit.registeredCoordinate)}<br>判定：${escapeHtml(audit.reviewResult)}<br>撮影地点：${escapeHtml(audit.filmingViewpoint)}${audit.officialCheck ? `<br><small>公式確認：${escapeHtml(audit.officialCheck)}</small>` : ""}<br><small>次の確認：${escapeHtml(audit.nextStep)}</small></dd></div>` : "";
   dialogContent.innerHTML = `
     <p class="eyebrow">LOCATION DETAIL / ${place.id.toUpperCase()}</p>
-    <div class="dialog-title-row"><div><p class="dialog-place">${place.prefecture}・${place.city}</p><h2>${place.name}</h2></div></div>
+    <div class="dialog-title-row"><div><p class="dialog-place">${displayPrefecture(place.prefecture)}・${displayCity(place)}</p><h2>${displayPlace(place)}</h2></div></div>
     ${imagePanel}
+    ${sceneImagePanel}
     <dl class="detail-grid">
-      <div><dt>${t("work")}</dt><dd>${place.work}</dd></div>
+      <div><dt>${t("work")}</dt><dd>${displayWork(place.work)}</dd></div>
       <div><dt>${t("episode")}</dt><dd>${place.episode}</dd></div>
-      <div><dt>${t("category")}</dt><dd>${place.category}</dd></div>
+      <div><dt>${t("category")}</dt><dd>${displayCategory(place.category)}</dd></div>
       <div><dt>${t("coordinates")}</dt><dd>${place.coordinates}</dd></div>
-      <div><dt>${t("visit")}</dt><dd>${place.visit}</dd></div>
-      <div><dt>${t("address")}</dt><dd>${place.address}</dd></div>
+      <div><dt>${t("visit")}</dt><dd>${displayVisit(place.visit)}</dd></div>
+      <div><dt>${t("address")}</dt><dd>${displayAddress(place)}</dd></div>
+      ${level ? `<div><dt>聖地レベル</dt><dd><strong>${escapeHtml(level.label)}${Number.isFinite(place.seichiScore) ? `（${place.seichiScore}点）` : ""}</strong><br><small>${escapeHtml(place.seichiLevelReason || level.description)}</small></dd></div>` : ""}
+      ${assessment ? `<div><dt>聖地レベル判定</dt><dd><strong>${escapeHtml(assessment.status)}</strong><br><small>${escapeHtml(assessment.summary)}</small></dd></div>` : ""}
+      ${photoAudit ? `<div><dt>地点写真</dt><dd><strong>${escapeHtml(photoAudit.status)}</strong><br><small>${escapeHtml(photoAudit.summary)}</small></dd></div>` : ""}
       <div class="wide"><dt>${t("scene")}</dt><dd>${place.scene}</dd></div>
+      ${sceneImageResearchPanel}
+      ${auditPanel}
+      ${viewpointPanel}
+      ${filmingResearch ? `<div class="wide"><dt>撮影地点の調査</dt><dd><strong>${escapeHtml(filmingResearch.status)}${filmingResearch.priority ? `（優先度：${escapeHtml(filmingResearch.priority)}）` : ""}</strong><br>${escapeHtml(filmingResearch.note)}${filmingResearch.sourceUrl ? `<br><a href="${safeImageUrl(filmingResearch.sourceUrl)}" target="_blank" rel="noopener">調査の根拠を見る</a>` : ""}</dd></div>` : ""}
       ${place.visitConditions ? `<div class="wide"><dt>${t("visitConditions")}</dt><dd>${place.visitConditions}</dd></div>` : ""}
       ${sourceUrl ? `<div class="wide"><dt>${t("source")}</dt><dd><a href="${sourceUrl}" target="_blank" rel="noopener">${t("sourceLink")}</a></dd></div>` : ""}
     </dl>
     ${window.nearby.distanceMarkup(place)}
-    <p class="nearby-note">撮影地点未確認。登録されている場所の位置です。</p>
+    <p class="nearby-note">${viewpoint ? "撮影地点の利用条件を確認してから訪問してください。" : "撮影地点未確認。登録されている場所の位置です。"}</p>
+    <div class="detail-actions">${favoriteButton}<button class="secondary-button visit-log-button" id="visitLogButton" type="button">${visited ? "✓ 訪問を記録済み" : "◎ 訪問を記録する"}</button></div>
+    ${gamePanel}
     ${mapLink}
     ${workInfoPanel}
     ${place.communityUpdate ? `<aside class="community-update"><strong>${t("approvedCorrection")}</strong><p>${escapeHtml(place.communityUpdate)}</p></aside>` : ""}
@@ -341,8 +536,9 @@ function showDetail(place) {
     <details class="correction-panel">
       <summary>${t("correctionSummary")}</summary>
       <form class="correction-form" id="correctionForm">
-        <label>申請内容<select name="requestType" required><option value="correction">情報の訂正</option><option value="image_addition">写真の追加</option></select></label>
-        <label>訂正・追加内容<textarea name="details" rows="4" required placeholder="どの情報を、どのように直すべきか入力してください"></textarea></label>
+        <label>申請内容<select name="requestType" required><option value="correction">情報の訂正</option><option value="image_addition">写真の追加</option><option value="viewpoint">撮影地点の提案</option></select></label>
+        <label>訂正・追加内容<textarea name="details" rows="4" required placeholder="撮影地点の場合は、見える景色・安全な立ち位置・現地の注意を入力してください"></textarea></label>
+        <label>撮影地点の座標（任意）<input name="viewpointCoordinates" inputmode="decimal" placeholder="例：35.30666, 139.50217" /></label>
         <label>確認できるURL<input name="source" type="url" required placeholder="公式サイトや地図など" /></label>
         <label>写真（任意）<input name="photoFile" type="file" accept="image/jpeg,image/png,image/webp" /><small>JPEG・PNG・WebP、5MBまで</small></label>
         <label>連絡先（任意）<input name="contact" type="email" /></label>
@@ -351,12 +547,18 @@ function showDetail(place) {
       </form>
     </details>`;
   document.querySelector("#correctionForm").addEventListener("submit", (event) => submitCorrection(event, place));
+  document.querySelector("#favoriteButton")?.addEventListener("click", () => toggleFavorite(place.id));
+  document.querySelector("#claimStampButton")?.addEventListener("click", () => claimStamp(place));
   const correctionLabels = document.querySelectorAll("#correctionForm label");
   translations[currentLanguage].correctionLabels.forEach((label, index) => { if (correctionLabels[index]) replaceLeadingText(correctionLabels[index], label); });
   const requestTypeOptions = document.querySelector("#correctionForm select[name=requestType]").options;
   requestTypeOptions[0].textContent = t("correctionOption");
   requestTypeOptions[1].textContent = t("imageOption");
   document.querySelector("#correctionForm .submit-button").childNodes[0].textContent = `${t("send")} `;
+  document.querySelector("#visitLogButton").addEventListener("click", (event) => {
+    const isVisited = window.visitLog?.toggle(place.id);
+    event.currentTarget.textContent = isVisited ? "✓ 訪問を記録済み" : "◎ 訪問を記録する";
+  });
   dialog.showModal();
 }
 
@@ -375,8 +577,9 @@ async function submitCorrection(event, place) {
   status.textContent = "申請を送信しています…";
   try {
     const imagePath = await uploadSubmissionImage(file);
+    const isViewpointProposal = values.requestType === "viewpoint";
     const { error } = await supabaseClient.from("spot_submissions").insert({
-      submission_type: values.requestType,
+      submission_type: isViewpointProposal ? "correction" : values.requestType,
       target_place_id: place.id,
       target_place_name: place.name,
       work: place.work,
@@ -387,7 +590,7 @@ async function submitCorrection(event, place) {
       visit_status: ["自由訪問可能", "条件付き", "外観のみ"].includes(place.visit) ? place.visit : null,
       visit_conditions: place.visitConditions || null,
       image_path: imagePath || null,
-      scene: values.details,
+      scene: isViewpointProposal ? `[撮影地点の提案] 座標：${values.viewpointCoordinates || "未入力"}\n${values.details}` : values.details,
       source_url: values.source,
       contact_email: values.contact || null
     });
@@ -401,15 +604,15 @@ async function submitCorrection(event, place) {
   }
 }
 
-searchInput.addEventListener("input", renderPlaces);
+searchInput.addEventListener("input", () => {});
+searchInput.addEventListener("keydown", (event) => { if (event.key === "Enter") { event.preventDefault(); filterSearch.click(); } });
 searchBox.addEventListener("click", () => searchInput.focus());
-countryFilter.addEventListener("change", () => { activeCountry = countryFilter.value; activePrefecture = ""; renderFilters(); renderPlaces(); });
-prefectureFilter.addEventListener("change", () => { activePrefecture = prefectureFilter.value; renderPlaces(); });
+countryFilter.addEventListener("change", () => { activeCountry = countryFilter.value; activePrefecture = ""; renderFilters(); });
+prefectureFilter.addEventListener("change", () => { activePrefecture = prefectureFilter.value; });
 workFilter.addEventListener("input", () => {
   activeWork = workFilter.value.trim();
   workSuggestionsExpanded = true;
   renderWorkSuggestions();
-  renderPlaces();
 });
 workFilter.addEventListener("focus", () => setWorkSuggestions(true));
 workFilter.addEventListener("keydown", (event) => { if (event.key === "Escape") setWorkSuggestions(false); });
@@ -421,8 +624,21 @@ workSuggestionsToggle.addEventListener("click", (event) => {
 document.addEventListener("click", (event) => {
   if (!event.target.closest(".work-filter")) setWorkSuggestions(false);
 });
-visitFilter.addEventListener("change", () => { activeVisit = visitFilter.value; renderPlaces(); });
+visitFilter.addEventListener("change", () => { activeVisit = visitFilter.value; });
+filterSearch.addEventListener("click", () => {
+  activeWork = resolveWorkInput(workFilter.value) || activeWork;
+  activeVisit = visitFilter.value;
+  activePrefecture = prefectureFilter.value;
+  setWorkSuggestions(false);
+  renderPlaces();
+  resultStatus.classList.add("search-complete");
+  requestAnimationFrame(() => {
+    if (siteHeader.classList.contains("is-open")) setMobileMenu(false);
+    resultStatus.scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+});
 filterReset.addEventListener("click", () => {
+  resultStatus.classList.remove("search-complete");
   activeCountry = "";
   activePrefecture = "";
   activeWork = "";
@@ -433,6 +649,16 @@ filterReset.addEventListener("click", () => {
 });
 document.querySelector("#dialogClose").addEventListener("click", () => dialog.close());
 dialog.addEventListener("click", (event) => { if (event.target === dialog) dialog.close(); });
+dialog.addEventListener("close", () => {
+  const url = new URL(window.location.href);
+  if (!url.searchParams.has("place")) return;
+  url.searchParams.delete("place");
+  history.replaceState(null, "", `${url.pathname}${url.search}${url.hash}`);
+});
+participationButton.addEventListener("click", async () => { await refreshGameSession(); renderParticipation(); participationDialog.showModal(); });
+document.querySelector("#participationClose").addEventListener("click", () => participationDialog.close());
+participationDialog.addEventListener("click", (event) => { if (event.target === participationDialog) participationDialog.close(); });
+supabaseClient.auth.onAuthStateChange(() => { setTimeout(() => refreshGameSession().then(renderPlaces), 0); });
 
 function syncVisitConditions() {
   const required = visitStatus.value === "条件付き";
@@ -523,6 +749,13 @@ async function loadApprovedCorrections() {
 updateStats();
 renderFilters();
 renderPlaces();
+if (requestedPlace) {
+  const place = places.find((candidate) => candidate.id === requestedPlace);
+  if (place) {
+    document.querySelector("#places")?.scrollIntoView({ block: "start" });
+    showDetail(place);
+  }
+}
 loadApprovedSubmissions().then(loadApprovedCorrections);
 
 function setTheme(theme) {
@@ -558,3 +791,5 @@ document.querySelectorAll('a[href^="#"]').forEach((link) => {
 });
 
 window.addEventListener("nearbychange", renderPlaces);
+
+Promise.all([refreshGameSession(), loadGameChallenges()]).then(() => renderPlaces());
