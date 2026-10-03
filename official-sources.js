@@ -62,6 +62,20 @@ window.officialSources = {
     siteUrl: "https://slamdunk-movie.jp/",
     siteLabel: "映画『THE FIRST SLAM DUNK』公式サイト"
   },
+  "ぐらんぶる": {
+    siteUrl: "https://grandblue-anime.com/",
+    siteLabel: "TVアニメ『ぐらんぶる』公式サイト",
+    artworkCandidates: [
+      { image: "https://grandblue-anime.com/01/core_sys/images/news/00000001/block/00000002/sn_00000003.jpg?1741306216=", credit: "TVアニメ『ぐらんぶる』公式サイト" }
+    ]
+  },
+  "ケロロ軍曹": {
+    siteUrl: "https://www.keroro.com/",
+    siteLabel: "ケロロ軍曹総合公式サイト",
+    artworkCandidates: [
+      { image: "https://www.keroro.com/image/img_top_new/keroro.png", credit: "KERORO.COM" }
+    ]
+  },
   "ガールズバンドクライ": {
     siteUrl: "https://girls-band-cry.com/",
     siteLabel: "アニメ『ガールズバンドクライ』公式サイト"

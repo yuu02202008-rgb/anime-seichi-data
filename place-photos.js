@@ -34,5 +34,20 @@ window.placePhotos = {
     "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/f7/Ujigami_shrine.jpg/1280px-Ujigami_shrine.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=thumbnail",
     "photoCredit": "Wikimedia Commons · Ctny · CC BY-SA 4.0",
     "photoSourceUrl": "https://commons.wikimedia.org/wiki/File:Ujigami_shrine.jpg"
+  },
+  "place-57": {
+    "imageUrl": "https://commons.wikimedia.org/wiki/Special:FilePath/Mount_Fuji_(Japan).jpg?width=1280",
+    "photoCredit": "Wikimedia Commons · Dandy1022 · CC BY-SA 4.0",
+    "photoSourceUrl": "https://commons.wikimedia.org/wiki/File:Mount_Fuji_(Japan).jpg"
+  },
+  "place-323": {
+    "imageUrl": "https://commons.wikimedia.org/wiki/Special:FilePath/%E9%B4%A8%E5%B7%9D%E3%83%87%E3%83%AB%E3%82%BF%EF%BC%88%E5%8C%97%E3%81%8B%E3%82%89%E8%A6%8B%E3%82%8B%EF%BC%89.jpg?width=1280",
+    "photoCredit": "Wikimedia Commons · Suginami · CC BY-SA 4.0",
+    "photoSourceUrl": "https://commons.wikimedia.org/wiki/File:%E9%B4%A8%E5%B7%9D%E3%83%87%E3%83%AB%E3%82%BF%EF%BC%88%E5%8C%97%E3%81%8B%E3%82%89%E8%A6%8B%E3%82%8B%EF%BC%89.jpg"
+  },
+  "place-494": {
+    "imageUrl": "https://commons.wikimedia.org/wiki/Special:FilePath/%E9%B4%A8%E5%B7%9D%E3%83%87%E3%83%AB%E3%82%BF%EF%BC%88%E5%8C%97%E3%81%8B%E3%82%89%E8%A6%8B%E3%82%8B%EF%BC%89.jpg?width=1280",
+    "photoCredit": "Wikimedia Commons · Suginami · CC BY-SA 4.0",
+    "photoSourceUrl": "https://commons.wikimedia.org/wiki/File:%E9%B4%A8%E5%B7%9D%E3%83%87%E3%83%AB%E3%82%BF%EF%BC%88%E5%8C%97%E3%81%8B%E3%82%89%E8%A6%8B%E3%82%8B%EF%BC%89.jpg"
   }
 };
