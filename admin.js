@@ -31,6 +31,7 @@ let submissionById = new Map();
 let queuedAnimeIds = new Set();
 let activeReview = "spots";
 let displayedCandidates = Array.isArray(window.animeCandidates) ? window.animeCandidates : [];
+let adminChallenges = new Map();
 
 const escapeHtml = (value = "") => String(value).replace(/[&<>'"]/g, (character) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "'": "&#39;", '"': "&quot;" })[character]);
 const safeUrl = (value = "") => {
@@ -113,26 +114,23 @@ function fillChallengeFromPlace() {
   if (!place) return;
   const form = challengeForm.elements;
   if (!form.title.value) form.title.value = `${place.name}を探そう`;
-  const point = String(place.coordinates || "").split(/[,，]/).map((value) => value.trim());
-  if (point.length === 2 && point.every((value) => /^[+-]?\d+(?:\.\d+)?$/.test(value))) {
-    if (!form.latitude.value) form.latitude.value = point[0];
-    if (!form.longitude.value) form.longitude.value = point[1];
-  }
-  challengeFormStatus.textContent = "座標は登録地点から入力しました。公開前に、安全なチェックイン地点か確認してください。";
+  challengeFormStatus.textContent = "登録地点の座標は転用しません。安全なチェックイン地点を根拠資料と照合して入力してください。";
 }
 
 function challengeMarkup(item) {
   const place = adminPlaces.find((candidate) => candidate.id === item.place_id);
   const label = item.status === "published" ? "公開中" : item.status === "archived" ? "停止中" : "下書き";
-  return `<article class="challenge-item"><div><span class="status-badge ${escapeHtml(item.status)}">${label}</span><h3>${escapeHtml(item.title)}</h3><p>${escapeHtml(place ? `${place.work}｜${place.name}` : item.place_id)}</p><p>${escapeHtml(item.hint)}</p><small>チェックイン地点：${escapeHtml(item.latitude)}, ${escapeHtml(item.longitude)} ／ 半径 ${escapeHtml(item.checkin_radius_m)}m</small></div><div class="review-actions"><button data-challenge-action="published" data-challenge-id="${escapeHtml(item.id)}" type="button" ${item.status === "published" ? "disabled" : ""}>公開する</button><button data-challenge-action="draft" data-challenge-id="${escapeHtml(item.id)}" type="button" ${item.status === "draft" ? "disabled" : ""}>下書きに戻す</button><button data-challenge-action="archived" data-challenge-id="${escapeHtml(item.id)}" type="button" ${item.status === "archived" ? "disabled" : ""}>停止する</button><button class="challenge-delete-button" data-challenge-action="delete" data-challenge-id="${escapeHtml(item.id)}" type="button">削除</button></div></article>`;
+  return `<article class="challenge-item"><div><span class="status-badge ${escapeHtml(item.status)}">${label}</span><h3>${escapeHtml(item.title)}</h3><p>${escapeHtml(place ? `${place.work}｜${place.name}` : item.place_id)}</p><p>${escapeHtml(item.hint)}</p><p><b>英語：</b>${escapeHtml(item.title_en)} / ${escapeHtml(item.hint_en)}</p><p><b>訪問条件：</b>${escapeHtml(item.access_notes)} / ${escapeHtml(item.access_notes_en)}</p><small>非公開チェックイン座標：${escapeHtml(item.latitude)}, ${escapeHtml(item.longitude)} ／ 半径 ${escapeHtml(item.checkin_radius_m)}m</small><br /><a href="${safeUrl(item.evidence_url)}" target="_blank" rel="noopener">安全確認の根拠を開く</a></div><div class="review-actions"><button data-challenge-action="edit" data-challenge-id="${escapeHtml(item.id)}" type="button">編集</button><button data-challenge-action="published" data-challenge-id="${escapeHtml(item.id)}" type="button" ${item.status === "published" ? "disabled" : ""}>公開する</button><button data-challenge-action="draft" data-challenge-id="${escapeHtml(item.id)}" type="button" ${item.status === "draft" ? "disabled" : ""}>下書きに戻す</button><button data-challenge-action="archived" data-challenge-id="${escapeHtml(item.id)}" type="button" ${item.status === "archived" ? "disabled" : ""}>停止する</button><button class="challenge-delete-button" data-challenge-action="delete" data-challenge-id="${escapeHtml(item.id)}" type="button">削除</button></div></article>`;
 }
 
 async function refreshChallenges() {
   challengeStatus.textContent = "チャレンジを読み込んでいます…";
-  const { data, error } = await client.from("viewpoint_challenges").select("*").order("created_at", { ascending: false });
-  if (error) { challengeStatus.textContent = "チャレンジを読み込めませんでした。ゲーム用SQLをこのSupabaseプロジェクトで実行してください。"; return; }
-  challengeStatus.textContent = `${data.length} 件のチャレンジ`;
-  challengeList.innerHTML = data.length ? data.map(challengeMarkup).join("") : '<p class="empty-state">まだチャレンジはありません。</p>';
+  const { data, error } = await client.rpc("admin_list_viewpoint_challenges");
+  if (error) { challengeStatus.textContent = "チャレンジを読み込めませんでした。ゲーム安全化SQLをこのSupabaseプロジェクトで実行してください。"; return; }
+  const rows = data || [];
+  adminChallenges = new Map(rows.map((item) => [item.id, item]));
+  challengeStatus.textContent = `${rows.length} 件のチャレンジ`;
+  challengeList.innerHTML = rows.length ? rows.map(challengeMarkup).join("") : '<p class="empty-state">まだチャレンジはありません。</p>';
 }
 
 challengePlace.addEventListener("change", fillChallengeFromPlace);
@@ -140,12 +138,18 @@ challengeForm.addEventListener("submit", async (event) => {
   event.preventDefault();
   const button = challengeForm.querySelector("button[type=submit]");
   const values = Object.fromEntries(new FormData(challengeForm));
+  const safetyCheck = challengeForm.elements.safety_confirmed;
+  if (values.status === "published" && !safetyCheck.checked) { challengeFormStatus.textContent = "公開前に安全確認のチェックを入れてください。"; return; }
   button.disabled = true; challengeFormStatus.textContent = "保存しています…";
-  const payload = { ...values, latitude: Number(values.latitude), longitude: Number(values.longitude), checkin_radius_m: Number(values.checkin_radius_m) };
-  const { error } = await client.from("viewpoint_challenges").upsert(payload, { onConflict: "place_id" });
+  const payload = {
+    p_place_id: values.place_id, p_title: values.title.trim(), p_title_en: values.title_en.trim(), p_hint: values.hint.trim(), p_hint_en: values.hint_en.trim(),
+    p_access_notes: values.access_notes.trim(), p_access_notes_en: values.access_notes_en.trim(), p_evidence_url: values.evidence_url.trim(),
+    p_latitude: Number(values.latitude), p_longitude: Number(values.longitude), p_checkin_radius_m: Number(values.checkin_radius_m), p_status: values.status
+  };
+  const { error } = await client.rpc("admin_save_viewpoint_challenge", payload);
   if (error) { challengeFormStatus.textContent = `保存できませんでした。${error.message}`; button.disabled = false; return; }
   challengeForm.reset();
-  challengeFormStatus.textContent = values.status === "published" ? "公開しました。利用者側でスタンプ対象になります。" : "下書きとして保存しました。";
+  challengeFormStatus.textContent = values.status === "published" ? "安全情報を含めて公開しました。" : "下書きとして保存しました。";
   button.disabled = false;
   refreshChallenges();
 });
@@ -155,11 +159,18 @@ challengeList.addEventListener("click", async (event) => {
   const id = button.dataset.challengeId;
   const action = button.dataset.challengeAction;
   if (action === "delete" && !window.confirm("このチャレンジを削除しますか？獲得済みスタンプの記録は残ります。")) return;
+  if (action === "edit") {
+    const item = adminChallenges.get(id); if (!item) return;
+    for (const key of ["place_id", "title", "title_en", "hint", "hint_en", "access_notes", "access_notes_en", "evidence_url", "latitude", "longitude", "checkin_radius_m", "status"]) challengeForm.elements[key].value = item[key] ?? "";
+    challengeForm.elements.safety_confirmed.checked = false;
+    challengeFormStatus.textContent = "編集内容を確認し、公開時は安全確認のチェックを入れて保存してください。";
+    challengeForm.scrollIntoView({ behavior: "smooth", block: "center" });
+    return;
+  }
   button.disabled = true;
-  const request = action === "delete"
-    ? client.from("viewpoint_challenges").delete().eq("id", id)
-    : client.from("viewpoint_challenges").update({ status: action }).eq("id", id);
-  const { error } = await request;
+  const { error } = action === "delete"
+    ? await client.from("viewpoint_challenges").delete().eq("id", id)
+    : await client.rpc("admin_set_viewpoint_challenge_status", { p_challenge_id: id, p_status: action });
   if (error) { challengeStatus.textContent = `変更できませんでした。${error.message}`; button.disabled = false; return; }
   refreshChallenges();
 });

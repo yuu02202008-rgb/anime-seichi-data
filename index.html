@@ -8,21 +8,21 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Noto+Sans+JP:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="styles.css?v=20261001-site-updates" />
+    <link rel="stylesheet" href="styles.css?v=20261003-game-v1" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   </head>
   <body>
     <header class="site-header">
       <div class="header-top">
         <a class="brand" href="#top" aria-label="ホームへ" data-i18n-aria-label="homeAria"><span class="brand-mark">ASD</span><span>ANIME SEICHI<br />DATA</span></a>
-        <nav aria-label="メインナビゲーション" data-i18n-aria-label="mainNavAria"><a href="#places" data-i18n="exploreNav">聖地を探す</a><a href="works.html" data-i18n="worksNav">作品から探す</a><a href="#map" data-i18n="mapNav">地図・現在地から探す</a><a href="#submission" data-i18n="submitNav">聖地申請</a></nav>
+        <nav aria-label="メインナビゲーション" data-i18n-aria-label="mainNavAria"><a href="#places" data-i18n="exploreNav">聖地を探す</a><a href="works.html" data-i18n="worksNav">作品から探す</a><a href="#challenges" data-i18n="challengeNav">撮影地点を探す</a><a href="#map" data-i18n="mapNav">地図・現在地から探す</a><a href="#submission" data-i18n="submitNav">聖地申請</a></nav>
         <button class="participation-button" id="participationButton" type="button">参加する</button>
         <label class="language-control"><span>LANG</span><select id="languageSelect" aria-label="言語を選択" data-i18n-aria-label="languageAria"><option value="ja">日本語</option><option value="en">English</option></select></label>
         <button class="theme-toggle" id="themeToggle" type="button" aria-label="ダークモードに切り替える"><span aria-hidden="true">◐</span><span id="themeToggleText">DARK</span></button>
         <button class="mobile-menu-toggle" id="mobileMenuToggle" type="button" aria-expanded="false" aria-controls="mobileHeaderPanel"><span id="mobileMenuText">MENU</span><span aria-hidden="true">＋</span></button>
       </div>
       <div class="header-search" id="mobileHeaderPanel" aria-label="聖地を絞り込む">
-        <nav class="mobile-nav" aria-label="スマートフォンメニュー" data-i18n-aria-label="mainNavAria"><a href="#places" data-i18n="exploreNav">聖地を探す</a><a href="works.html" data-i18n="worksNav">作品から探す</a><a href="#map" data-i18n="mapNav">地図・現在地から探す</a><a href="#submission" data-i18n="submitNav">聖地申請</a></nav>
+        <nav class="mobile-nav" aria-label="スマートフォンメニュー" data-i18n-aria-label="mainNavAria"><a href="#places" data-i18n="exploreNav">聖地を探す</a><a href="works.html" data-i18n="worksNav">作品から探す</a><a href="#challenges" data-i18n="challengeNav">撮影地点を探す</a><a href="#map" data-i18n="mapNav">地図・現在地から探す</a><a href="#submission" data-i18n="submitNav">聖地申請</a></nav>
         <label class="search-box" id="searchBox" for="searchInput"><span>⌕</span><input id="searchInput" type="search" placeholder="場所・シーンから検索" data-i18n-placeholder="searchPlaceholder" autocomplete="off" /></label>
         <div class="filter-controls">
           <label><span data-i18n="countryLabel">国</span><select id="countryFilter"><option value="">すべての国</option></select></label>
@@ -48,6 +48,18 @@
         <div><strong id="placeCount">0</strong><span data-i18n="placesStat">登録地点</span></div>
         <div><strong id="prefectureCount">0</strong><span data-i18n="prefecturesStat">都道府県</span></div>
         <div><strong id="sceneCount">0</strong><span data-i18n="scenesStat">シーン</span></div>
+      </section>
+
+      <section class="challenge-explore" id="challenges" aria-labelledby="challengeSectionHeading">
+        <div class="section-heading"><p class="eyebrow">LOCATION × SCENE / GAME</p><h2 id="challengeSectionHeading" data-i18n="challengeHeading">撮影地点を探す</h2><p data-i18n="challengeIntro">作品の場面と現地を見比べ、安全な場所から同じ景色を探すチャレンジです。チャレンジの閲覧はログイン不要です。</p></div>
+        <ol class="challenge-steps" aria-label="チャレンジの進め方" data-i18n-aria-label="challengeStepsAria">
+          <li><span>01</span><strong data-i18n="challengeStepOne">場面とヒントを見る</strong></li>
+          <li><span>02</span><strong data-i18n="challengeStepTwo">安全な場所から景色を探す</strong></li>
+          <li><span>03</span><strong data-i18n="challengeStepThree">現地でスタンプを獲得</strong></li>
+        </ol>
+        <p class="challenge-privacy" data-i18n="challengePrivacy">スタンプ確認時のみ位置情報を使います。現在地は保存しません。無理な移動や立入禁止場所への立入りはせず、現地の案内に従ってください。</p>
+        <p class="challenge-list-status" id="challengeListStatus" role="status" aria-live="polite"></p>
+        <div class="challenge-grid" id="challengeGrid"></div>
       </section>
 
       <section class="explore" id="places">
@@ -126,9 +138,8 @@
     <script src="scene-images.js"></script>
     <script src="photo-discovery.js"></script>
     <script src="photo-audit.js"></script>
-    <script src="visit-log.js"></script>
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="nearby.js?v=20261001-site-updates"></script>
-    <script src="app.js?v=20261002-english-credits"></script>
+    <script src="app.js?v=20261003-game-v1"></script>
   </body>
 </html>

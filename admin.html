@@ -8,7 +8,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Noto+Sans+JP:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="styles.css?v=20260928-viewpoint-challenges" />
+    <link rel="stylesheet" href="styles.css?v=20261003-game-v1" />
   </head>
   <body class="admin-body">
     <header class="site-header"><a class="brand" href="index.html"><span class="brand-mark">ASD</span><span>ANIME SEICHI<br />DATA</span></a><span class="admin-label">ADMIN ONLY</span></header>
@@ -49,15 +49,21 @@
         <section id="challengeReviewPanel" hidden>
           <section class="challenge-panel" aria-labelledby="challengeHeading">
             <div class="admin-heading"><div><p class="eyebrow">VIEWPOINT CHALLENGE</p><h2 id="challengeHeading">撮影地点チャレンジを作成</h2></div></div>
-            <p>現地でGPSスタンプを獲得できるゲーム用の設定です。座標は、撮影地点そのものではなくても、安全に公開してよいチェックイン地点だけを登録してください。</p>
+            <p>公開チャレンジの閲覧はログイン不要ですが、タイトル・ヒント・訪問条件は日本語と英語の両方が必要です。チェックイン座標は公開APIに出さず、一般に立ち止まれる安全な場所だけ登録してください。聖地の登録座標をそのまま転用しないでください。</p>
             <form class="challenge-form" id="challengeForm">
               <label>対象の聖地<select id="challengePlace" name="place_id" required></select></label>
-              <label>チャレンジ名<input name="title" required placeholder="例：江ノ電と海が見える場所を探そう" /></label>
-              <label class="form-wide">ヒント<textarea name="hint" rows="3" required placeholder="例：指定エリアから海と電車が見える角度を探してみよう。通行の妨げにならないようにしてください。"></textarea></label>
-              <label>チェックイン緯度<input name="latitude" type="number" step="any" required placeholder="例：35.30666" /></label>
-              <label>チェックイン経度<input name="longitude" type="number" step="any" required placeholder="例：139.50217" /></label>
-              <label>判定半径<select name="checkin_radius_m"><option value="50">50m</option><option value="80" selected>80m</option><option value="120">120m</option><option value="200">200m</option></select></label>
+              <label>チャレンジ名（日本語）<input name="title" required placeholder="例：江ノ電と海が見える場所を探そう" /></label>
+              <label>Challenge title (English)<input name="title_en" required placeholder="e.g. Find the seaside railway view" /></label>
+              <label class="form-wide">ヒント（日本語）<textarea name="hint" rows="3" required placeholder="目印や見える景色を伝えます。危険な移動を促す内容は避けてください。"></textarea></label>
+              <label class="form-wide">Clue (English)<textarea name="hint_en" rows="3" required placeholder="Describe visible landmarks without encouraging unsafe movement."></textarea></label>
+              <label>訪問時の注意（日本語）<textarea name="access_notes" rows="2" required placeholder="例：歩道から見学してください。"></textarea></label>
+              <label>Visitor guidance (English)<textarea name="access_notes_en" rows="2" required placeholder="e.g. Please stay on the public sidewalk."></textarea></label>
+              <label class="form-wide">安全確認の根拠URL<input name="evidence_url" type="url" required placeholder="自治体・施設等の公式情報" /></label>
+              <label>安全なチェックイン地点の緯度<input name="latitude" type="number" step="any" min="-90" max="90" required placeholder="安全を確認した位置" /></label>
+              <label>安全なチェックイン地点の経度<input name="longitude" type="number" step="any" min="-180" max="180" required placeholder="安全を確認した位置" /></label>
+              <label>判定範囲<select name="checkin_radius_m"><option value="50">50m</option><option value="80" selected>80m</option><option value="120">120m</option><option value="200">200m</option></select></label>
               <label>公開状態<select name="status"><option value="draft">下書き（利用者には非表示）</option><option value="published">公開する（スタンプ対象）</option></select></label>
+              <label class="form-wide safety-confirmation"><input name="safety_confirmed" type="checkbox" /> この地点は一般利用者が安全に立ち止まれる公開場所で、訪問条件・現地の案内・根拠URLを確認しました。</label>
               <button class="submit-button form-wide" type="submit">チャレンジを保存する <span>→</span></button>
               <p class="form-status form-wide" id="challengeFormStatus" aria-live="polite"></p>
             </form>
@@ -72,6 +78,6 @@
     <script src="data.js?v=20260927-latest-places"></script>
     <script src="data-cleanup.js?v=20260927-latest-places"></script>
     <script src="anime-candidates.js"></script>
-    <script src="admin.js?v=20260928-viewpoint-challenges"></script>
+    <script src="admin.js?v=20261003-game-v1"></script>
   </body>
 </html>

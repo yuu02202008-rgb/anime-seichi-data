@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content="ANIME SEICHI DATA site guide and privacy information" />
     <title>利用案内・プライバシー | ANIME SEICHI DATA</title>
-    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="styles.css?v=20261003-game-v1" />
   </head>
   <body>
     <header class="site-header"><div class="header-top"><a class="brand" href="index.html" aria-label="ホームへ" data-privacy-home><span class="brand-mark">ASD</span><span>ANIME SEICHI<br />DATA</span></a><label class="language-control"><span>LANG</span><select id="privacyLanguage" aria-label="言語を選択"><option value="ja">日本語</option><option value="en">English</option></select></label></div></header>
@@ -15,7 +15,9 @@
         <h1>利用案内・プライバシー</h1>
         <section><h2>掲載情報について</h2><p>本サイトはアニメゆかりの実在場所を紹介する試作データベースです。訪問時は現地のルール、営業時間、立入制限、周辺住民への配慮を優先してください。</p></section>
         <section><h2>写真・地図について</h2><p>掲載写真は、利用許諾を確認できる Wikimedia Commons の画像、権利を持つ利用者からの申請画像、または Google Maps Platform の Street View を使用します。Google の地図・ストリートビューは Google の利用規約および表示ルールに従って表示します。</p></section>
-        <section><h2>申請情報について</h2><p>申請フォームの連絡先は確認が必要な場合にのみ使用します。公開ページには掲載しません。申請内容は確認のうえ、必要に応じて編集または掲載を見送ることがあります。</p></section>
+        <section><h2>アカウント・参加記録について</h2><p>聖地・作品・地図の閲覧にアカウントは不要です。ゲーム参加、スタンプ、訪問履歴、お気に入り、投稿にはメール確認済みアカウントが必要です。メールアドレスは認証と運営確認に使い、公開しません。お気に入り、訪問した地点、獲得スタンプ、投稿者IDはSupabaseに保存します。</p></section>
+        <section><h2>位置情報について</h2><p>GPSチェックインボタンを押した場合だけ、ブラウザーが取得した現在地をスタンプ範囲の判定リクエストとして送信します。アプリの訪問記録・スタンプ記録には生の緯度・経度を保存せず、地点IDと獲得時刻を記録します。地図の「現在地から探す」もページ内でのみ使い、アプリには位置を保存しません。ブラウザーの位置情報は偽装できるため、スタンプは記録用です。</p></section>
+        <section><h2>申請情報・写真について</h2><p>新規地点、訂正、撮影地点、写真の申請はログイン後に送信でき、管理者の確認前に公開しません。連絡先は任意で、確認が必要な場合だけ使い公開しません。申請写真は権利を持ち、掲載を許可できるものだけ送信してください。</p></section>
         <section><h2>お問い合わせ</h2><p>掲載内容の訂正・削除依頼は、該当する聖地詳細ページの「情報の訂正・写真追加を申請」からお知らせください。</p></section>
         <p><a class="map-link" href="index.html">トップへ戻る</a></p>
       </div>
@@ -23,7 +25,9 @@
         <h1>Site Guide &amp; Privacy</h1>
         <section><h2>About listed locations</h2><p>This prototype database introduces real-world places connected to anime. When visiting, follow local rules, opening hours, and access restrictions, and respect nearby residents.</p></section>
         <section><h2>Photos &amp; maps</h2><p>Photos may come from Wikimedia Commons under confirmed reuse licenses, submissions from users who hold the rights, or Google Maps Platform Street View. Google Maps and Street View are displayed under Google's terms and attribution rules.</p></section>
-        <section><h2>Submitted information</h2><p>Contact details in a submission are used only when needed to verify information and are not published. Submissions are reviewed and may be edited or declined.</p></section>
+        <section><h2>Accounts &amp; participation records</h2><p>You can browse locations, anime, and maps without an account. A confirmed email account is required for game participation, stamps, visit history, favorites, and submissions. Your email is used for authentication and verification and is not published. Favorites, visited location IDs, collected stamps, and a submitter ID are stored in Supabase.</p></section>
+        <section><h2>Location data</h2><p>When you press the check-in button, your browser location is sent in a request to check the stamp area. The app does not store raw latitude and longitude in visit or stamp records; it records only the place ID and stamp time. The map's nearby search uses your location only on the page and does not save it to the app. Browser location can be spoofed, so stamps are records for fun.</p></section>
+        <section><h2>Submissions &amp; photos</h2><p>New locations, corrections, viewpoints, and photos can be submitted after login. They are not published before admin review. Contact details are optional, used only when verification is needed, and never published. Submit only photos you have the right to share and have authorized for publication.</p></section>
         <section><h2>Contact</h2><p>To request a correction or removal, use “Submit a correction or photo” on the relevant location details page.</p></section>
         <p><a class="map-link" href="index.html">Back to home</a></p>
       </div>
