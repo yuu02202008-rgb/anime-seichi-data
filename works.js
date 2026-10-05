@@ -84,9 +84,10 @@ function render() {
 }
 
 function mapUrl(place) {
+  const mayUseExactCoordinates = !place.privacyProtected && place.coordinateAccuracy !== "approximate";
   let result = "";
-  try { const url = new URL(place.mapUrl); if (["https:", "http:"].includes(url.protocol)) result = url.href; } catch {}
-  if (!result) result = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent([displayPlace(place), displayCity(place), place.coordinates].filter(Boolean).join(" "))}`;
+  if (mayUseExactCoordinates) { try { const url = new URL(place.mapUrl); if (["https:", "http:"].includes(url.protocol)) result = url.href; } catch {} }
+  if (!result) result = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent([displayPlace(place), displayCity(place), mayUseExactCoordinates ? place.coordinates : ""].filter(Boolean).join(" "))}`;
   if (language === "en") { try { const url = new URL(result); url.searchParams.set("hl", "en"); return url.href; } catch {} }
   return result;
 }
@@ -96,13 +97,13 @@ function safeImageUrl(value = "") {
 }
 
 function spotCardImage(place) {
-  return safeImageUrl(place.imageUrl) || window.streetView?.imageFor(place) || "";
+  return safeImageUrl(place.imageUrl);
 }
 
 function spotPhotoMarkup(place) {
   const imageUrl = spotCardImage(place);
   if (!imageUrl) return `<span class="work-spot-photo work-spot-photo-empty" aria-hidden="true"><span>PHOTO</span><small>${t("imageWaiting")}</small></span>`;
-  const creditText = place.photoCredit || (window.streetView?.isStreetView(imageUrl) ? "Google Maps · Street View" : "");
+  const creditText = place.photoCredit || "";
   const credit = creditText ? `<small>${escapeHtml(displayCredit(creditText))}</small>` : "";
   return `<span class="work-spot-photo"><img src="${escapeHtml(imageUrl)}" alt="${escapeHtml(displayPlace(place))}" loading="lazy" />${credit}</span>`;
 }

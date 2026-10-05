@@ -72,6 +72,10 @@ Object.assign(translations.en, {
 });
 translations.ja.challengeStepsAria = "チャレンジの進め方";
 translations.en.challengeStepsAria = "How the challenge works";
+translations.ja.openStreetView = "Google ストリートビューで見る";
+translations.en.openStreetView = "Open Google Street View";
+translations.ja.locationWithheld = "安全とプライバシー保護のため位置情報を非公開にしています";
+translations.en.locationWithheld = "Location details are withheld for safety and privacy.";
 let currentLanguage = localStorage.getItem("anime-seichi-language") === "en" ? "en" : "ja";
 const t = (key, ...args) => typeof translations[currentLanguage][key] === "function" ? translations[currentLanguage][key](...args) : translations[currentLanguage][key];
 let activePrefecture = "";
@@ -86,7 +90,7 @@ const displayWork = (name) => locale.work?.(name, currentLanguage) || name;
 const displayPlace = (place) => locale.place?.(place, currentLanguage) || place.name;
 const displayPrefecture = (name) => locale.prefecture?.(name, currentLanguage) || name;
 const displayCity = (place) => locale.city?.(place, currentLanguage) || place.city;
-const displayAddress = (place) => locale.address?.(place, currentLanguage) || place.address;
+const displayAddress = (place) => place.privacyProtected ? t("locationWithheld") : locale.address?.(place, currentLanguage) || place.address;
 const displayScene = (place) => locale.scene?.(place, currentLanguage) || place.scene;
 const displayEpisode = (place) => locale.episode?.(place, currentLanguage) || place.episode;
 const displayConditions = (place) => locale.visitConditions?.(place, currentLanguage) || place.visitConditions;
@@ -328,7 +332,7 @@ async function claimStamp(place) {
     if (error) throw error;
     const result = Array.isArray(data) ? data[0] : data;
     const rawMessage = String(result?.message || "");
-    const message = result?.awarded ? t("stampSuccess") : rawMessage.includes("範囲") ? t("stampOutside") : rawMessage.includes("対象外") ? t("stampNotReady") : t("stampAlready");
+    const message = result?.awarded ? t("stampSuccess") : rawMessage.includes("精度") ? t("stampInaccurate") : rawMessage.includes("メール確認") ? t("verifyEmailRequired") : rawMessage.includes("範囲") ? t("stampOutside") : rawMessage.includes("対象外") ? t("stampNotReady") : t("stampAlready");
     if (result?.awarded) {
       gameStamps.add(place.id);
       gameCheckins.add(place.id);
@@ -339,7 +343,7 @@ async function claimStamp(place) {
     if (participationDialog.open) renderParticipation();
   } catch (error) {
     button.disabled = false; button.textContent = t("checkStamp");
-    if (status) status.textContent = error.message === "accuracy" ? t("stampInaccurate") : error.message === "secure" ? t("stampUnavailable") : error.code === 1 ? (currentLanguage === "en" ? "Location permission was denied. You can enable it in your browser settings." : "位置情報が許可されませんでした。ブラウザーの設定から許可できます。") : t("stampUnavailable");
+    if (status) status.textContent = error.message === "accuracy" ? t("stampInaccurate") : error.message?.includes("メール確認") ? t("verifyEmailRequired") : error.message === "secure" ? t("stampUnavailable") : error.code === 1 ? (currentLanguage === "en" ? "Location permission was denied. You can enable it in your browser settings." : "位置情報が許可されませんでした。ブラウザーの設定から許可できます。") : t("stampUnavailable");
   }
 }
 const safeImageUrl = (value = "") => {
@@ -547,13 +551,13 @@ function setWorkSuggestions(open) {
 }
 
 function placeCardImage(place) {
-  return safeImageUrl(place.imageUrl) || window.streetView?.imageFor(place) || "";
+  return safeImageUrl(place.imageUrl);
 }
 
 function cardPhotoMarkup(place) {
   const imageUrl = placeCardImage(place);
   if (!imageUrl) return `<span class="place-card-photo place-card-photo-empty" aria-hidden="true"><span>PHOTO</span><small>${t("photoSearching")}</small></span>`;
-  const creditText = place.photoCredit || (window.streetView?.isStreetView(imageUrl) ? "Google Maps · Street View" : "");
+  const creditText = place.photoCredit || "";
   const credit = creditText ? `<small class="place-card-photo-credit">${escapeHtml(displayCredit(creditText))}</small>` : "";
   return `<span class="place-card-photo"><img src="${escapeHtml(imageUrl)}" alt="${escapeHtml(displayPlace(place))}" loading="lazy" />${credit}</span>`;
 }
@@ -609,17 +613,21 @@ function renderPlaces() {
 function showDetail(place) {
   activePlace = place;
   const point = window.nearby.coordinates(place);
-  const mapQuery = encodeURIComponent(point ? point.join(",") : `${displayPlace(place)} ${displayAddress(place)}`);
+  const useExactMapPoint = !place.privacyProtected && place.coordinateAccuracy !== "approximate";
+  const mapQuery = encodeURIComponent(useExactMapPoint && point ? point.join(",") : `${displayPlace(place)} ${displayAddress(place)}`);
   const workFields = Object.entries(workInfo[place.work] || {}).filter(([, value]) => value !== "");
   const workDetail = workFields.map(([label, value]) => `<div><dt>${escapeHtml(displayInfoLabel(label))}</dt><dd>${escapeHtml(displayInfoValue(place.work, label, value))}</dd></div>`).join("");
   const workInfoPanel = workFields.length ? `<details class="work-details"><summary>${t("workData", displayWork(place.work))}</summary><dl>${workDetail}</dl></details>` : "";
-  let externalMapUrl = place.mapUrl || `https://www.google.com/maps/search/?api=1&query=${mapQuery}`;
+  let externalMapUrl = useExactMapPoint ? place.mapUrl || `https://www.google.com/maps/search/?api=1&query=${mapQuery}` : `https://www.google.com/maps/search/?api=1&query=${mapQuery}`;
   if (currentLanguage === "en") { try { const url = new URL(externalMapUrl); url.searchParams.set("hl", "en"); externalMapUrl = url.href; } catch {} }
   const mapLink = place.privacyProtected ? "" : `<a class="map-link" href="${externalMapUrl}" target="_blank" rel="noopener">${t("map")}</a>`;
+  const streetViewPoint = place.coordinateAccuracy === "approximate" ? null : point;
+  const streetViewUrl = !place.privacyProtected && streetViewPoint ? window.streetView?.urlFor(streetViewPoint, currentLanguage) : "";
+  const streetViewLink = streetViewUrl ? `<a class="map-link street-view-link" href="${streetViewUrl}" target="_blank" rel="noopener">${t("openStreetView")}</a>` : "";
   const imageUrl = placeCardImage(place);
   const sourceUrl = safeImageUrl(place.sourceUrl);
   const photoSourceUrl = safeImageUrl(place.photoSourceUrl);
-  const imageCredit = displayCredit(place.photoCredit || (window.streetView?.isStreetView(imageUrl) ? "Google Maps · Street View" : t("photoCredit")));
+  const imageCredit = displayCredit(place.photoCredit || t("photoCredit"));
   const imagePanel = imageUrl
     ? `<figure class="place-photo"><img src="${imageUrl}" alt="${escapeHtml(displayPlace(place))}" loading="lazy" /><figcaption>${photoSourceUrl ? `<a href="${photoSourceUrl}" target="_blank" rel="noreferrer">${escapeHtml(imageCredit)}</a>` : escapeHtml(imageCredit)}</figcaption></figure>`
     : `<div class="place-photo place-photo-empty" aria-label="${t("photoPending")}"><span>PHOTO</span><strong>${t("photoPending")}</strong><small>${t("photoAfterReview")}</small></div>`;
@@ -634,7 +642,7 @@ function showDetail(place) {
   const viewpoint = place.shootingViewpoint;
   const filmingResearch = place.filmingResearch;
   const displayViewpointField = (field, value) => locale.viewpointField?.(field, value, currentLanguage) || value;
-  const viewpointPanel = viewpoint ? `<div class="wide shooting-viewpoint"><dt>${currentLanguage === "en" ? "Filming viewpoint" : "撮影地点"}</dt><dd><strong>${escapeHtml(viewpoint.label ? locale.viewpoint?.(viewpoint.label, currentLanguage) || viewpoint.label : t("verifiedViewpoint"))}</strong>${viewpoint.address ? `<br>${escapeHtml(displayViewpointField("address", viewpoint.address))}` : ""}<br>${escapeHtml(viewpoint.access ? displayViewpointField("access", viewpoint.access) : t("followLocalGuidance"))}${viewpoint.coordinates ? `<br><span>${t("coordinatesLabel")}${escapeHtml(viewpoint.coordinates)}</span>` : currentLanguage === "en" ? `<br><small>Exact viewpoint coordinates have not been verified.</small>` : `<br><small>撮影立ち位置の正確な座標は未確認です。</small>`}${viewpoint.mapUrl ? `<br><a href="${safeImageUrl(viewpoint.mapUrl)}" target="_blank" rel="noopener">${currentLanguage === "en" ? "Open viewpoint area in Google Maps" : "撮影場所の地図を開く"}</a>` : ""}${viewpoint.evidence ? `<br><small>${currentLanguage === "en" ? "Evidence: " : "確認根拠："}${escapeHtml(displayViewpointField("evidence", viewpoint.evidence))}</small>` : ""}${viewpoint.sourceUrl ? `<br><a href="${safeImageUrl(viewpoint.sourceUrl)}" target="_blank" rel="noopener">${t("viewEvidence")}</a>` : ""}</dd></div>` : "";
+  const viewpointPanel = viewpoint ? `<div class="wide shooting-viewpoint"><dt>${currentLanguage === "en" ? "Filming viewpoint" : "撮影地点"}</dt><dd><strong>${escapeHtml(viewpoint.label ? locale.viewpoint?.(viewpoint.label, currentLanguage) || viewpoint.label : t("verifiedViewpoint"))}</strong>${viewpoint.address && !place.privacyProtected ? `<br>${escapeHtml(displayViewpointField("address", viewpoint.address))}` : ""}<br>${escapeHtml(viewpoint.access ? displayViewpointField("access", viewpoint.access) : t("followLocalGuidance"))}${viewpoint.coordinates && !place.privacyProtected ? `<br><span>${t("coordinatesLabel")}${escapeHtml(viewpoint.coordinates)}</span>` : currentLanguage === "en" ? `<br><small>Exact viewpoint coordinates have not been verified.</small>` : `<br><small>撮影立ち位置の正確な座標は未確認です。</small>`}${viewpoint.mapUrl && !place.privacyProtected ? `<br><a href="${safeImageUrl(viewpoint.mapUrl)}" target="_blank" rel="noopener">${currentLanguage === "en" ? "Open viewpoint area in Google Maps" : "撮影場所の地図を開く"}</a>` : ""}${viewpoint.evidence ? `<br><small>${currentLanguage === "en" ? "Evidence: " : "確認根拠："}${escapeHtml(displayViewpointField("evidence", viewpoint.evidence))}</small>` : ""}${viewpoint.sourceUrl ? `<br><a href="${safeImageUrl(viewpoint.sourceUrl)}" target="_blank" rel="noopener">${t("viewEvidence")}</a>` : ""}</dd></div>` : "";
   const level = place.seichiLevel && window.animeSeichiResearchCriteria?.levels?.[place.seichiLevel];
   const levelLabels = {"S：目的地になる聖地":"S: Destination-worthy anime location", "A：訪問価値が高い聖地":"A: Highly rewarding location to visit", "B：作品ゆかりの聖地":"B: Anime-related location", "C：調査候補":"C: Research candidate"};
   const levelReason = currentLanguage !== "en" ? (place.seichiLevelReason || level?.description || "") : place.seichiLevelReason?.startsWith("暫定 ")
@@ -661,7 +669,7 @@ function showDetail(place) {
       <div><dt>${t("work")}</dt><dd>${displayWork(place.work)}</dd></div>
       <div><dt>${t("episode")}</dt><dd>${escapeHtml(displayEpisode(place))}</dd></div>
       <div><dt>${t("category")}</dt><dd>${displayCategory(place.category)}</dd></div>
-      <div><dt>${t("coordinates")}</dt><dd>${place.coordinates}</dd></div>
+      <div><dt>${t("coordinates")}</dt><dd>${place.privacyProtected ? t("locationWithheld") : place.coordinateAccuracy === "approximate" ? (currentLanguage === "en" ? "Approximate area; not an exact viewpoint." : "概略地点です。撮影位置を示すものではありません。") : escapeHtml(place.coordinates || "—")}</dd></div>
       <div><dt>${t("visit")}</dt><dd>${displayVisit(place.visit)}</dd></div>
       <div><dt>${t("address")}</dt><dd>${displayAddress(place)}</dd></div>
       ${level ? `<div><dt>${t("level")}</dt><dd><strong>${escapeHtml(currentLanguage === "en" ? levelLabels[level.label] || "Anime location" : level.label)}${Number.isFinite(place.seichiScore) ? ` (${place.seichiScore}${t("scoreUnit")})` : ""}</strong><br><small>${escapeHtml(levelReason)}</small></dd></div>` : ""}
@@ -680,6 +688,7 @@ function showDetail(place) {
     <div class="detail-actions">${favoriteButton}<button class="secondary-button visit-log-button" id="visitLogButton" type="button">${visited ? t("visited") : t("recordVisit")}</button></div>
     ${gamePanel}
     ${mapLink}
+    ${streetViewLink}
     ${workInfoPanel}
     ${place.communityUpdate ? `<aside class="community-update"><strong>${t("approvedCorrection")}</strong><p>${escapeHtml(place.communityUpdate)}</p></aside>` : ""}
     <p class="checked">${t("checked")}${place.checkedAt}</p>
