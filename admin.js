@@ -120,7 +120,8 @@ function fillChallengeFromPlace() {
 function challengeMarkup(item) {
   const place = adminPlaces.find((candidate) => candidate.id === item.place_id);
   const label = item.status === "published" ? "公開中" : item.status === "archived" ? "停止中" : "下書き";
-  return `<article class="challenge-item"><div><span class="status-badge ${escapeHtml(item.status)}">${label}</span><h3>${escapeHtml(item.title)}</h3><p>${escapeHtml(place ? `${place.work}｜${place.name}` : item.place_id)}</p><p>${escapeHtml(item.hint)}</p><p><b>英語：</b>${escapeHtml(item.title_en)} / ${escapeHtml(item.hint_en)}</p><p><b>訪問条件：</b>${escapeHtml(item.access_notes)} / ${escapeHtml(item.access_notes_en)}</p><small>非公開チェックイン座標：${escapeHtml(item.latitude)}, ${escapeHtml(item.longitude)} ／ 半径 ${escapeHtml(item.checkin_radius_m)}m</small><br /><a href="${safeUrl(item.evidence_url)}" target="_blank" rel="noopener">安全確認の根拠を開く</a></div><div class="review-actions"><button data-challenge-action="edit" data-challenge-id="${escapeHtml(item.id)}" type="button">編集</button><button data-challenge-action="published" data-challenge-id="${escapeHtml(item.id)}" type="button" ${item.status === "published" ? "disabled" : ""}>公開する</button><button data-challenge-action="draft" data-challenge-id="${escapeHtml(item.id)}" type="button" ${item.status === "draft" ? "disabled" : ""}>下書きに戻す</button><button data-challenge-action="archived" data-challenge-id="${escapeHtml(item.id)}" type="button" ${item.status === "archived" ? "disabled" : ""}>停止する</button><button class="challenge-delete-button" data-challenge-action="delete" data-challenge-id="${escapeHtml(item.id)}" type="button">削除</button></div></article>`;
+  const safetyLabel = item.safety_confirmed_at ? `安全確認済み：${new Date(item.safety_confirmed_at).toLocaleString("ja-JP")}` : "安全確認未記録";
+  return `<article class="challenge-item"><div><span class="status-badge ${escapeHtml(item.status)}">${label}</span><h3>${escapeHtml(item.title)}</h3><p>${escapeHtml(place ? `${place.work}｜${place.name}` : item.place_id)}</p><p>${escapeHtml(item.hint)}</p><p><b>英語：</b>${escapeHtml(item.title_en)} / ${escapeHtml(item.hint_en)}</p><p><b>訪問条件：</b>${escapeHtml(item.access_notes)} / ${escapeHtml(item.access_notes_en)}</p><small>${escapeHtml(safetyLabel)}</small><br /><small>非公開チェックイン座標：${escapeHtml(item.latitude)}, ${escapeHtml(item.longitude)} ／ 半径 ${escapeHtml(item.checkin_radius_m)}m</small><br /><a href="${safeUrl(item.evidence_url)}" target="_blank" rel="noopener">安全確認の根拠を開く</a></div><div class="review-actions"><button data-challenge-action="edit" data-challenge-id="${escapeHtml(item.id)}" type="button">編集</button><button data-challenge-action="published" data-challenge-id="${escapeHtml(item.id)}" type="button" ${item.status === "published" ? "disabled" : ""}>公開する</button><button data-challenge-action="draft" data-challenge-id="${escapeHtml(item.id)}" type="button" ${item.status === "draft" ? "disabled" : ""}>下書きに戻す</button><button data-challenge-action="archived" data-challenge-id="${escapeHtml(item.id)}" type="button" ${item.status === "archived" ? "disabled" : ""}>停止する</button><button class="challenge-delete-button" data-challenge-action="delete" data-challenge-id="${escapeHtml(item.id)}" type="button">削除</button></div></article>`;
 }
 
 async function refreshChallenges() {
@@ -144,7 +145,8 @@ challengeForm.addEventListener("submit", async (event) => {
   const payload = {
     p_place_id: values.place_id, p_title: values.title.trim(), p_title_en: values.title_en.trim(), p_hint: values.hint.trim(), p_hint_en: values.hint_en.trim(),
     p_access_notes: values.access_notes.trim(), p_access_notes_en: values.access_notes_en.trim(), p_evidence_url: values.evidence_url.trim(),
-    p_latitude: Number(values.latitude), p_longitude: Number(values.longitude), p_checkin_radius_m: Number(values.checkin_radius_m), p_status: values.status
+    p_latitude: Number(values.latitude), p_longitude: Number(values.longitude), p_checkin_radius_m: Number(values.checkin_radius_m), p_status: values.status,
+    p_safety_confirmed: safetyCheck.checked
   };
   const { error } = await client.rpc("admin_save_viewpoint_challenge", payload);
   if (error) { challengeFormStatus.textContent = `保存できませんでした。${error.message}`; button.disabled = false; return; }
@@ -159,6 +161,7 @@ challengeList.addEventListener("click", async (event) => {
   const id = button.dataset.challengeId;
   const action = button.dataset.challengeAction;
   if (action === "delete" && !window.confirm("このチャレンジを削除しますか？獲得済みスタンプの記録は残ります。")) return;
+  if (action === "published" && !window.confirm("根拠URL、立ち止まれる公開場所、訪問条件、日本語と英語の説明を確認しましたか？確認済みの場合だけ公開してください。")) return;
   if (action === "edit") {
     const item = adminChallenges.get(id); if (!item) return;
     for (const key of ["place_id", "title", "title_en", "hint", "hint_en", "access_notes", "access_notes_en", "evidence_url", "latitude", "longitude", "checkin_radius_m", "status"]) challengeForm.elements[key].value = item[key] ?? "";
@@ -169,8 +172,8 @@ challengeList.addEventListener("click", async (event) => {
   }
   button.disabled = true;
   const { error } = action === "delete"
-    ? await client.from("viewpoint_challenges").delete().eq("id", id)
-    : await client.rpc("admin_set_viewpoint_challenge_status", { p_challenge_id: id, p_status: action });
+    ? await client.rpc("admin_delete_viewpoint_challenge", { p_challenge_id: id })
+    : await client.rpc("admin_set_viewpoint_challenge_status", { p_challenge_id: id, p_status: action, p_safety_confirmed: action === "published" });
   if (error) { challengeStatus.textContent = `変更できませんでした。${error.message}`; button.disabled = false; return; }
   refreshChallenges();
 });
@@ -287,7 +290,9 @@ submissionList.addEventListener("click", async (event) => {
     document.querySelector(`[data-note="${id}"]`).focus();
     return;
   }
-  const update = { status: button.dataset.action, admin_note: adminNote, reviewed_at: new Date().toISOString() };
+  const { data: authData, error: authError } = await client.auth.getUser();
+  if (authError || !authData.user) { adminStatus.textContent = "管理者のログイン状態を確認できませんでした。"; return; }
+  const update = { status: button.dataset.action, admin_note: adminNote, reviewed_at: new Date().toISOString(), reviewed_by: authData.user.id };
   button.disabled = true;
   if (button.dataset.action === "approved" && item?.image_path && !item.image_url) {
     const { data: file, error: downloadError } = await client.storage.from("submission-images").download(item.image_path);
@@ -299,7 +304,7 @@ submissionList.addEventListener("click", async (event) => {
     update.image_url = client.storage.from("spot-images").getPublicUrl(publicPath).data.publicUrl;
   }
   const { error } = await client.from("spot_submissions").update(update).eq("id", id);
-  if (error) { adminStatus.textContent = "更新できませんでした。"; return; } refreshSubmissions();
+  if (error) { adminStatus.textContent = "更新できませんでした。"; button.disabled = false; return; } refreshSubmissions();
 });
 
 client.auth.getSession().then(({ data: { session } }) => { if (session) showDashboard(); });

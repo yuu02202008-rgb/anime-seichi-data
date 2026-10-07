@@ -72,6 +72,30 @@ Object.assign(translations.en, {
 });
 translations.ja.challengeStepsAria = "チャレンジの進め方";
 translations.en.challengeStepsAria = "How the challenge works";
+Object.assign(translations.ja, {
+  submissionHistoryHeading: "投稿履歴",
+  submissionHistoryEmpty: "まだ投稿はありません。",
+  submissionHistoryUnavailable: "投稿状況を読み込めませんでした。",
+  submissionPending: "確認待ち",
+  submissionApproved: "承認済み",
+  submissionReturned: "差し戻し",
+  submissionNewSpot: "新しい聖地",
+  submissionCorrection: "情報訂正",
+  submissionImage: "写真追加",
+  submissionViewpoint: "撮影地点の提案"
+});
+Object.assign(translations.en, {
+  submissionHistoryHeading: "My submissions",
+  submissionHistoryEmpty: "You have not submitted anything yet.",
+  submissionHistoryUnavailable: "Could not load submission status.",
+  submissionPending: "Under review",
+  submissionApproved: "Approved",
+  submissionReturned: "Needs changes",
+  submissionNewSpot: "New location",
+  submissionCorrection: "Correction",
+  submissionImage: "Photo addition",
+  submissionViewpoint: "Viewpoint proposal"
+});
 translations.ja.openStreetView = "Google ストリートビューで見る";
 translations.en.openStreetView = "Open Google Street View";
 translations.ja.locationWithheld = "安全とプライバシー保護のため位置情報を非公開にしています";
@@ -126,6 +150,8 @@ let gameStamps = new Set();
 let gameVisits = new Set();
 let gameManualVisits = new Set();
 let gameCheckins = new Set();
+let gameSubmissions = [];
+let gameSubmissionsUnavailable = false;
 let gameChallenges = new Map();
 let gameChallengesUnavailable = false;
 let activePlace = null;
@@ -142,11 +168,23 @@ function participationMarkup(message = "") {
       ? `<section class="collection-list"><h3>${t("visitPlaces")}</h3><div>${visitedItems.map((place) => `<button class="collection-place" type="button" data-profile-place="${escapeHtml(place.id)}"><span>${escapeHtml(displayPlace(place))}</span><small>${escapeHtml(displayPrefecture(place.prefecture))}・${escapeHtml(displayWork(place.work))}${gameCheckins.has(place.id) ? ` · ${t("challengeStampCollected")}` : ""}</small></button>`).join("")}</div></section>`
       : "";
     const verificationNote = isVerifiedParticipant() ? "" : `<p class="form-status" role="status">${t("verifyEmailRequired")}</p>`;
+    const submissionCategoryLabel = (category) => ({
+      new_spot: t("submissionNewSpot"), correction: t("submissionCorrection"),
+      image_addition: t("submissionImage"), viewpoint: t("submissionViewpoint")
+    })[category] || t("submissionCorrection");
+    const submissionStatusLabel = (status) => ({
+      pending: t("submissionPending"), approved: t("submissionApproved"), returned: t("submissionReturned")
+    })[status] || status;
+    const submissionsPanel = !isVerifiedParticipant() ? "" : `<section class="collection-list submission-history"><h3>${t("submissionHistoryHeading")}</h3>${gameSubmissionsUnavailable
+      ? `<p role="status">${t("submissionHistoryUnavailable")}</p>`
+      : gameSubmissions.length
+        ? `<div>${gameSubmissions.map((submission) => `<article class="submission-history-item"><span class="submission-history-status ${escapeHtml(submission.status)}">${escapeHtml(submissionStatusLabel(submission.status))}</span><strong>${escapeHtml(submissionCategoryLabel(submission.category))}</strong><span>${escapeHtml(submission.place_name || "")}</span><time datetime="${escapeHtml(submission.created_at)}">${new Date(submission.created_at).toLocaleDateString(en ? "en-US" : "ja-JP")}</time></article>`).join("")}</div>`
+        : `<p>${t("submissionHistoryEmpty")}</p>`}</section>`;
     return `<p class="eyebrow">YOUR COLLECTION</p><h2>${en ? "Game profile" : "ゲームに参加中"}</h2>
       <p>${escapeHtml(gameUser.email || (en ? "Logged in" : "ログイン中"))}</p>
       ${verificationNote}
       <div class="collection-summary"><div><strong>${gameFavorites.size}</strong><span>${t("favorites")}</span></div><div><strong>${gameVisits.size}</strong><span>${t("visits")}</span></div><div><strong>${gameStamps.size}</strong><span>${t("collectedStamps")}</span></div></div>
-      ${favoritesPanel}${visitsPanel}
+      ${favoritesPanel}${visitsPanel}${submissionsPanel}
       <p class="participation-note">${t("collectionNote")}</p>
       <button class="secondary-button" id="signOutButton" type="button">${t("logout")}</button>${message ? `<p class="form-status">${escapeHtml(translateMessage(message))}</p>` : ""}`;
   }
@@ -208,10 +246,11 @@ function renderParticipation(message = "") {
 }
 async function loadGameData() {
   if (!gameUser) return;
-  const [favorites, stamps, visits] = await Promise.all([
+  const [favorites, stamps, visits, submissions] = await Promise.all([
     supabaseClient.from("user_favorites").select("place_id"),
     supabaseClient.from("visit_stamps").select("place_id"),
-    supabaseClient.from("user_visits").select("place_id, visit_type")
+    supabaseClient.from("user_visits").select("place_id, visit_type"),
+    supabaseClient.rpc("get_my_submission_status")
   ]);
   gameFavorites = new Set((favorites.data || []).map((row) => row.place_id));
   gameStamps = new Set((stamps.data || []).map((row) => row.place_id));
@@ -219,12 +258,14 @@ async function loadGameData() {
   gameVisits = new Set(visitRows.map((row) => row.place_id));
   gameManualVisits = new Set(visitRows.filter((row) => row.visit_type === "self_reported").map((row) => row.place_id));
   gameCheckins = new Set(visitRows.filter((row) => row.visit_type === "gps_checkin").map((row) => row.place_id));
+  gameSubmissionsUnavailable = Boolean(submissions.error);
+  gameSubmissions = submissions.data || [];
 }
 async function refreshGameSession() {
   const { data } = await supabaseClient.auth.getSession();
   gameUser = data.session?.user || null;
   if (gameUser) await loadGameData();
-  else { gameFavorites = new Set(); gameStamps = new Set(); gameVisits = new Set(); gameManualVisits = new Set(); gameCheckins = new Set(); }
+  else { gameFavorites = new Set(); gameStamps = new Set(); gameVisits = new Set(); gameManualVisits = new Set(); gameCheckins = new Set(); gameSubmissions = []; gameSubmissionsUnavailable = false; }
   participationButton.textContent = gameUser ? t("myPage") : t("participate");
 }
 async function submitParticipation(event) {
@@ -755,6 +796,8 @@ async function submitCorrection(event, place) {
     if (error) throw error;
     form.reset();
     status.textContent = "申請を受け付けました。管理者が確認します。";
+    await loadGameData();
+    if (participationDialog.open) renderParticipation();
   } catch (error) {
     status.textContent = error.message || "送信できませんでした。時間をおいてもう一度試してください。";
   } finally {
@@ -867,6 +910,8 @@ submissionForm.addEventListener("submit", async (event) => {
     submissionForm.reset();
     syncVisitConditions();
     formStatus.textContent = "申請を受け付けました。確認後、掲載可否を判断します。";
+    await loadGameData();
+    if (participationDialog.open) renderParticipation();
   } catch (error) {
     formStatus.textContent = error.message || "送信できませんでした。時間をおいてもう一度試してください。";
   } finally {
