@@ -24,6 +24,8 @@ const themeToggleText = document.querySelector("#themeToggleText");
 const siteHeader = document.querySelector(".site-header");
 const mobileMenuToggle = document.querySelector("#mobileMenuToggle");
 const mobileMenuText = document.querySelector("#mobileMenuText");
+const searchPanelToggle = document.querySelector("#searchPanelToggle");
+const searchPanelToggleText = document.querySelector("#searchPanelToggleText");
 const languageSelect = document.querySelector("#languageSelect");
 const translations = {
   ja: {
@@ -102,6 +104,10 @@ translations.ja.openStreetView = "Google ストリートビューで見る";
 translations.en.openStreetView = "Open Google Street View";
 translations.ja.locationWithheld = "安全とプライバシー保護のため位置情報を非公開にしています";
 translations.en.locationWithheld = "Location details are withheld for safety and privacy.";
+translations.ja.collapseFilters = "絞り込みを閉じる";
+translations.ja.expandFilters = "絞り込みを開く";
+translations.en.collapseFilters = "Hide filters";
+translations.en.expandFilters = "Show filters";
 let currentLanguage = localStorage.getItem("anime-seichi-language") === "en" ? "en" : "ja";
 const t = (key, ...args) => typeof translations[currentLanguage][key] === "function" ? translations[currentLanguage][key](...args) : translations[currentLanguage][key];
 let activePrefecture = "";
@@ -405,6 +411,7 @@ function replaceLeadingText(element, value) {
 function applyLanguage(language, save = true) {
   currentLanguage = language === "en" ? "en" : "ja";
   document.documentElement.lang = currentLanguage;
+  updateSearchPanelToggle();
   languageSelect.value = currentLanguage;
   if (save) localStorage.setItem("anime-seichi-language", currentLanguage);
   document.querySelectorAll("[data-i18n]").forEach((element) => { element.textContent = t(element.dataset.i18n); });
@@ -990,6 +997,21 @@ setTheme(localStorage.getItem("anime-seichi-theme") || "light");
 languageSelect.addEventListener("change", () => applyLanguage(languageSelect.value));
 applyLanguage(currentLanguage, false);
 themeToggle.addEventListener("click", () => setTheme(document.body.dataset.theme === "dark" ? "light" : "dark"));
+
+function updateSearchPanelToggle() {
+  const expanded = !siteHeader.classList.contains("search-collapsed");
+  const label = t(expanded ? "collapseFilters" : "expandFilters");
+  searchPanelToggle.setAttribute("aria-expanded", String(expanded));
+  searchPanelToggle.setAttribute("aria-label", label);
+  searchPanelToggleText.textContent = label;
+  searchPanelToggle.lastElementChild.textContent = expanded ? "−" : "+";
+}
+
+searchPanelToggle.addEventListener("click", () => {
+  siteHeader.classList.toggle("search-collapsed");
+  updateSearchPanelToggle();
+});
+updateSearchPanelToggle();
 
 function setMobileMenu(open) {
   siteHeader.classList.toggle("is-open", open);
