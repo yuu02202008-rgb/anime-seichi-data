@@ -95,6 +95,26 @@ window.animeCandidates = [
     "color": "#5dbbe4"
   },
   {
+    "anilistId": 207329,
+    "title": "追放されたチート付与魔術師は気ままなセカンドライフを謳歌する。　～俺は武器だけじゃなく、あらゆるものに『強化ポイント』を付与できるし、俺の意思でいつでも効果を解除できるけど、残った人たち大丈夫？～",
+    "titleRomaji": "Tsuihou Sareta Cheat Fuyo Majutsushi wa Kimama na Second Life wo Ouka Suru.: Ore wa Buki dake ja Naku, Arayuru Mono ni \"Kyouka Point\" wo Fuyo Dekiru shi, Ore no Ishi de Itsudemo Kouka wo Kaijo Dekiru kedo, Nokotta Hitotachi Daijoubu?",
+    "titleEnglish": "The Laid-Off Cheat-Granting Mage Enjoys a Second Lease on Life",
+    "startDate": "2026-10-7",
+    "season": "2026 FALL",
+    "episodes": null,
+    "genres": [
+      "Adventure",
+      "Comedy",
+      "Fantasy",
+      "Slice of Life"
+    ],
+    "sourceUrl": "https://anilist.co/anime/207329",
+    "dataSource": "AniList",
+    "description": "Rein, an enchanter, is suddenly expelled from his guild one day. But instead of despairing, he declares, “Now I can do anything!” and begins reclaiming the massive number of enhancement points he once poured into his guildmates’ gear, setting off on a brand-new path as an adventurer.<br><br> Gathering around him are people carrying wounds that don’t fade easily: a genius adventurer who shut her heart after her party was slaughtered, a warrior who lost her family, and an assassin raised from childhood to kill. Yet Rein never rejects their pasts or their scars—he accepts them all with bright, straightforward warmth.<br><br> The stage is a unique fantasy world where Uzis, slingshots, and even yakuza exist side by side. But in this world, the more people rely on convenient technology, the more their magic weakens, and adventurers grow fragile.<br><br> Intelligent, vicious monsters roam freely, while in the underworld, outlaws bare their greed and ambition as schemes and betrayals intertwine. In a world where ideals and justice are easily crushed, adventurers fight on with nothing but their magic and their convictions.<br><br> This is the story of those who have lost their place in the world finding a new way to live. Rein and his companions’ wild, free-spirited second life begins now! <br><br>(Source: The Laid-Off Cheat-Granting Mage Enjoys a Second Lease on Life Site)",
+    "coverImage": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/b207329-6VPeZIDfF4Sr.png",
+    "color": "#f1e4c9"
+  },
+  {
     "anilistId": 178083,
     "title": "東京リベンジャーズ 三天戦争編",
     "titleRomaji": "Tokyo Revengers: Santen Sensou-hen",
@@ -135,26 +155,6 @@ window.animeCandidates = [
     "color": "#e4a143"
   },
   {
-    "anilistId": 207329,
-    "title": "追放されたチート付与魔術師は気ままなセカンドライフを謳歌する。　～俺は武器だけじゃなく、あらゆるものに『強化ポイント』を付与できるし、俺の意思でいつでも効果を解除できるけど、残った人たち大丈夫？～",
-    "titleRomaji": "Tsuihou Sareta Cheat Fuyo Majutsushi wa Kimama na Second Life wo Ouka Suru.: Ore wa Buki dake ja Naku, Arayuru Mono ni \"Kyouka Point\" wo Fuyo Dekiru shi, Ore no Ishi de Itsudemo Kouka wo Kaijo Dekiru kedo, Nokotta Hitotachi Daijoubu?",
-    "titleEnglish": "The Laid-Off Cheat-Granting Mage Enjoys a Second Lease on Life",
-    "startDate": "2026-10-7",
-    "season": "2026 FALL",
-    "episodes": null,
-    "genres": [
-      "Adventure",
-      "Comedy",
-      "Fantasy",
-      "Slice of Life"
-    ],
-    "sourceUrl": "https://anilist.co/anime/207329",
-    "dataSource": "AniList",
-    "description": "Rein, an enchanter, is suddenly expelled from his guild one day. But instead of despairing, he declares, “Now I can do anything!” and begins reclaiming the massive number of enhancement points he once poured into his guildmates’ gear, setting off on a brand-new path as an adventurer.<br><br> Gathering around him are people carrying wounds that don’t fade easily: a genius adventurer who shut her heart after her party was slaughtered, a warrior who lost her family, and an assassin raised from childhood to kill. Yet Rein never rejects their pasts or their scars—he accepts them all with bright, straightforward warmth.<br><br> The stage is a unique fantasy world where Uzis, slingshots, and even yakuza exist side by side. But in this world, the more people rely on convenient technology, the more their magic weakens, and adventurers grow fragile.<br><br> Intelligent, vicious monsters roam freely, while in the underworld, outlaws bare their greed and ambition as schemes and betrayals intertwine. In a world where ideals and justice are easily crushed, adventurers fight on with nothing but their magic and their convictions.<br><br> This is the story of those who have lost their place in the world finding a new way to live. Rein and his companions’ wild, free-spirited second life begins now! <br><br>(Source: The Laid-Off Cheat-Granting Mage Enjoys a Second Lease on Life Site)",
-    "coverImage": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/b207329-6VPeZIDfF4Sr.png",
-    "color": "#f1e4c9"
-  },
-  {
     "anilistId": 172192,
     "title": "帰還者の魔法は特別です 第2期",
     "titleRomaji": "Kikansha no Mahou wa Tokubetsu desu 2nd Season",
@@ -190,44 +190,6 @@ window.animeCandidates = [
     "description": "The third season of <i>Tensei Kizoku, Kantei Skill de Nariagaru</i>. <br><br> <i>Note: On September 4, 2026, it was announced that GeyeG Pictures would take over the production from studio MOTHER while keeping the same staff.</i>",
     "coverImage": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx185756-xPCl0RyQ7fXD.jpg",
     "color": "#d6f1c9"
-  },
-  {
-    "anilistId": 152677,
-    "title": "探偵はもう、死んでいる。Season2",
-    "titleRomaji": "Tantei wa mou, Shindeiru. Season 2",
-    "titleEnglish": "The Detective Is Already Dead Season 2",
-    "startDate": "2026-10-7",
-    "season": "2026 FALL",
-    "episodes": 13,
-    "genres": [
-      "Comedy",
-      "Drama",
-      "Mystery",
-      "Romance",
-      "Supernatural"
-    ],
-    "sourceUrl": "https://anilist.co/anime/152677",
-    "dataSource": "AniList",
-    "description": "After thwarting a hijacking with beautiful, silver-haired detective Siesta, Kimihiko leads a life of globe-trotting and crime-solving—until Siesta dies. A year later, a new case will open old wounds as it threads murder, conspiracy, and his dead partner! <br><br> (Source: Crunchyroll)",
-    "coverImage": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx152677-gtJbgjE94lCN.png",
-    "color": ""
-  },
-  {
-    "anilistId": 191788,
-    "title": "アオアシ 第2期",
-    "titleRomaji": "Aoashi 2nd Season",
-    "titleEnglish": "Aoashi Season 2",
-    "startDate": "2026-10-4",
-    "season": "2026 FALL",
-    "episodes": 24,
-    "genres": [
-      "Sports"
-    ],
-    "sourceUrl": "https://anilist.co/anime/191788",
-    "dataSource": "AniList",
-    "description": "Aoi Ashito’s game has now earned him a spot on the A team, but he is quickly overwhelmed by his harsh new reality. Surrounded by elite players like Kuribayashi and Akutsu, practices are just as merciless as the matches. In this U-18 Premier League of powerhouse talent, Ashito must evolve or be crushed, if he’s ever to be acknowledged. <br><br> (Source: Crunchyroll)",
-    "coverImage": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx191788-XC6F24LdX6a4.jpg",
-    "color": "#e4ae50"
   },
   {
     "anilistId": 206814,
@@ -267,6 +229,27 @@ window.animeCandidates = [
     "color": "#aed6e4"
   },
   {
+    "anilistId": 152677,
+    "title": "探偵はもう、死んでいる。Season2",
+    "titleRomaji": "Tantei wa mou, Shindeiru. Season 2",
+    "titleEnglish": "The Detective Is Already Dead Season 2",
+    "startDate": "2026-10-7",
+    "season": "2026 FALL",
+    "episodes": 13,
+    "genres": [
+      "Comedy",
+      "Drama",
+      "Mystery",
+      "Romance",
+      "Supernatural"
+    ],
+    "sourceUrl": "https://anilist.co/anime/152677",
+    "dataSource": "AniList",
+    "description": "After thwarting a hijacking with beautiful, silver-haired detective Siesta, Kimihiko leads a life of globe-trotting and crime-solving—until Siesta dies. A year later, a new case will open old wounds as it threads murder, conspiracy, and his dead partner! <br><br> (Source: Crunchyroll)",
+    "coverImage": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx152677-gtJbgjE94lCN.png",
+    "color": ""
+  },
+  {
     "anilistId": 206949,
     "title": "凶乱令嬢ニア・リストン",
     "titleRomaji": "Kyouran Reijou Nia Liston",
@@ -283,6 +266,23 @@ window.animeCandidates = [
     "description": "A great hero lies undefeated on her deathbed, regretting that she never found a foe who could take her down. She never intended to meet her fate anywhere other than on the battlefield, and her peaceful demise has her wishing desperately that things could have been different... But when she suddenly comes to in the body of the young, frail Nia Liston, she’s got an all-new fight ahead of her. Nia is a sickly child, meaning she has a long way to go before she’s in fighting form. Now that she’s been given a second shot at life, however, she’s determined to get what she wants. She’s going to live—and die—for battle this time! Make way for the Merciless Maiden!<br> <br> (Source: J-Novel Club)",
     "coverImage": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx206949-4HYI3YuP0eLI.png",
     "color": "#f15dbb"
+  },
+  {
+    "anilistId": 191788,
+    "title": "アオアシ 第2期",
+    "titleRomaji": "Aoashi 2nd Season",
+    "titleEnglish": "Aoashi Season 2",
+    "startDate": "2026-10-4",
+    "season": "2026 FALL",
+    "episodes": 24,
+    "genres": [
+      "Sports"
+    ],
+    "sourceUrl": "https://anilist.co/anime/191788",
+    "dataSource": "AniList",
+    "description": "Aoi Ashito’s game has now earned him a spot on the A team, but he is quickly overwhelmed by his harsh new reality. Surrounded by elite players like Kuribayashi and Akutsu, practices are just as merciless as the matches. In this U-18 Premier League of powerhouse talent, Ashito must evolve or be crushed, if he’s ever to be acknowledged. <br><br> (Source: Crunchyroll)",
+    "coverImage": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx191788-XC6F24LdX6a4.jpg",
+    "color": "#e4ae50"
   },
   {
     "anilistId": 186541,
@@ -307,25 +307,6 @@ window.animeCandidates = [
     "color": "#d6bb78"
   },
   {
-    "anilistId": 204011,
-    "title": "PSYREN -サイレン-",
-    "titleRomaji": "PSYЯEN",
-    "titleEnglish": "PSYREN",
-    "startDate": "2026-10-5",
-    "season": "2026 FALL",
-    "episodes": null,
-    "genres": [
-      "Action",
-      "Adventure",
-      "Sci-Fi"
-    ],
-    "sourceUrl": "https://anilist.co/anime/204011",
-    "dataSource": "AniList",
-    "description": "One day, high schooler Ageha Yoshina picks up a mysterious “red phone card” left behind in a public telephone booth. A few days later, his childhood friend and classmate, Sakurako Amamiya—who possessed the same card—suddenly vanishes without a trace. In search of her, Ageha finds himself drawn into the rumors surrounding a nationwide string of mysterious disappearances, said to be the work of a secret organization known only as “Psyren.”<br><br> When he accesses the group, a deadly game begins—one that will change his fate forever. <br><br> (Source: PSYЯEN Official Site)",
-    "coverImage": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx204011-j45RZoqYbdZK.jpg",
-    "color": "#0dd6e4"
-  },
-  {
     "anilistId": 202250,
     "title": "貸した魔力は【リボ払い】で強制徴収",
     "titleRomaji": "Kashita Maryoku wa [Revo Barai] de Kyousei Choushuu",
@@ -343,6 +324,25 @@ window.animeCandidates = [
     "description": "If there's one thing you can never have enough of in a world of RPG-style swords and sorcery, it's magic points! Whether you're fueling spells, techniques, or showing off an incredible ability, you've gotta spend those points to do real damage. But what if you run out? <br><br> Lent is part of the up-and-coming party known as the “Skypiercers,” and thanks to his unique Gift, he can loan massive amounts of magic to others. No MP? No problem with Lent around! Except, now that his companions have become formidable heroes (thanks to his skill), his usefulness is questioned. Kicked out of the group, Lent is furious…until he discovers a hidden power to his Gift. Now, with his adorably devious fairy partner, he's going to claw back every last scrap of magic from his former party—with interest!<br><br> (Source: Seven Seas Entertainment)",
     "coverImage": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx202250-mpm2cvr92Au2.jpg",
     "color": "#bbe45d"
+  },
+  {
+    "anilistId": 204011,
+    "title": "PSYREN -サイレン-",
+    "titleRomaji": "PSYЯEN",
+    "titleEnglish": "PSYREN",
+    "startDate": "2026-10-5",
+    "season": "2026 FALL",
+    "episodes": null,
+    "genres": [
+      "Action",
+      "Adventure",
+      "Sci-Fi"
+    ],
+    "sourceUrl": "https://anilist.co/anime/204011",
+    "dataSource": "AniList",
+    "description": "One day, high schooler Ageha Yoshina picks up a mysterious “red phone card” left behind in a public telephone booth. A few days later, his childhood friend and classmate, Sakurako Amamiya—who possessed the same card—suddenly vanishes without a trace. In search of her, Ageha finds himself drawn into the rumors surrounding a nationwide string of mysterious disappearances, said to be the work of a secret organization known only as “Psyren.”<br><br> When he accesses the group, a deadly game begins—one that will change his fate forever. <br><br> (Source: PSYЯEN Official Site)",
+    "coverImage": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx204011-j45RZoqYbdZK.jpg",
+    "color": "#0dd6e4"
   },
   {
     "anilistId": 212503,
@@ -364,6 +364,24 @@ window.animeCandidates = [
     "color": "#4378e4"
   },
   {
+    "anilistId": 209502,
+    "title": "塩対応の佐藤さんが俺にだけ甘い",
+    "titleRomaji": "Shiotaiou no Satou-san ga Ore ni dake Amai",
+    "titleEnglish": "The Cold Sato-san is Only Sweet to Me",
+    "startDate": "2026-10-6",
+    "season": "2026 FALL",
+    "episodes": 12,
+    "genres": [
+      "Comedy",
+      "Romance"
+    ],
+    "sourceUrl": "https://anilist.co/anime/209502",
+    "dataSource": "AniList",
+    "description": "Sato-san is the unattainable flower of the class. She is always cold and curt with classmates, but only I know she's actually very cute when she smiles, even if she's not much of a photographer. <br><br> Oshio-kun is friendly and lively, but only I know he works at his family's cafe after school. He does a great job with the cafe's SNS account, and his mischievous smile makes my heart skip a beat! <br><br> Innocent and sweet, but sometimes frustrating, this is a 120%-pure fluffy story about two people falling in love for the first time.",
+    "coverImage": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx209502-C81oN8M4Smlo.jpg",
+    "color": "#f1bb50"
+  },
+  {
     "anilistId": 204650,
     "title": "桃源暗鬼 日光・華厳の滝編",
     "titleRomaji": "Tougen Anki: Nikko・Kegon no Taki-hen",
@@ -381,24 +399,6 @@ window.animeCandidates = [
     "description": "After battling in Kyoto and Nerima, the Rasetsu Academy students have grown stronger. But Yaoroshi leaves the academy to join the Oni Brigade for their \"the total eradication of the Momotaro.\" <br><br> When Shiki realizes that they also target noncombatants, he sets out after Yaoroshi to bring him back. Meanwhile in Nikko, there's a research facility for horrific experiments atop the old Kegon Falls… <br><br> (Source: REMOW)",
     "coverImage": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx204650-cAQOzQ84Lwk8.png",
     "color": "#4393e4"
-  },
-  {
-    "anilistId": 209502,
-    "title": "塩対応の佐藤さんが俺にだけ甘い",
-    "titleRomaji": "Shiotaiou no Satou-san ga Ore ni dake Amai",
-    "titleEnglish": "The Cold Sato-san is Only Sweet to Me",
-    "startDate": "2026-10-6",
-    "season": "2026 FALL",
-    "episodes": 12,
-    "genres": [
-      "Comedy",
-      "Romance"
-    ],
-    "sourceUrl": "https://anilist.co/anime/209502",
-    "dataSource": "AniList",
-    "description": "Sato-san is the unattainable flower of the class. She is always cold and curt with classmates, but only I know she's actually very cute when she smiles, even if she's not much of a photographer. <br><br> Oshio-kun is friendly and lively, but only I know he works at his family's cafe after school. He does a great job with the cafe's SNS account, and his mischievous smile makes my heart skip a beat! <br><br> Innocent and sweet, but sometimes frustrating, this is a 120%-pure fluffy story about two people falling in love for the first time.",
-    "coverImage": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx209502-C81oN8M4Smlo.jpg",
-    "color": "#f1bb50"
   },
   {
     "anilistId": 206401,
