@@ -53,7 +53,7 @@ window.animeCandidates = [
     ],
     "sourceUrl": "https://anilist.co/anime/189123",
     "dataSource": "AniList",
-    "description": "The second season of <i>Ao no Hako</i>.",
+    "description": "The second season of <i>Ao no Hako</i>.<br><br> As Taiki and Chinatsu navigate their evolving feelings, a fractured friendship from the past and fierce competition cloud the road to nationals.<br><br> (Source: Netflix, edited)",
     "coverImage": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx189123-0secXELIhkIW.jpg",
     "color": "#e4ae50"
   },
@@ -115,26 +115,6 @@ window.animeCandidates = [
     "color": "#f1e4c9"
   },
   {
-    "anilistId": 178083,
-    "title": "東京リベンジャーズ 三天戦争編",
-    "titleRomaji": "Tokyo Revengers: Santen Sensou-hen",
-    "titleEnglish": "Tokyo Revengers: War of the Three Titans Arc",
-    "startDate": "2026-10-3",
-    "season": "2026 FALL",
-    "episodes": 13,
-    "genres": [
-      "Action",
-      "Drama",
-      "Romance",
-      "Supernatural"
-    ],
-    "sourceUrl": "https://anilist.co/anime/178083",
-    "dataSource": "AniList",
-    "description": "Sequel to <i>Tokyo Revengers: Tenjiku-hen</i>.",
-    "coverImage": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx178083-bg7pg6TCHwtG.jpg",
-    "color": "#c99350"
-  },
-  {
     "anilistId": 213805,
     "title": "氷の城壁 第2期",
     "titleRomaji": "Koori no Jouheki 2nd Season",
@@ -153,6 +133,26 @@ window.animeCandidates = [
     "description": "Koyuki, the isolated girl; Miki, the former school idol; Minato, the guy with no concept of personal space; and Youta, the gentle basketball player. Clumsy, frustrating, yet deeply endearing — this coming-of-age ensemble drama of crisscrossing hearts marches on. <br><br> As they grow closer, Koyuki and Minato begin to develop feelings for each other that go beyond mere friendship. Meanwhile, Youta finally confesses to Miki the feelings he's harbored for years. Some speak their hearts while others keep their emotions hidden, causing their paths — and their feelings for one another — to continuously cross and pass by… <br><br> (Source: Netflix)",
     "coverImage": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx213805-Nokui3uWlIlw.png",
     "color": "#e4a143"
+  },
+  {
+    "anilistId": 178083,
+    "title": "東京リベンジャーズ 三天戦争編",
+    "titleRomaji": "Tokyo Revengers: Santen Sensou-hen",
+    "titleEnglish": "Tokyo Revengers: War of the Three Titans Arc",
+    "startDate": "2026-10-3",
+    "season": "2026 FALL",
+    "episodes": 13,
+    "genres": [
+      "Action",
+      "Drama",
+      "Romance",
+      "Supernatural"
+    ],
+    "sourceUrl": "https://anilist.co/anime/178083",
+    "dataSource": "AniList",
+    "description": "Sequel to <i>Tokyo Revengers: Tenjiku-hen</i>.",
+    "coverImage": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx178083-bg7pg6TCHwtG.jpg",
+    "color": "#c99350"
   },
   {
     "anilistId": 172192,
@@ -174,24 +174,6 @@ window.animeCandidates = [
     "color": "#f19328"
   },
   {
-    "anilistId": 185756,
-    "title": "転生貴族、鑑定スキルで成り上がる 第3期",
-    "titleRomaji": "Tensei Kizoku, Kantei Skill de Nariagaru 3rd Season",
-    "titleEnglish": "As a Reincarnated Aristocrat, I'll Use My Appraisal Skill to Rise in the World Season 3",
-    "startDate": "2026-9-27",
-    "season": "2026 FALL",
-    "episodes": null,
-    "genres": [
-      "Adventure",
-      "Fantasy"
-    ],
-    "sourceUrl": "https://anilist.co/anime/185756",
-    "dataSource": "AniList",
-    "description": "The third season of <i>Tensei Kizoku, Kantei Skill de Nariagaru</i>. <br><br> <i>Note: On September 4, 2026, it was announced that GeyeG Pictures would take over the production from studio MOTHER while keeping the same staff.</i>",
-    "coverImage": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx185756-xPCl0RyQ7fXD.jpg",
-    "color": "#d6f1c9"
-  },
-  {
     "anilistId": 206814,
     "title": "ドラゴンボール超 ビルス",
     "titleRomaji": "Dragon Ball Super: Beerus",
@@ -209,6 +191,24 @@ window.animeCandidates = [
     "description": "Several years have passed since the fierce battle against Majin Buu, and Earth has finally regained a brief moment of peace. At the same time, Beerus, the God of Destruction, awakens from his long, deep sleep.<br> Even Kai and Supreme Kai, aware of Beerus's overwhelming power to destroy entire planets, watch his awakening with great fear… Meanwhile, Beerus hears rumors of a Saiyan who defeated Frieza—and suddenly appears before Goku.<br> Targeted by Beerus, the strongest being in the universe, Earth is in grave danger. Thus begins an earth-shattering cosmic battle between the God of Destruction and Goku and his alliesa—a conflict that will shake the entire universe. <br><br> (Source: Official Site) <br><br> <i>Note: “Enhanced” edition of Dragon Ball Super, featuring a large volume of newly added and redrawn cuts, a reconstructed narrative, and updated visuals for a more immersive and faithful representation of Akira Toriyama’s original manga.</i>",
     "coverImage": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx206814-PVVzRbf1IQpe.jpg",
     "color": "#e48643"
+  },
+  {
+    "anilistId": 185756,
+    "title": "転生貴族、鑑定スキルで成り上がる 第3期",
+    "titleRomaji": "Tensei Kizoku, Kantei Skill de Nariagaru 3rd Season",
+    "titleEnglish": "As a Reincarnated Aristocrat, I'll Use My Appraisal Skill to Rise in the World Season 3",
+    "startDate": "2026-9-27",
+    "season": "2026 FALL",
+    "episodes": null,
+    "genres": [
+      "Adventure",
+      "Fantasy"
+    ],
+    "sourceUrl": "https://anilist.co/anime/185756",
+    "dataSource": "AniList",
+    "description": "The third season of <i>Tensei Kizoku, Kantei Skill de Nariagaru</i>. <br><br> <i>Note: On September 4, 2026, it was announced that GeyeG Pictures would take over the production from studio MOTHER while keeping the same staff.</i>",
+    "coverImage": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx185756-xPCl0RyQ7fXD.jpg",
+    "color": "#d6f1c9"
   },
   {
     "anilistId": 207191,
@@ -229,27 +229,6 @@ window.animeCandidates = [
     "color": "#aed6e4"
   },
   {
-    "anilistId": 152677,
-    "title": "探偵はもう、死んでいる。Season2",
-    "titleRomaji": "Tantei wa mou, Shindeiru. Season 2",
-    "titleEnglish": "The Detective Is Already Dead Season 2",
-    "startDate": "2026-10-7",
-    "season": "2026 FALL",
-    "episodes": 13,
-    "genres": [
-      "Comedy",
-      "Drama",
-      "Mystery",
-      "Romance",
-      "Supernatural"
-    ],
-    "sourceUrl": "https://anilist.co/anime/152677",
-    "dataSource": "AniList",
-    "description": "After thwarting a hijacking with beautiful, silver-haired detective Siesta, Kimihiko leads a life of globe-trotting and crime-solving—until Siesta dies. A year later, a new case will open old wounds as it threads murder, conspiracy, and his dead partner! <br><br> (Source: Crunchyroll)",
-    "coverImage": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx152677-gtJbgjE94lCN.png",
-    "color": ""
-  },
-  {
     "anilistId": 206949,
     "title": "凶乱令嬢ニア・リストン",
     "titleRomaji": "Kyouran Reijou Nia Liston",
@@ -266,23 +245,6 @@ window.animeCandidates = [
     "description": "A great hero lies undefeated on her deathbed, regretting that she never found a foe who could take her down. She never intended to meet her fate anywhere other than on the battlefield, and her peaceful demise has her wishing desperately that things could have been different... But when she suddenly comes to in the body of the young, frail Nia Liston, she’s got an all-new fight ahead of her. Nia is a sickly child, meaning she has a long way to go before she’s in fighting form. Now that she’s been given a second shot at life, however, she’s determined to get what she wants. She’s going to live—and die—for battle this time! Make way for the Merciless Maiden!<br> <br> (Source: J-Novel Club)",
     "coverImage": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx206949-4HYI3YuP0eLI.png",
     "color": "#f15dbb"
-  },
-  {
-    "anilistId": 191788,
-    "title": "アオアシ 第2期",
-    "titleRomaji": "Aoashi 2nd Season",
-    "titleEnglish": "Aoashi Season 2",
-    "startDate": "2026-10-4",
-    "season": "2026 FALL",
-    "episodes": 24,
-    "genres": [
-      "Sports"
-    ],
-    "sourceUrl": "https://anilist.co/anime/191788",
-    "dataSource": "AniList",
-    "description": "Aoi Ashito’s game has now earned him a spot on the A team, but he is quickly overwhelmed by his harsh new reality. Surrounded by elite players like Kuribayashi and Akutsu, practices are just as merciless as the matches. In this U-18 Premier League of powerhouse talent, Ashito must evolve or be crushed, if he’s ever to be acknowledged. <br><br> (Source: Crunchyroll)",
-    "coverImage": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx191788-XC6F24LdX6a4.jpg",
-    "color": "#e4ae50"
   },
   {
     "anilistId": 186541,
@@ -305,6 +267,44 @@ window.animeCandidates = [
     "description": "Sato Takahiro was an ordinary office worker and hobbyist gamer until the day he woke up on a spaceship–one that strangely resembled a craft from a favorite space-shooter game. With a decked-out ship, a crew full of babes, and a fantastic universe to explore, he's going to make the most of his good luck and create the life he's always dreamed of!<br><br> (Source: Seven Seas Entertainment)",
     "coverImage": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx186541-caYpLsLmbCh7.jpg",
     "color": "#d6bb78"
+  },
+  {
+    "anilistId": 191788,
+    "title": "アオアシ 第2期",
+    "titleRomaji": "Aoashi 2nd Season",
+    "titleEnglish": "Aoashi Season 2",
+    "startDate": "2026-10-4",
+    "season": "2026 FALL",
+    "episodes": 24,
+    "genres": [
+      "Sports"
+    ],
+    "sourceUrl": "https://anilist.co/anime/191788",
+    "dataSource": "AniList",
+    "description": "Aoi Ashito’s game has now earned him a spot on the A team, but he is quickly overwhelmed by his harsh new reality. Surrounded by elite players like Kuribayashi and Akutsu, practices are just as merciless as the matches. In this U-18 Premier League of powerhouse talent, Ashito must evolve or be crushed, if he’s ever to be acknowledged. <br><br> (Source: Crunchyroll)",
+    "coverImage": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx191788-XC6F24LdX6a4.jpg",
+    "color": "#e4ae50"
+  },
+  {
+    "anilistId": 152677,
+    "title": "探偵はもう、死んでいる。Season2",
+    "titleRomaji": "Tantei wa mou, Shindeiru. Season 2",
+    "titleEnglish": "The Detective Is Already Dead Season 2",
+    "startDate": "2026-10-7",
+    "season": "2026 FALL",
+    "episodes": 13,
+    "genres": [
+      "Comedy",
+      "Drama",
+      "Mystery",
+      "Romance",
+      "Supernatural"
+    ],
+    "sourceUrl": "https://anilist.co/anime/152677",
+    "dataSource": "AniList",
+    "description": "After thwarting a hijacking with beautiful, silver-haired detective Siesta, Kimihiko leads a life of globe-trotting and crime-solving—until Siesta dies. A year later, a new case will open old wounds as it threads murder, conspiracy, and his dead partner! <br><br> (Source: Crunchyroll)",
+    "coverImage": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx152677-gtJbgjE94lCN.png",
+    "color": ""
   },
   {
     "anilistId": 202250,
@@ -401,41 +401,22 @@ window.animeCandidates = [
     "color": "#4393e4"
   },
   {
-    "anilistId": 206401,
-    "title": "FX戦士くるみちゃん",
-    "titleRomaji": "FX Senshi Kurumi-chan",
-    "titleEnglish": "FX Fighter Kurumi-chan",
-    "startDate": "2026-10-1",
-    "season": "2026 FALL",
-    "episodes": 12,
-    "genres": [
-      "Drama",
-      "Slice of Life"
-    ],
-    "sourceUrl": "https://anilist.co/anime/206401",
-    "dataSource": "AniList",
-    "description": "University student Kurumi Fukuga has finally fulfilled her long-held desire of starting foreign exchange (FX) trading, motivated by recouping the 20 million yen her late mother lost in trading. \"I'll easily make it back,\" she thought, but the world she enters can become heaven or hell in an instant. Unrealized losses, loss-cutting, unstoppable fluctuations… but she still wants to buy, sell and make money! With fellow FX addicts Mochiko, Mebuki and Yasuko along for the ride, the market heats up! Joy, despair, joy, despair — this is an endearing, yet slightly risky money game. Can Kurumi and her friends survive this turbulent world?<br> <br> (Source: Crunchyroll)",
-    "coverImage": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx206401-8cAebkI0i8BA.png",
-    "color": "#f1d678"
-  },
-  {
-    "anilistId": 209872,
-    "title": "らんま1/2 (2024) 第3期",
-    "titleRomaji": "Ranma 1/2 (2024) 3rd Season",
-    "titleEnglish": "Ranma1/2 (2024) Season 3",
-    "startDate": "2026-10-4",
+    "anilistId": 205896,
+    "title": "信者ゼロの女神サマと始める異世界攻略",
+    "titleRomaji": "Shinja Zero no Megami-sama to Hajimeru Isekai Kouryaku",
+    "titleEnglish": "Full Clearing Another World under a Goddess with Zero Believers",
+    "startDate": "2026-10-11",
     "season": "2026 FALL",
     "episodes": null,
     "genres": [
-      "Action",
-      "Comedy",
-      "Romance"
+      "Adventure",
+      "Fantasy"
     ],
-    "sourceUrl": "https://anilist.co/anime/209872",
+    "sourceUrl": "https://anilist.co/anime/205896",
     "dataSource": "AniList",
-    "description": "The third season of <i>Ranma 1/2 (2024)</i>.",
-    "coverImage": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx209872-RBeVPqwejHFp.jpg",
-    "color": "#e4bb5d"
+    "description": "RPG player Makoto Takatsuki is hurled into another world with awful skills and stats. But he soon meets a goddess named Noah, who asks him to become her 1st believer in return for blessings.<br> <br> (Source: J-Novel Club)",
+    "coverImage": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx205896-ElrV8oVAsuax.jpg",
+    "color": "#5dbbe4"
   },
   {
     "anilistId": 211778,
@@ -455,5 +436,23 @@ window.animeCandidates = [
     "description": "After using her SSS-Rank skill, Internet, to crush her former family’s ambitions, Lorna is free to travel the world. Her next stop is the port town of Aquas, where she hopes to see the sights and chow down on some fresh seafood. But when she arrives, the place is on the brink of destruction thanks to a certain Weekly Quest… Good thing Lorna has the gods on her side! <br><br> (Source: Crunchyroll)",
     "coverImage": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx211778-0MXK5HqVFBYH.jpg",
     "color": "#5dbbf1"
+  },
+  {
+    "anilistId": 206401,
+    "title": "FX戦士くるみちゃん",
+    "titleRomaji": "FX Senshi Kurumi-chan",
+    "titleEnglish": "FX Fighter Kurumi-chan",
+    "startDate": "2026-10-1",
+    "season": "2026 FALL",
+    "episodes": 12,
+    "genres": [
+      "Drama",
+      "Slice of Life"
+    ],
+    "sourceUrl": "https://anilist.co/anime/206401",
+    "dataSource": "AniList",
+    "description": "University student Kurumi Fukuga has finally fulfilled her long-held desire of starting foreign exchange (FX) trading, motivated by recouping the 20 million yen her late mother lost in trading. \"I'll easily make it back,\" she thought, but the world she enters can become heaven or hell in an instant. Unrealized losses, loss-cutting, unstoppable fluctuations… but she still wants to buy, sell and make money! With fellow FX addicts Mochiko, Mebuki and Yasuko along for the ride, the market heats up! Joy, despair, joy, despair — this is an endearing, yet slightly risky money game. Can Kurumi and her friends survive this turbulent world?<br> <br> (Source: Crunchyroll)",
+    "coverImage": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx206401-8cAebkI0i8BA.png",
+    "color": "#f1d678"
   }
 ];
