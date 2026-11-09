@@ -39,6 +39,24 @@ window.animeCandidates = [
     "color": "#f1a143"
   },
   {
+    "anilistId": 205909,
+    "title": "ホタルの嫁入り",
+    "titleRomaji": "Hotaru no Yomeiri",
+    "titleEnglish": "Firefly Wedding",
+    "startDate": "2026-10-9",
+    "season": "2026 FALL",
+    "episodes": 12,
+    "genres": [
+      "Drama",
+      "Romance"
+    ],
+    "sourceUrl": "https://anilist.co/anime/205909",
+    "dataSource": "AniList",
+    "description": "On the surface, Satoko has it all—she’s beautiful, the daughter of a nobleman, and at a prime age for marriage. Unfortunately, she is also quite ill and only has a short time left to live. Before she can secure a marriage that will redeem her worth in her family’s eyes, she finds herself the target of the mysterious assassin Shinpei, and her plans are put in jeopardy. In order to save herself, she makes a desperate proposal—of marriage! When it comes to love, however, Shinpei takes “until death do we part” seriously.<br> <br> (Source: VIZ Media)",
+    "coverImage": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx205909-DM0fAzNQulod.jpg",
+    "color": "#aebb35"
+  },
+  {
     "anilistId": 189123,
     "title": "アオのハコ Season２",
     "titleRomaji": "Ao no Hako Season 2",
@@ -56,24 +74,6 @@ window.animeCandidates = [
     "description": "The second season of <i>Ao no Hako</i>.<br><br> As Taiki and Chinatsu navigate their evolving feelings, a fractured friendship from the past and fierce competition cloud the road to nationals.<br><br> (Source: Netflix, edited)",
     "coverImage": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx189123-0secXELIhkIW.jpg",
     "color": "#e4ae50"
-  },
-  {
-    "anilistId": 205909,
-    "title": "ホタルの嫁入り",
-    "titleRomaji": "Hotaru no Yomeiri",
-    "titleEnglish": "Firefly Wedding",
-    "startDate": "2026-10-9",
-    "season": "2026 FALL",
-    "episodes": 12,
-    "genres": [
-      "Drama",
-      "Romance"
-    ],
-    "sourceUrl": "https://anilist.co/anime/205909",
-    "dataSource": "AniList",
-    "description": "On the surface, Satoko has it all—she’s beautiful, the daughter of a nobleman, and at a prime age for marriage. Unfortunately, she is also quite ill and only has a short time left to live. Before she can secure a marriage that will redeem her worth in her family’s eyes, she finds herself the target of the mysterious assassin Shinpei, and her plans are put in jeopardy. In order to save herself, she makes a desperate proposal—of marriage! When it comes to love, however, Shinpei takes “until death do we part” seriously.<br> <br> (Source: VIZ Media)",
-    "coverImage": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx205909-DM0fAzNQulod.jpg",
-    "color": "#aebb35"
   },
   {
     "anilistId": 191656,
@@ -193,24 +193,6 @@ window.animeCandidates = [
     "color": "#e48643"
   },
   {
-    "anilistId": 185756,
-    "title": "転生貴族、鑑定スキルで成り上がる 第3期",
-    "titleRomaji": "Tensei Kizoku, Kantei Skill de Nariagaru 3rd Season",
-    "titleEnglish": "As a Reincarnated Aristocrat, I'll Use My Appraisal Skill to Rise in the World Season 3",
-    "startDate": "2026-9-27",
-    "season": "2026 FALL",
-    "episodes": null,
-    "genres": [
-      "Adventure",
-      "Fantasy"
-    ],
-    "sourceUrl": "https://anilist.co/anime/185756",
-    "dataSource": "AniList",
-    "description": "The third season of <i>Tensei Kizoku, Kantei Skill de Nariagaru</i>. <br><br> <i>Note: On September 4, 2026, it was announced that GeyeG Pictures would take over the production from studio MOTHER while keeping the same staff.</i>",
-    "coverImage": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx185756-xPCl0RyQ7fXD.jpg",
-    "color": "#d6f1c9"
-  },
-  {
     "anilistId": 207191,
     "title": "どうも、好きな人に惚れ薬を依頼された魔女です。",
     "titleRomaji": "Doumo, Suki na Hito ni Horegusuri wo Irai Sareta Majo desu.",
@@ -227,6 +209,24 @@ window.animeCandidates = [
     "description": "<b>“Make me a love potion.”</b> <br><br> And with that single sentence, the Good Witch of the Lake’s secret crush on the dashing Sir Harij ends in heartbreak. Still, when he promises to help her gather the ingredients, Rose is thrilled at the chance to gaze upon a man she’d normally never get to interact with. She learns to brace her pounding heart for their usual stilted conversations…but what is she to do when he inexplicably shows up at her doorstep with bread and a jar of apple butter? <br><br> (Source: Yen Press)",
     "coverImage": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx207191-VgkIzfH92WoZ.jpg",
     "color": "#aed6e4"
+  },
+  {
+    "anilistId": 185756,
+    "title": "転生貴族、鑑定スキルで成り上がる 第3期",
+    "titleRomaji": "Tensei Kizoku, Kantei Skill de Nariagaru 3rd Season",
+    "titleEnglish": "As a Reincarnated Aristocrat, I'll Use My Appraisal Skill to Rise in the World Season 3",
+    "startDate": "2026-9-27",
+    "season": "2026 FALL",
+    "episodes": null,
+    "genres": [
+      "Adventure",
+      "Fantasy"
+    ],
+    "sourceUrl": "https://anilist.co/anime/185756",
+    "dataSource": "AniList",
+    "description": "The third season of <i>Tensei Kizoku, Kantei Skill de Nariagaru</i>. <br><br> <i>Note: On September 4, 2026, it was announced that GeyeG Pictures would take over the production from studio MOTHER while keeping the same staff.</i>",
+    "coverImage": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx185756-xPCl0RyQ7fXD.jpg",
+    "color": "#d6f1c9"
   },
   {
     "anilistId": 206949,
@@ -345,6 +345,24 @@ window.animeCandidates = [
     "color": "#0dd6e4"
   },
   {
+    "anilistId": 209502,
+    "title": "塩対応の佐藤さんが俺にだけ甘い",
+    "titleRomaji": "Shiotaiou no Satou-san ga Ore ni dake Amai",
+    "titleEnglish": "The Cold Sato-san is Only Sweet to Me",
+    "startDate": "2026-10-6",
+    "season": "2026 FALL",
+    "episodes": 12,
+    "genres": [
+      "Comedy",
+      "Romance"
+    ],
+    "sourceUrl": "https://anilist.co/anime/209502",
+    "dataSource": "AniList",
+    "description": "Sato-san is the unattainable flower of the class. She is always cold and curt with classmates, but only I know she's actually very cute when she smiles, even if she's not much of a photographer. <br><br> Oshio-kun is friendly and lively, but only I know he works at his family's cafe after school. He does a great job with the cafe's SNS account, and his mischievous smile makes my heart skip a beat! <br><br> Innocent and sweet, but sometimes frustrating, this is a 120%-pure fluffy story about two people falling in love for the first time.",
+    "coverImage": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx209502-C81oN8M4Smlo.jpg",
+    "color": "#f1bb50"
+  },
+  {
     "anilistId": 212503,
     "title": "冰剣の魔術師が世界を統べるⅡ",
     "titleRomaji": "Hyouken no Majutsushi ga Sekai wo Suberu II",
@@ -362,24 +380,6 @@ window.animeCandidates = [
     "description": "Once dismissed as the sole ordinary student at the elite Arnold Academy of Sorcery, Ray White—secretly, the Iceblade Sorcerer—has finally earned his place. With a new school year comes a new challenge: The Magicks War, a grand competition pitting teams from rival schools against each other. But an ominous shadow looms over Ray and his friends as the other grand sorcerers plot their next moves. <br><br> (Source: Crunchyroll)",
     "coverImage": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx212503-sXBpRZr96c4e.jpg",
     "color": "#4378e4"
-  },
-  {
-    "anilistId": 209502,
-    "title": "塩対応の佐藤さんが俺にだけ甘い",
-    "titleRomaji": "Shiotaiou no Satou-san ga Ore ni dake Amai",
-    "titleEnglish": "The Cold Sato-san is Only Sweet to Me",
-    "startDate": "2026-10-6",
-    "season": "2026 FALL",
-    "episodes": 12,
-    "genres": [
-      "Comedy",
-      "Romance"
-    ],
-    "sourceUrl": "https://anilist.co/anime/209502",
-    "dataSource": "AniList",
-    "description": "Sato-san is the unattainable flower of the class. She is always cold and curt with classmates, but only I know she's actually very cute when she smiles, even if she's not much of a photographer. <br><br> Oshio-kun is friendly and lively, but only I know he works at his family's cafe after school. He does a great job with the cafe's SNS account, and his mischievous smile makes my heart skip a beat! <br><br> Innocent and sweet, but sometimes frustrating, this is a 120%-pure fluffy story about two people falling in love for the first time.",
-    "coverImage": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx209502-C81oN8M4Smlo.jpg",
-    "color": "#f1bb50"
   },
   {
     "anilistId": 204650,
