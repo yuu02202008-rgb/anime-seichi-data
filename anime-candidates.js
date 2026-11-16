@@ -57,25 +57,6 @@ window.animeCandidates = [
     "color": "#aebb35"
   },
   {
-    "anilistId": 189123,
-    "title": "アオのハコ Season２",
-    "titleRomaji": "Ao no Hako Season 2",
-    "titleEnglish": "Blue Box Season 2",
-    "startDate": "2026-10-4",
-    "season": "2026 FALL",
-    "episodes": 12,
-    "genres": [
-      "Romance",
-      "Slice of Life",
-      "Sports"
-    ],
-    "sourceUrl": "https://anilist.co/anime/189123",
-    "dataSource": "AniList",
-    "description": "The second season of <i>Ao no Hako</i>.<br><br> As Taiki and Chinatsu navigate their evolving feelings, a fractured friendship from the past and fierce competition cloud the road to nationals.<br><br> (Source: Netflix, edited)",
-    "coverImage": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx189123-0secXELIhkIW.jpg",
-    "color": "#e4ae50"
-  },
-  {
     "anilistId": 191656,
     "title": "生徒会にも穴はある！",
     "titleRomaji": "Seitokai ni mo Ana wa Aru!",
@@ -93,6 +74,25 @@ window.animeCandidates = [
     "description": "This is Fujinasu Academy, a private high school with top-achieving students located on the outskirts of town. <br><br> High School 1st-Year Ume Mizunoe has excellent grades in Japanese language class and has received multiple literary awards. However, his terrible grades in the sciences are affecting his ability to move up a grade. To avoid repeating a year, he becomes a member of the student council to improve his academic standing. <br><br> However, in the student council, he meets the charismatic yet sullen student council president Kotobuki Hisako, and the scary yet kind and refined treasurer, Arisu Terui. Other members include a cheeky and cute boy, Tan Otori, and Komaro Michinoku, the admin who's like a small abandoned cat. This is the start of a slapstick, heartful, rom-com about a busy student council full of cute, mismatched, and quirky students! <br><br> (Source: Even the Student Council Has Its Holes! Official Site)",
     "coverImage": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx191656-xFHtxM8SUTdU.png",
     "color": "#5dbbe4"
+  },
+  {
+    "anilistId": 189123,
+    "title": "アオのハコ Season２",
+    "titleRomaji": "Ao no Hako Season 2",
+    "titleEnglish": "Blue Box Season 2",
+    "startDate": "2026-10-4",
+    "season": "2026 FALL",
+    "episodes": 12,
+    "genres": [
+      "Romance",
+      "Slice of Life",
+      "Sports"
+    ],
+    "sourceUrl": "https://anilist.co/anime/189123",
+    "dataSource": "AniList",
+    "description": "The second season of <i>Ao no Hako</i>.<br><br> As Taiki and Chinatsu navigate their evolving feelings, a fractured friendship from the past and fierce competition cloud the road to nationals.<br><br> (Source: Netflix, edited)",
+    "coverImage": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx189123-0secXELIhkIW.jpg",
+    "color": "#e4ae50"
   },
   {
     "anilistId": 207329,
@@ -174,6 +174,24 @@ window.animeCandidates = [
     "color": "#f19328"
   },
   {
+    "anilistId": 207191,
+    "title": "どうも、好きな人に惚れ薬を依頼された魔女です。",
+    "titleRomaji": "Doumo, Suki na Hito ni Horegusuri wo Irai Sareta Majo desu.",
+    "titleEnglish": "Hello, I am a Witch and my Crush Wants me to Make a Love Potion!",
+    "startDate": "2026-10-5",
+    "season": "2026 FALL",
+    "episodes": 12,
+    "genres": [
+      "Fantasy",
+      "Romance"
+    ],
+    "sourceUrl": "https://anilist.co/anime/207191",
+    "dataSource": "AniList",
+    "description": "<b>“Make me a love potion.”</b> <br><br> And with that single sentence, the Good Witch of the Lake’s secret crush on the dashing Sir Harij ends in heartbreak. Still, when he promises to help her gather the ingredients, Rose is thrilled at the chance to gaze upon a man she’d normally never get to interact with. She learns to brace her pounding heart for their usual stilted conversations…but what is she to do when he inexplicably shows up at her doorstep with bread and a jar of apple butter? <br><br> (Source: Yen Press)",
+    "coverImage": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx207191-VgkIzfH92WoZ.jpg",
+    "color": "#aed6e4"
+  },
+  {
     "anilistId": 206814,
     "title": "ドラゴンボール超 ビルス",
     "titleRomaji": "Dragon Ball Super: Beerus",
@@ -191,24 +209,6 @@ window.animeCandidates = [
     "description": "Several years have passed since the fierce battle against Majin Buu, and Earth has finally regained a brief moment of peace. At the same time, Beerus, the God of Destruction, awakens from his long, deep sleep.<br> Even Kai and Supreme Kai, aware of Beerus's overwhelming power to destroy entire planets, watch his awakening with great fear… Meanwhile, Beerus hears rumors of a Saiyan who defeated Frieza—and suddenly appears before Goku.<br> Targeted by Beerus, the strongest being in the universe, Earth is in grave danger. Thus begins an earth-shattering cosmic battle between the God of Destruction and Goku and his alliesa—a conflict that will shake the entire universe. <br><br> (Source: Official Site) <br><br> <i>Note: “Enhanced” edition of Dragon Ball Super, featuring a large volume of newly added and redrawn cuts, a reconstructed narrative, and updated visuals for a more immersive and faithful representation of Akira Toriyama’s original manga.</i>",
     "coverImage": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx206814-PVVzRbf1IQpe.jpg",
     "color": "#e48643"
-  },
-  {
-    "anilistId": 207191,
-    "title": "どうも、好きな人に惚れ薬を依頼された魔女です。",
-    "titleRomaji": "Doumo, Suki na Hito ni Horegusuri wo Irai Sareta Majo desu.",
-    "titleEnglish": "Hello, I am a Witch and my Crush Wants me to Make a Love Potion!",
-    "startDate": "2026-10-5",
-    "season": "2026 FALL",
-    "episodes": 12,
-    "genres": [
-      "Fantasy",
-      "Romance"
-    ],
-    "sourceUrl": "https://anilist.co/anime/207191",
-    "dataSource": "AniList",
-    "description": "<b>“Make me a love potion.”</b> <br><br> And with that single sentence, the Good Witch of the Lake’s secret crush on the dashing Sir Harij ends in heartbreak. Still, when he promises to help her gather the ingredients, Rose is thrilled at the chance to gaze upon a man she’d normally never get to interact with. She learns to brace her pounding heart for their usual stilted conversations…but what is she to do when he inexplicably shows up at her doorstep with bread and a jar of apple butter? <br><br> (Source: Yen Press)",
-    "coverImage": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx207191-VgkIzfH92WoZ.jpg",
-    "color": "#aed6e4"
   },
   {
     "anilistId": 185756,
@@ -382,25 +382,6 @@ window.animeCandidates = [
     "color": "#4378e4"
   },
   {
-    "anilistId": 204650,
-    "title": "桃源暗鬼 日光・華厳の滝編",
-    "titleRomaji": "Tougen Anki: Nikko・Kegon no Taki-hen",
-    "titleEnglish": "TOUGEN ANKI: Nikko Kegon Falls Arc",
-    "startDate": "2026-10-2",
-    "season": "2026 FALL",
-    "episodes": 12,
-    "genres": [
-      "Action",
-      "Mystery",
-      "Supernatural"
-    ],
-    "sourceUrl": "https://anilist.co/anime/204650",
-    "dataSource": "AniList",
-    "description": "After battling in Kyoto and Nerima, the Rasetsu Academy students have grown stronger. But Yaoroshi leaves the academy to join the Oni Brigade for their \"the total eradication of the Momotaro.\" <br><br> When Shiki realizes that they also target noncombatants, he sets out after Yaoroshi to bring him back. Meanwhile in Nikko, there's a research facility for horrific experiments atop the old Kegon Falls… <br><br> (Source: REMOW)",
-    "coverImage": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx204650-cAQOzQ84Lwk8.png",
-    "color": "#4393e4"
-  },
-  {
     "anilistId": 205896,
     "title": "信者ゼロの女神サマと始める異世界攻略",
     "titleRomaji": "Shinja Zero no Megami-sama to Hajimeru Isekai Kouryaku",
@@ -436,6 +417,25 @@ window.animeCandidates = [
     "description": "After using her SSS-Rank skill, Internet, to crush her former family’s ambitions, Lorna is free to travel the world. Her next stop is the port town of Aquas, where she hopes to see the sights and chow down on some fresh seafood. But when she arrives, the place is on the brink of destruction thanks to a certain Weekly Quest… Good thing Lorna has the gods on her side! <br><br> (Source: Crunchyroll)",
     "coverImage": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx211778-0MXK5HqVFBYH.jpg",
     "color": "#5dbbf1"
+  },
+  {
+    "anilistId": 204650,
+    "title": "桃源暗鬼 日光・華厳の滝編",
+    "titleRomaji": "Tougen Anki: Nikko・Kegon no Taki-hen",
+    "titleEnglish": "TOUGEN ANKI: Nikko Kegon Falls Arc",
+    "startDate": "2026-10-2",
+    "season": "2026 FALL",
+    "episodes": 12,
+    "genres": [
+      "Action",
+      "Mystery",
+      "Supernatural"
+    ],
+    "sourceUrl": "https://anilist.co/anime/204650",
+    "dataSource": "AniList",
+    "description": "After battling in Kyoto and Nerima, the Rasetsu Academy students have grown stronger. But Yaoroshi leaves the academy to join the Oni Brigade for their \"the total eradication of the Momotaro.\" <br><br> When Shiki realizes that they also target noncombatants, he sets out after Yaoroshi to bring him back. Meanwhile in Nikko, there's a research facility for horrific experiments atop the old Kegon Falls… <br><br> (Source: REMOW)",
+    "coverImage": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx204650-cAQOzQ84Lwk8.png",
+    "color": "#4393e4"
   },
   {
     "anilistId": 206401,
